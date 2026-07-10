@@ -30,6 +30,26 @@ AI proposes. User decides.
 - No "you failed" framing.
 - No mental health claims.
 - No pretending confidence is higher than the data supports.
+- No sensitive personal probing unless the user raises the topic first.
+
+## Sensitive Topics Rule
+
+Sensitive topics are **user-led only**.
+
+The AI must not proactively ask about:
+
+- medical conditions
+- mental health
+- trauma
+- politics
+- religion
+- identity
+- family conflict
+- private finances
+
+unless the user explicitly brings the topic up and it is necessary for planning context.
+
+Even when the user raises these topics, the AI should keep the response within planning support and avoid diagnosis, persuasion, treatment, political/religious advice, or identity interpretation.
 
 ## Tone Rules
 
@@ -74,3 +94,4 @@ Example:
 - What is the exact confidence threshold for showing an insight?
 - Should AI intake be the default path or equal to manual forms?
 - Should AI planning be included in the first validation test or separated to avoid confounding the core reconcile loop?
+- How should the AI Knowledge Level page gate AI suggestions?
