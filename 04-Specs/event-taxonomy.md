@@ -11,11 +11,18 @@ The product should rely on observed behavior, not long questionnaires.
 | Event | Meaning |
 |---|---|
 | `app_opened` | User opened the app |
+| `today_viewed` | User reached the Today page |
+| `goal_created` | User created a goal |
 | `task_created` | User created a task |
+| `task_linked_to_goal` | A task was attached to a goal/project |
+| `task_scheduled_for_day` | A task was planned for a specific day, without exact time |
+| `task_unscheduled` | A task was removed from a planned day |
 | `task_completed` | User marked a task done |
 | `task_carried` | User carried a task forward |
 | `task_dropped` | User dropped a task |
+| `reconcile_shown` | User was shown reconcile after unresolved tasks |
 | `reconcile_started` | User entered reconcile flow |
+| `reconcile_skipped` | User skipped reconcile after seeing it |
 | `reconcile_completed` | User completed reconcile flow |
 | `ai_intake_started` | User started conversational goal intake |
 | `ai_question_answered` | User answered an AI intake question |
@@ -37,7 +44,7 @@ Every event should include:
   "type": "task_completed",
   "timestamp": "2026-07-09T00:00:00.000Z",
   "source": "manual | ai_generated | system",
-  "entityType": "task | plan | review | app",
+  "entityType": "goal | task | plan | review | app",
   "entityId": "optional_entity_id",
   "metadata": {}
 }
@@ -53,28 +60,50 @@ Use:
 - `ai_generated`
 - `system`
 
+## Scheduling Model for MVP
+
+The MVP should only support:
+
+1. goal-linked unscheduled tasks
+2. planned-for-day tasks
+
+No exact time-blocking in Phase 1.
+No routines in Phase 1.
+No deadline-vs-do-date split in Phase 1.
+
+This is still waiting for Claude confirmation in:
+
+- [[01-Open-Discussions/002-ai-planning-reconcile-and-scheduling]]
+
 ## Event Flow
 
 ```mermaid
 flowchart TD
   A["app_opened"] --> B{"Unresolved tasks?"}
-  B -->|Yes| C["reconcile_started"]
+  B -->|Yes| C["reconcile_shown"]
   B -->|No| D["today_viewed"]
 
-  C --> E["task_completed"]
-  C --> F["task_carried"]
-  C --> G["task_dropped"]
+  C --> E{"User action"}
+  E -->|Start| F["reconcile_started"]
+  E -->|Skip| G["reconcile_skipped"]
 
-  E --> H["reconcile_completed"]
-  F --> H
-  G --> H
+  F --> H["task_completed"]
+  F --> I["task_carried"]
+  F --> J["task_dropped"]
 
-  H --> I["daily_rollup_generated"]
-  I --> J["weekly_review_completed"]
+  H --> K["reconcile_completed"]
+  I --> K
+  J --> K
+  G --> D
+  K --> D
+
+  D --> L["daily_rollup_generated"]
+  L --> M["weekly_review_completed"]
 ```
 
 ## Open Questions
 
-- Should `today_viewed` be tracked separately from `app_opened`?
 - How much metadata is enough for MVP?
 - Should task edits be tracked as separate events?
+- Should routines be modeled later as tasks or a separate entity?
+- Should deadline and planned day be separate fields later?
