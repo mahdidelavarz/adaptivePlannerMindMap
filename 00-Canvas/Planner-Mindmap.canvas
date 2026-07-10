@@ -7,13 +7,22 @@
       "y": 0,
       "width": 420,
       "height": 220,
-      "text": "# Adaptive Life OS\n\nPersonal planning system that adapts to real behavior, not only questionnaires.\n\nLong-term vision: planning + learning + life guidance.\n\nMVP focus: reconcile-on-open."
+      "text": "# Adaptive Life OS\n\nPersonal planning system that adapts to real behavior, not only questionnaires.\n\nLong-term vision: planning + learning + life guidance.\n\nMVP focus: reconcile-on-open + AI goal intake under discussion."
     },
     {
       "id": "mvp-loop",
       "type": "file",
       "file": "05-Flows/mvp-core-loop.md",
       "x": 560,
+      "y": 0,
+      "width": 420,
+      "height": 180
+    },
+    {
+      "id": "target-jtbd",
+      "type": "file",
+      "file": "04-Specs/target-segment-jtbd.md",
+      "x": -560,
       "y": 0,
       "width": 420,
       "height": 180
@@ -55,10 +64,28 @@
       "height": 180
     },
     {
+      "id": "week1-model",
+      "type": "file",
+      "file": "04-Specs/week-1-evaluation-model.md",
+      "x": 1120,
+      "y": -260,
+      "width": 420,
+      "height": 180
+    },
+    {
       "id": "research",
       "type": "file",
       "file": "03-Research/research-log.md",
       "x": 0,
+      "y": 600,
+      "width": 420,
+      "height": 180
+    },
+    {
+      "id": "social-evidence",
+      "type": "file",
+      "file": "06-References/social-evidence.md",
+      "x": -560,
       "y": 600,
       "width": 420,
       "height": 180
@@ -71,6 +98,15 @@
       "y": 600,
       "width": 420,
       "height": 180
+    },
+    {
+      "id": "discussion-002",
+      "type": "file",
+      "file": "01-Open-Discussions/002-ai-planning-reconcile-and-scheduling.md",
+      "x": 560,
+      "y": 880,
+      "width": 420,
+      "height": 200
     },
     {
       "id": "decision",
@@ -88,7 +124,7 @@
       "y": 0,
       "width": 420,
       "height": 260,
-      "text": "# Team Ownership\n\n## Mahdi\nProduct decisions, prompt/schema, MVP scope, validation, tradeoffs.\n\n## Designer\nToday page, Reconcile flow, non-judgmental UX, AI question phrasing.\n\n## Backend\nEvent log, task CRUD, reconcile logic, daily rollup, weekly review, AI JSON enforcement."
+      "text": "# Team Ownership\n\n## Mahdi\nProduct decisions, prompt/schema, MVP scope, validation, tradeoffs.\n\n## Designer\nToday page, Reconcile flow, non-judgmental UX, AI question phrasing, AI Knowledge Level UI.\n\n## Backend\nEvent log, task CRUD, reconcile logic, daily rollup, weekly review, AI JSON enforcement, confidence thresholds."
     },
     {
       "id": "open-questions",
@@ -96,8 +132,8 @@
       "x": 1680,
       "y": 360,
       "width": 420,
-      "height": 360,
-      "text": "# Open Questions\n\n- What is the exact Week-1 evaluation formula?\n- Notifications on/off for first test?\n- AI intake default path or equal to manual?\n- Weekly reset: 7 calendar days or 7 active days?\n- Minimum success threshold for MVP?\n- What happens after 5+ days disappearance?\n- Which segment to test first?"
+      "height": 420,
+      "text": "# Open Questions\n\n- Can AI planning and reconcile both exist in MVP?\n- What is the fallback if reconciliation fails?\n- How should AI Knowledge Level gate suggestions?\n- Should tasks have exact day/time, flexible day, or routine rules?\n- Weekly reset: 7 calendar days or 7 active days?\n- Minimum success threshold for MVP?\n- What happens after 5+ days disappearance?\n- Which segment to test first?"
     }
   ],
   "edges": [
@@ -110,6 +146,11 @@
     { "id": "e7", "fromNode": "discussion", "toNode": "decision" },
     { "id": "e8", "fromNode": "decision", "toNode": "mvp-loop" },
     { "id": "e9", "fromNode": "team", "toNode": "scope" },
-    { "id": "e10", "fromNode": "open-questions", "toNode": "discussion" }
+    { "id": "e10", "fromNode": "open-questions", "toNode": "discussion-002" },
+    { "id": "e11", "fromNode": "target-jtbd", "toNode": "scope" },
+    { "id": "e12", "fromNode": "metrics", "toNode": "week1-model" },
+    { "id": "e13", "fromNode": "social-evidence", "toNode": "research" },
+    { "id": "e14", "fromNode": "discussion-002", "toNode": "scope" },
+    { "id": "e15", "fromNode": "discussion-002", "toNode": "events" }
   ]
 }
