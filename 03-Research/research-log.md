@@ -13,7 +13,8 @@ Research should not be dumped into the project like a pile of PDFs nobody reads.
 | Verified | Strong enough to support a product assumption |
 | Useful but unverified | Interesting, but needs more validation |
 | Theoretical support | Helpful framing, not direct proof |
-| Anecdotal | User/social signal, useful but weak |
+| Anecdotal but direct | Real user-language evidence, useful for problem discovery but not scientific proof |
+| Internal model | Product reasoning model that still needs external support |
 
 ## Current Research Themes
 
@@ -57,7 +58,11 @@ Directly supports the core pain hypothesis.
 
 Confidence:
 
-Anecdotal until user interviews/test data confirm it.
+Anecdotal but direct. Needs user interviews/test data before becoming a validated product assumption.
+
+Related file:
+
+- [[06-References/social-evidence]]
 
 ### 4. Existing Tool Patterns
 
@@ -73,6 +78,53 @@ Confidence:
 
 Useful but unverified.
 
+### 5. Habit Formation — Lally et al.
+
+Source:
+
+Lally et al. — *How are habits formed: Modelling habit formation in the real world*.
+
+Link:
+
+https://doi.org/10.1002/ejsp.674
+
+Claim:
+
+Habit formation varies substantially between people and usually takes longer than simplistic "21 days" claims.
+
+Relevance:
+
+The MVP should not overvalue short streaks or assume stable behavior after a few days. Adaptive planning should treat habit formation as gradual and variable.
+
+Confidence:
+
+Useful but unverified for this product until tested with target users.
+
+### 6. Confidence Scoring Framework
+
+Claim:
+
+The product should progressively increase confidence as it observes repeated, stable behavior patterns.
+
+Relevance:
+
+Supports the AI Knowledge Level page and gated AI suggestions.
+
+Confidence:
+
+Internal model. Needs external support and product validation.
+
+Working idea:
+
+```txt
+single signal → clue
+repeated signal → weak pattern
+stable repeated signal → stronger pattern
+actionable pattern → suggestion allowed
+```
+
+This should not be presented as a verified scientific model until sources and validation are added.
+
 ## Needed Research
 
 - User interviews with people who abandoned Notion/Todoist/TickTick.
@@ -80,6 +132,8 @@ Useful but unverified.
 - Research on self-compassion vs shame in behavior change.
 - Evidence on implementation intentions.
 - Evidence on planning fallacy and task breakdown.
+- External support for progressive confidence scoring.
+- Product examples that expose AI/user-model confidence transparently.
 
 ## Research Entry Template
 
