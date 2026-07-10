@@ -1,7 +1,7 @@
 # Discussion 002 — AI Planning, Reconcile Risk, Knowledge Level, and Scheduling Model
 
 ## Status
-Waiting for Claude Review
+Waiting for Claude Review — Round 2
 
 ## Context
 
@@ -318,12 +318,263 @@ Internal model, needs external support.
 - Is it a formal research-backed model or your naming for a product confidence approach?
 - How should we represent it without overstating evidence?
 
-## Claude Review Request
+---
 
-Please review the following:
+# Claude Review — Round 1 Summary
 
-1. Can AI planning and reconcile-on-open both exist in MVP without destroying learning clarity?
-2. If reconcile-on-open fails, what is the strongest replacement loop?
-3. Is the AI Knowledge Level page a strong trust/safety mechanism, or unnecessary complexity?
-4. What scheduling model should MVP support?
-5. Defend or revise the Progressive Bayesian Confidence claim.
+Claude's review was broadly positive and made these key recommendations:
+
+1. Use sequential validation instead of cohort split or fully mixed testing.
+2. Make reconcile skippable from day one and use skip-rate as evidence.
+3. Keep AI Knowledge Level as an internal gate for MVP, not a full dedicated page yet.
+4. MVP scheduling should only support goal-linked unscheduled tasks and planned-for-day tasks.
+5. Progressive Bayesian Confidence has a claimed source, but should be treated as weak/preprint support, not verified research.
+6. Social evidence should include the real X/Twitter posts found earlier instead of staying empty.
+
+# Mahdi Decisions After Round 1
+
+## Decision 1 — Sequential validation accepted
+
+Mahdi agrees that AI planning should not be tested at the same time as reconcile if the goal is to learn whether reconcile works.
+
+Applied to map/specs:
+
+- Phase 1 = manual goal/task entry + reconcile
+- Phase 2 = AI goal intake for retained users
+
+But Mahdi requires the evaluation criteria to be explicit:
+
+- When do we conclude reconcile works?
+- How long is the test?
+- What metrics define pass/fail/inconclusive?
+- What exactly counts as return after slippage?
+
+This has been applied in:
+
+- [[04-Specs/validation-plan]]
+- [[04-Specs/metrics]]
+- [[04-Specs/mvp-scope]]
+
+## Decision 2 — Reconcile is skippable
+
+Mahdi agrees that reconcile should not be mandatory.
+
+Applied to map/specs:
+
+- reconcile is strongly suggested but skippable
+- skip-rate is tracked as evidence
+- high skip-rate becomes a product signal, not just failure
+
+Events added:
+
+- `reconcile_shown`
+- `reconcile_skipped`
+
+Related files:
+
+- [[04-Specs/event-taxonomy]]
+- [[04-Specs/validation-plan]]
+
+## Open Topic 3 — AI Knowledge Level visual meter
+
+### Mahdi's updated idea
+
+Mahdi's idea is not a complex dedicated analytics page at first.
+
+The MVP visual can be simple:
+
+- an empty human silhouette / figure
+- the figure fills up gradually as the user creates real behavioral data
+- a visible marker around 50%
+- text near the marker saying AI suggestions unlock when the system reaches enough understanding
+
+Example concept:
+
+```txt
+[empty human silhouette slowly filling]
+0% -------- 50% -------- 100%
+          ↑
+AI suggestions unlock here
+```
+
+Purpose:
+
+- user sees that the AI is learning gradually
+- user understands why AI suggestions are not immediate
+- user may be motivated to keep using the app until AI becomes more useful
+- trust is built through visible restraint instead of fake early confidence
+
+### GPT View
+
+This is stronger than a plain line in weekly review, because it makes the product philosophy visible:
+
+> The AI does not pretend to know you on day one.
+
+However, there is still a risk:
+
+- users may feel the product is incomplete until the meter fills
+- users may try to "feed" the AI instead of simply planning naturally
+- a percentage can imply fake precision
+
+My recommendation:
+
+Use the visual, but avoid exact scientific language.
+
+Better labels:
+
+```txt
+Understanding: Starting
+Understanding: Learning
+Understanding: Enough for light suggestions
+Understanding: Stronger pattern detected
+```
+
+Instead of:
+
+```txt
+AI knows you 47%
+```
+
+Use approximate progress, not fake exactness.
+
+### Questions for Claude
+
+1. Is the silhouette/fill visual a useful motivational trust mechanism, or does it over-gamify AI understanding?
+2. Should the unlock marker be a fixed 50%, or based on actual active observation thresholds?
+3. How can we show progress without fake precision?
+4. Should users be able to inspect and correct what the AI thinks it has learned?
+
+## Open Topic 4 — Scheduling model confirmation
+
+Mahdi agrees with the simplified MVP scheduling model in principle:
+
+- goal-linked unscheduled tasks
+- planned-for-day tasks
+
+No routines, no exact time-blocking, no calendar clone in Phase 1.
+
+### GPT View
+
+I agree with Claude's simplification.
+
+The MVP should support:
+
+```txt
+Goal → Task → optional planned day
+```
+
+Not:
+
+```txt
+Goal → Project → Routine → Calendar → Time blocks → Reminders → Recurrence rules → existential despair
+```
+
+The product should not become a weaker Google Calendar.
+
+However, the model must still be flexible enough for real planning:
+
+- user can create a task without choosing a day
+- user can attach the task to a goal
+- user can choose a day when ready
+- Today page shows tasks planned for today
+- reconcile handles unresolved planned-for-day tasks
+
+### Questions for Claude
+
+1. Do you confirm this as the MVP scheduling model?
+2. Should deadline be fully excluded from Phase 1, or stored as optional metadata but hidden from core UX?
+3. Are goal-linked unscheduled tasks enough to support AI goal breakdown later?
+4. What is the minimum backend model for this?
+
+## Open Topic 5 — Confidence scoring research
+
+Mahdi wants this researched properly.
+
+Question:
+
+> Is Progressive Bayesian Confidence actually a good method for this product, or is there a better tested approach?
+
+### GPT View
+
+I do not want to lock the named method yet.
+
+Even if the cited preprint exists, the product question is broader:
+
+- How should a planner decide it has enough behavioral evidence?
+- How should confidence be communicated to the user?
+- How should weak signals avoid becoming fake certainty?
+- Is Bayesian updating necessary, or would a simpler rule-based confidence model be safer for MVP?
+
+Possible alternatives to investigate:
+
+- simple rule-based thresholds
+- confidence intervals over observed behavior
+- minimum active observation count
+- repeated-pattern rules
+- Bayesian updating only later if needed
+
+### Questions for Claude
+
+1. Please provide the exact Progressive Bayesian Confidence source again.
+2. Is it actually suitable for productivity/planning, or only loosely related?
+3. What better-tested methods exist for confidence gating or user-model confidence?
+4. Should MVP use simple rule thresholds instead of Bayesian scoring?
+5. What is the lowest-risk confidence model for Phase 1?
+
+## Open Topic 6 — Social evidence confusion
+
+Mahdi does not understand what we mean by social evidence / X posts.
+
+### Simple explanation
+
+Social evidence means real public user-language examples from places like X/Twitter, Reddit, forums, or app reviews where people describe the pain we are building for.
+
+In this project, it means examples like:
+
+```txt
+"My task list is full of overdue items and now I avoid opening it."
+"I stop using planners after I fall behind because it feels like failure."
+"Todo apps make me feel worse when unfinished tasks pile up."
+```
+
+These are not scientific proof.
+
+They are useful because they show:
+
+- the pain exists in users' own words
+- the product language should match real user language
+- we can design better interview questions
+- we can avoid inventing fake problems in a vacuum, humanity's favorite startup hobby
+
+### GPT Memory Check
+
+I do not currently have the exact handles/dates/quotes available in this working context.
+
+So I should not paste fake examples into `social-evidence.md`.
+
+If Claude has the exact earlier evidence in memory, he should provide:
+
+- platform
+- handle
+- date
+- link if available
+- exact quote or safe paraphrase
+- what product signal it supports
+
+### Questions for Claude
+
+1. Do you have the exact X/Twitter examples you referred to?
+2. If yes, provide them in the `social-evidence.md` template format.
+3. If not, should we mark this as "needs fresh social evidence search"?
+4. Which sources are best for this: X, Reddit, app reviews, Product Hunt comments, or user interviews?
+
+# Round 2 Claude Review Request
+
+Please review the updated decisions and open questions:
+
+1. Are the validation thresholds in `validation-plan.md` strict enough, too strict, or reasonable for 10–20 testers?
+2. Is skippable reconcile the right default, and how should skip-rate be interpreted?
+3. Is Mahdi's simple AI Knowledge Level silhouette/fill visual useful or risky?
+4. Confirm or revise the MVP scheduling model.
+5. Recommend the safest confidence scoring method for MVP.
+6. Explain the social evidence issue and provide exact examples if you have them.
