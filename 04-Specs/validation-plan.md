@@ -32,6 +32,14 @@ Why:
 - must have abandoned at least one planning tool before
 - must create real tasks for real projects, not fake test data
 
+## Small Sample Caution
+
+With 10–20 testers, thresholds are directional, not statistically precise.
+
+If only 8 testers become evaluable, one person's behavior can move the result by 12.5 percentage points.
+
+Borderline results must be interpreted with qualitative feedback, observed behavior, and tester context. Do not let a tiny sample size cosplay as a scientific instrument.
+
 ## Phase 1 — Manual + Reconcile
 
 ### Duration
@@ -54,8 +62,10 @@ Why:
 
 - AI-generated 7-day draft planning
 - full AI personalization suggestions
+- visible AI Knowledge Level meter
 - routines
 - time-blocking
+- deadline fields
 - calendar integration
 
 AI may still exist for copy/support if needed, but AI plan generation should not be part of Phase 1 success measurement.
@@ -96,11 +106,43 @@ Meaningful actions:
 |---|---|
 | Reconcile completion rate | User completes reconcile after seeing unresolved tasks |
 | Reconcile skip rate | User skips reconcile instead of entering it |
+| Skip + meaningful action | User skips reconcile but still works elsewhere shortly after |
+| Skip + no action | User skips reconcile and takes no meaningful action shortly after |
 | Return after missed day | User comes back after at least one missed day |
 | First action latency | User takes first meaningful action quickly after app open |
 | Carry/drop ratio | User makes real decisions instead of carrying everything forever |
 | Weekly review completion | User completes the end-of-week review |
 | Qualitative relief | User reports clearer restart / less guilt / less clutter |
+
+## Skip Interpretation
+
+Skip-rate should not be interpreted alone.
+
+### Skip + no meaningful action
+
+Interpretation:
+
+Reconcile may be actively unwanted, blocking, or emotionally heavy.
+
+Likely fixes:
+
+- soften reconcile copy
+- delay reconcile trigger
+- move unresolved tasks to weekly reset
+- test clean-slate Today
+
+### Skip + meaningful action within 5 minutes
+
+Interpretation:
+
+The user may still want the product, but not the reconcile interruption at that moment.
+
+Likely fixes:
+
+- make reconcile lighter
+- allow "deal with this later"
+- move reconcile into a compact Today banner
+- test AI-assisted triage later
 
 ## Pass / Fail / Inconclusive Criteria
 
@@ -154,6 +196,7 @@ Events to track:
 - `reconcile_started`
 - `reconcile_skipped`
 - `reconcile_completed`
+- `meaningful_action_after_reconcile_skip`
 
 High skip rate is not just failure. It is a signal.
 
@@ -186,6 +229,7 @@ Phase 2 tests:
 - whether AI intake reduces goal-to-task friction
 - whether AI-generated tasks survive reconcile better or worse than manual tasks
 - whether users approve/edit/reject AI plans
+- whether a simple AI Knowledge Level visual helps trust without polluting behavior
 
 Required tagging:
 
