@@ -12,6 +12,7 @@ Research should not be dumped into the project like a pile of PDFs nobody reads.
 |---|---|
 | Verified | Strong enough to support a product assumption |
 | Useful but unverified | Interesting, but needs more validation |
+| Weak external support | Real external source, but limited transferability or weak evidence base |
 | Theoretical support | Helpful framing, not direct proof |
 | Anecdotal but direct | Real user-language evidence, useful for problem discovery but not scientific proof |
 | Internal model | Product reasoning model that still needs external support |
@@ -108,22 +109,69 @@ The product should progressively increase confidence as it observes repeated, st
 
 Relevance:
 
-Supports the AI Knowledge Level page and gated AI suggestions.
+Supports gated AI suggestions and later AI Knowledge Level UI.
 
 Confidence:
 
-Internal model. Needs external support and product validation.
+Internal model for Phase 1. Use simple rule-based gating, not Bayesian scoring.
 
 Working idea:
 
 ```txt
-single signal → clue
-repeated signal → weak pattern
-stable repeated signal → stronger pattern
-actionable pattern → suggestion allowed
+Tier 0 — Insufficient data
+No personalized suggestions.
+
+Tier 1 — Early signal
+Pattern repeated 2–3 times across separate days.
+Only light, hedged suggestions allowed.
 ```
 
-This should not be presented as a verified scientific model until sources and validation are added.
+Do not implement Tier 2 / Tier 3 confidence in Phase 1. A 14-day, 10–20 tester validation window does not responsibly support stronger pattern claims.
+
+### 7. Progressive Bayesian Confidence — Weak External Support Only
+
+Source:
+
+Richik Chakraborty — *Progressive Bayesian Confidence Architectures for Cold-Start Personal Health Analytics: Formalizing Early Insight Through Posterior Contraction and Risk-Aware Interpretation*.
+
+Link:
+
+https://arxiv.org/abs/2601.03299
+
+Claim:
+
+Confidence should scale with active observations and uncertainty, not calendar time alone.
+
+Relevance:
+
+Conceptually relevant to AI confidence gating and cold-start personalization.
+
+Limitations:
+
+- Jan 2026 preprint
+- single-author
+- synthetic-data-only evaluation
+- focused on personal health analytics, not productivity planning
+- not a consensus method
+- too much engineering overhead for Phase 1
+
+Confidence:
+
+Weak external support.
+
+Product decision:
+
+Do not implement Bayesian confidence scoring in Phase 1.
+
+Use rule-based confidence gates first:
+
+```txt
+No data → no suggestions
+Enough events → summaries only
+Repeated pattern across separate days → light suggestion
+```
+
+This keeps the MVP explainable, cheap to build, and harder to fool with fake precision. Humanity may yet recover.
 
 ## Needed Research
 
@@ -132,7 +180,7 @@ This should not be presented as a verified scientific model until sources and va
 - Research on self-compassion vs shame in behavior change.
 - Evidence on implementation intentions.
 - Evidence on planning fallacy and task breakdown.
-- External support for progressive confidence scoring.
+- Better-tested methods for user-model confidence and confidence gating.
 - Product examples that expose AI/user-model confidence transparently.
 
 ## Research Entry Template
