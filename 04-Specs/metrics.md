@@ -28,6 +28,8 @@ This is more important than raw completion rate.
 | Reconcile shown rate | User actually sees reconcile after unresolved tasks |
 | Reconcile completion rate | User finishes reconcile flow after seeing unresolved tasks |
 | Reconcile skip rate | User skips reconcile after seeing it |
+| Skip + meaningful action | User skips reconcile but still does meaningful work shortly after |
+| Skip + no action | User skips reconcile and does nothing meaningful shortly after |
 | Carry/drop ratio | Whether users carry everything or make real decisions |
 | First action latency | Time from app open to first meaningful action |
 | Weekly review completion | Whether users complete the weekly reset |
@@ -42,6 +44,13 @@ Phase 1 test duration:
 - 10–20 testers
 - manual task entry + reconcile only
 - AI-generated planning disabled or hidden from success measurement
+- visible AI Knowledge Level meter disabled
+
+## Small Sample Caution
+
+Metrics are directional at this sample size.
+
+With 8 evaluable testers, each user represents 12.5 percentage points. Borderline results must be interpreted with qualitative evidence and observed behavior, not treated as mathematically decisive.
 
 ## Evaluable Tester Definition
 
@@ -59,6 +68,30 @@ Phase 1 is promising if all of these are true among evaluable testers:
 - median first meaningful action after unresolved-task app open is under 2 minutes
 - 30%+ complete weekly review
 - at least 5 qualitative reports mention easier restart, less guilt, or clearer next action
+
+## Skip Interpretation
+
+Skip-rate should always be paired with next behavior.
+
+### Skip + meaningful action within 5 minutes
+
+This means reconcile may be friction, but the product still has value.
+
+Possible interpretation:
+
+- user wants to work, but not reconcile right now
+- reconcile should be lighter or postponed
+- a compact Today banner may be better than a blocking flow
+
+### Skip + no meaningful action
+
+This is more concerning.
+
+Possible interpretation:
+
+- reconcile is actively unwanted
+- unresolved task handling feels heavy
+- user avoidance remains unsolved
 
 ## Weak Pass
 
