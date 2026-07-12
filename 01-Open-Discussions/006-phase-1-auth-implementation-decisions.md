@@ -2,87 +2,115 @@
 
 ## Status
 
-Waiting for Claude review.
+Resolved after Claude review and Mahdi approval.
 
-## Context
+Formalized in:
 
-The Phase 1 product scope, technical foundation, implementation stack, and data model are now defined.
+```txt
+04-Specs/auth-phase-1.md
+```
 
-Relevant source documents:
-
-- [[02-Decisions/ADR-002-phase-1-technical-foundation]]
-- [[04-Specs/phase-1-implementation-stack]]
-- [[04-Specs/data-model-phase-1]]
-- [[04-Specs/day-0-onboarding]]
-
-Phase 1 authentication is intentionally limited to:
+## Locked Scope
 
 ```txt
 Phone-number OTP through SMS
-JWT-based application sessions
+One application-issued JWT session cookie
 No Google OAuth
 No email login
-No social login
+No password login
+No password recovery
+No refresh token
+No refresh-session table
+No Redis
 ```
 
-The remaining work is not to reopen the authentication-method decision. It is to define the implementation rules needed before backend and frontend scaffolding begins.
+A user who loses or clears their session requests another OTP. OTP verification is the complete login and recovery mechanism for Phase 1.
 
 ---
 
-# Locked Decisions
-
-These decisions are not open for review unless they create a direct implementation contradiction.
+# Accepted Decisions
 
 ## Identity
 
 ```txt
-Primary and only Phase 1 identity anchor: normalized phone number
+Primary and only Phase 1 identity anchor: normalizedPhone
+Canonical format: E.164
+Example: +989121234567
 ```
 
 Rules:
 
-- each user has one unique normalized phone number
-- no polymorphic `user_identities` table in Phase 1
-- no provider linking or account merging
-- Iranian phone numbers must be stored in one canonical format
-- raw user input must never be used as the uniqueness key
+- `normalizedPhone` is unique in PostgreSQL
+- raw input is never used as an identity key
+- no `user_identities` table
+- no account linking or provider merging
+- Phase 1 accepts Iranian mobile numbers only
 
-Proposed canonical storage format:
+## Session model
 
-```txt
-E.164
-Example: +989121234567
-```
-
-## Authentication method
+Use one JWT stored in one cookie:
 
 ```txt
-Request OTP
-→ receive SMS
-→ verify OTP
-→ create or authenticate user
-→ issue application session
+JWT lifetime: long enough to cover the closed validation window
+Suggested range: 14–30 days
+Cookie: HttpOnly + Secure in production + SameSite=Lax + Path=/
+Domain: omitted unless deployment requires it
 ```
 
-A new user enters Day-0 onboarding after successful OTP verification.
+Do not implement:
 
-An existing user enters the application after successful OTP verification.
+- access/refresh token split
+- refresh endpoint
+- refresh-token rotation
+- token-family reuse detection
+- persisted device sessions
+- `replacedBySessionId`
 
-## OTP provider boundary
+## Revocation
 
-Provider-specific SMS code stays behind an application-owned interface:
+Add to `User`:
 
-```java
-public interface OtpDeliveryGateway {
-    void send(String normalizedPhoneNumber, String code);
-}
+```txt
+sessionEpoch: Integer, required, default 0
 ```
 
-Controllers and domain/application services must not depend directly on a specific Iranian SMS provider SDK.
+Add to JWT claims:
 
-## Deployment boundary
+```txt
+sessionEpoch
+```
 
-Recommended deployment remains same-origin:
+Validation rule:
+
+```txt
+jwt.sessionEpoch == user.sessionEpoch
+```
+
+Behavior:
+
+- normal logout clears the cookie on the current browser
+- logout-all or forced revocation increments `User.sessionEpoch`
+- incrementing the epoch invalidates all previously issued JWTs for that user
+- per-device revocation is excluded from Phase 1
+
+## JWT claims
+
+Minimum claims:
+
+```txt
+sub: internal user id
+iss: application issuer
+iat
+exp
+jti
+sessionEpoch
+```
+
+Do not include phone numbers, OTP data, profile details, or behavioral data in the JWT.
+
+## Deployment and CSRF
+
+Deployment remains same-origin:
 
 ```txt
 https://app-domain/
@@ -91,272 +119,65 @@ https://app-domain/api/
 
 Nginx serves the frontend and proxies `/api` to Spring Boot.
 
-This is intended to reduce cookie, CORS, and browser-policy complexity.
+Phase 1 CSRF policy:
 
----
-
-# Proposed Session Design
-
-## Recommended approach
-
-Use:
-
-```txt
-Short-lived access JWT
-Long-lived refresh session
-HttpOnly Secure cookies
-```
-
-Proposed cookie split:
-
-```txt
-access_token
-refresh_token
-```
-
-Proposed responsibilities:
-
-- access token authenticates normal API requests
-- refresh token creates a new access token
-- refresh sessions are persisted server-side so logout and revocation are possible
-- raw refresh tokens are never stored in the database
-- only a hash of the refresh token is persisted
-
-## JWT claims
-
-Minimum access-token claims:
-
-```txt
-sub: internal user id
-iss: Adaptive Planner
-iat
-exp
-jti
-```
-
-Do not include phone numbers, OTP data, profile details, or private behavioral data in JWT claims.
-
-## Proposed cookie policy
-
-```txt
-HttpOnly: true
-Secure: true in production
-SameSite: Lax
-Path: /
-Domain: omitted unless deployment requires it
-```
-
-The refresh cookie may use a narrower path if the API structure makes it practical, for example:
-
-```txt
-Path: /api/v1/auth/refresh
-```
-
-## CSRF
-
-Because authentication is cookie-based, CSRF behavior must be explicitly decided.
-
-Proposed Phase 1 approach:
-
-- same-origin frontend and API
 - `SameSite=Lax`
-- state-changing endpoints accept only JSON
+- state-changing endpoints accept JSON only
 - validate `Origin` and/or `Referer` for unsafe methods
-- add a CSRF token only if the final browser/session design requires stronger protection
+- no synchronizer-token or double-submit-token mechanism in Phase 1
+- explicit CORS credentials/origin tests remain mandatory
 
-This point needs explicit Claude/backend review. `HttpOnly` protects tokens from JavaScript access, but it does not by itself solve CSRF.
+## OTP persistence
 
----
+OTP challenges are stored in PostgreSQL.
 
-# Proposed OTP Flow
-
-## Request OTP
-
-Proposed endpoint:
-
-```txt
-POST /api/v1/auth/otp/request
-```
-
-Request:
-
-```json
-{
-  "phoneNumber": "09121234567",
-  "purpose": "LOGIN"
-}
-```
-
-The backend:
-
-1. normalizes the phone number
-2. applies request limits
-3. generates an OTP
-4. stores only a secure hash of the OTP
-5. stores its purpose and expiry
-6. sends the OTP through `OtpDeliveryGateway`
-7. returns a generic success response
-
-The response must not reveal whether the phone number already belongs to an account.
-
-## Verify OTP
-
-Proposed endpoint:
-
-```txt
-POST /api/v1/auth/otp/verify
-```
-
-Request:
-
-```json
-{
-  "phoneNumber": "09121234567",
-  "code": "123456",
-  "purpose": "LOGIN"
-}
-```
-
-The backend:
-
-1. normalizes the phone number
-2. loads the active OTP challenge
-3. checks purpose, expiry, usage state, and attempt count
-4. compares the submitted code against the stored hash
-5. marks the OTP as used atomically
-6. creates the user when no user exists for the normalized phone
-7. creates the application session
-8. returns the authenticated user/session response
-
-## OTP storage
-
-Proposed minimum OTP challenge fields:
+Minimum fields:
 
 ```txt
 id
 normalizedPhone
 purpose
-codeHash
+codeDigest
 expiresAt
 attemptCount
 usedAt nullable
 createdAt
 ```
 
-Possible additional fields if required:
+Possible provider/debug fields remain optional:
 
 ```txt
-requestIpHash
-userAgentHash
 providerMessageId
 lastSentAt
+requestIpHash
+userAgentHash
 ```
 
 ## OTP purpose
 
-The OTP must be bound to a purpose so one code cannot be reused across unrelated flows.
-
-Initial proposed enum:
+Keep:
 
 ```txt
 LOGIN
 ```
 
----
+The purpose field remains future-safe, but the `wrong-purpose OTP` test is deferred until a second purpose exists.
 
-# Password-Recovery Contradiction to Resolve
+## OTP hashing
 
-Earlier discussions mentioned:
+Do not store plaintext OTP values.
 
-```txt
-Password recovery/reset through phone OTP
-```
-
-The current Phase 1 stack, however, defines OTP-only authentication and no password login.
-
-If users do not have passwords, there is no password to forget or reset.
-
-This discussion asks Claude to explicitly review this contradiction.
-
-## GPT recommendation
-
-For Phase 1:
+Accepted Phase 1 approach:
 
 ```txt
-No password field
-No password login
-No forgot-password flow
-OTP verification is the complete login/recovery mechanism
+HMAC-SHA-256(serverSecret, normalizedPhone + purpose + code)
 ```
 
-A user who loses their session simply requests another OTP and logs in again.
+A server-side secret/pepper is required because short numeric OTP values have low entropy and plain SHA-256 would be cheaply brute-forced after a database leak.
 
-Do not keep a fake "forgot password" concept merely because familiar auth screens usually contain one.
+Do not use bcrypt or Argon2 for OTP challenges unless implementation evidence shows a concrete need.
 
-If Mahdi still wants password login later, that should be a separate post-Phase-1 decision with explicit password hashing, recovery, and account-security rules.
-
----
-
-# Decisions Mahdi Will Define Before Implementation
-
-The following values are intentionally not decided here. They must be filled before the auth module is implemented:
-
-```txt
-OTP expiration duration
-Resend cooldown
-Maximum verification attempts
-Request rate limit
-Single-use OTP invalidation behavior
-```
-
-Additional values that should be decided at the same implementation checkpoint:
-
-```txt
-OTP code length and format
-Access-token lifetime
-Refresh-token lifetime
-Maximum active sessions per user
-Refresh-token rotation behavior
-Logout-all-devices behavior
-SMS provider
-Provider timeout and retry policy
-```
-
-This section is a reminder list, not a request for Claude to choose product policy on Mahdi's behalf.
-
----
-
-# Refresh Session Proposal
-
-Proposed server-side refresh-session fields:
-
-```txt
-id
-userId
-tokenHash
-issuedAt
-expiresAt
-revokedAt nullable
-replacedBySessionId nullable
-lastUsedAt nullable
-createdIpHash nullable
-userAgentHash nullable
-```
-
-Recommended behavior:
-
-- rotate refresh token on every successful refresh
-- revoke the previous refresh session during rotation
-- reject reuse of an already-rotated token
-- logout revokes the current refresh session
-- logout-all revokes every active refresh session for the user
-- access JWTs remain short-lived and are not stored server-side
-
-Claude should review whether this is appropriate for Phase 1 or unnecessarily heavy for a closed 10–20 tester validation.
-
----
-
-# Phone Normalization Proposal
+## Phone normalization
 
 Accept common Iranian input forms:
 
@@ -366,118 +187,139 @@ Accept common Iranian input forms:
 +989121234567
 ```
 
-Normalize all valid values to:
+Normalize to:
 
 ```txt
 +989121234567
 ```
 
-Reject:
+Use a small Iran-specific normalizer rather than adding a general international phone-number dependency in Phase 1.
 
-- invalid lengths
-- invalid Iranian mobile prefixes
-- letters or malformed characters after reasonable sanitization
-- non-Iranian numbers during the Iran-only Phase 1 test unless scope changes
-
-Frontend validation is for immediate feedback only. Backend normalization and validation own correctness.
-
-Claude should review whether a dedicated phone-number library is justified or whether an Iran-specific normalizer is simpler and safer for Phase 1.
+Frontend validation is feedback only. Backend normalization and validation own correctness.
 
 ---
 
-# Security and Privacy Rules
+# Transaction and Race-Condition Rules
 
-The implementation must not:
+## OTP verification transaction
 
-- log OTP values
-- log access or refresh tokens
-- store OTP codes in plaintext
-- store raw refresh tokens
-- reveal whether a phone number is registered during OTP request
-- trust frontend rate limiting
-- use phone number as the JWT subject
-- return internal provider errors directly to the client
+The following must occur in one PostgreSQL transaction:
 
-The implementation should:
+```txt
+lock/load active OTP challenge
+validate code, expiry, usage state, and attempt count
+mark OTP as used
+create or load User by normalizedPhone
+commit
+```
 
-- use cryptographically secure random OTP generation
-- compare OTP hashes safely
-- make OTP consumption atomic
-- keep provider credentials in environment secrets
-- record authentication failures without sensitive values
-- provide generic user-facing errors while preserving internal diagnostics
+JWT creation and cookie writing occur after the transaction commits.
+
+A crash after commit may require the user to request another OTP, but must not corrupt identity or OTP state.
+
+## Duplicate-user protection
+
+The database unique constraint is the final safety boundary:
+
+```txt
+UNIQUE(users.normalized_phone)
+```
+
+A naive `find then insert` check is not sufficient.
+
+When concurrent verification requests race for one new phone number:
+
+- exactly one transaction creates the user
+- the losing transaction handles the unique-constraint conflict
+- the losing path reloads the existing user instead of returning an internal error
+- the system must never create two users for one normalized number
+
+This race is distinct from consuming one OTP twice and requires its own integration test.
 
 ---
 
-# Required Auth Tests
+# Required Tests
 
 ## Backend integration tests
 
 ```txt
 phone normalization produces one canonical identity
 normalized phone uniqueness is enforced
-OTP request stores only a hash
+OTP request stores no plaintext code
 expired OTP is rejected
 used OTP is rejected
-wrong-purpose OTP is rejected
 maximum-attempt behavior follows Mahdi's configured rule
-OTP verify creates a new user exactly once
+OTP verification creates a new user exactly once
 concurrent verification cannot consume the same OTP twice
-successful verification creates a valid session
-refresh rotation revokes the previous refresh session
-logout revokes the current refresh session
-cookie attributes are correct in production profile
-unsafe cross-origin request is rejected according to the final CSRF policy
+concurrent verification for one new phone creates exactly one User
+unique-constraint race is handled without a 500 response
+successful verification issues a valid JWT cookie
+JWT sessionEpoch must match User.sessionEpoch
+incrementing sessionEpoch invalidates older JWTs
+logout clears the current cookie
+production cookie attributes are correct
+unsafe cross-origin mutation is rejected
+```
+
+Deferred:
+
+```txt
+wrong-purpose OTP test until a second purpose exists
+refresh-token tests
+per-device session revocation tests
 ```
 
 ## Frontend / E2E tests
 
 ```txt
 request OTP
-resend cooldown UI follows configured backend state
+resend cooldown UI follows backend state
 submit invalid OTP
 submit expired OTP
 successful new-user login enters Day-0
 successful returning-user login enters the app
-refresh restores the session
+reload preserves a valid cookie session
 logout clears the session
-expired session returns user to auth without losing server data
+expired or revoked session returns the user to auth without losing server data
 ```
 
 ---
 
-# Questions for Claude
-
-1. Do you agree that OTP-only authentication means the password-recovery concept should be removed entirely from Phase 1?
-2. Is the proposed access-JWT plus persisted rotating refresh-session model appropriate for Phase 1, or is there a simpler design that still supports secure logout and revocation?
-3. Should access and refresh tokens both use HttpOnly cookies, or should only the refresh token use a cookie while the access token remains in memory?
-4. Is `SameSite=Lax` plus same-origin deployment and Origin/Referer validation sufficient for Phase 1, or should a synchronizer/double-submit CSRF token be mandatory?
-5. Should the refresh cookie use `Path=/` or a narrow refresh endpoint path?
-6. Are the proposed refresh-session fields minimal and sufficient?
-7. Is hashing OTP values and refresh tokens the correct storage rule for this scope?
-8. Should OTP challenges be stored in PostgreSQL, or is there any compelling Phase 1 reason to introduce Redis? GPT position: PostgreSQL only; no Redis.
-9. Is an Iran-specific phone normalizer preferable to adding a general international phone-number dependency?
-10. Are there any missing transaction boundaries, especially around OTP consumption, user creation, and session creation?
-11. Which auth tests are truly mandatory before the 10–20 person validation, and which can be deferred?
-12. Are any proposed controls overengineered for Phase 1?
-
----
-
-# Expected Outcome
-
-After Claude review and Mahdi's final decisions, convert this discussion into a bounded auth implementation spec that owns:
+# Values Mahdi Will Define Before Implementation
 
 ```txt
-phone normalization
-OTP request and verification contracts
-OTP persistence
-JWT claims
-refresh-session persistence
-cookie policy
-CSRF policy
-logout and revocation
-required auth tests
-implementation checklist
+OTP expiration duration
+resend cooldown
+maximum verification attempts
+request rate limit
+single-use invalidation behavior
+OTP code length and format
+JWT lifetime
+SMS provider
+provider timeout and retry policy
+cookie name
+logout-all product exposure
 ```
 
-This discussion should not reopen Google OAuth, email auth, password login, or multiple identity providers.
+These values are implementation checkpoints, not unresolved architecture.
+
+---
+
+# Review Resolution
+
+Accepted from Claude review:
+
+- remove password recovery
+- replace rotating refresh sessions with one JWT and `sessionEpoch`
+- use HttpOnly cookies
+- keep same-origin + SameSite=Lax + Origin/Referer checks
+- store OTP challenges in PostgreSQL
+- use an Iran-specific phone normalizer
+- add explicit duplicate-user race handling
+- remove the currently meaningless wrong-purpose test
+
+GPT amendment accepted by Mahdi:
+
+- OTP digest uses keyed HMAC/pepper, not raw SHA-256, because numeric OTPs are low entropy
+
+This discussion is closed. Future changes belong in the formal auth spec or a new numbered discussion.
