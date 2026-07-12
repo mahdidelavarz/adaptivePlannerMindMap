@@ -62,25 +62,92 @@ No separate analytics database or event platform is required for the closed 10�
 
 ## Authentication
 
+Phase 1 supports these authentication and account-access paths:
+
 ```txt
-OTP-only authentication + JWT
+Phone-number OTP authentication
+Google OAuth
+JWT-based application sessions
+Password recovery/reset through phone OTP only
 ```
 
-Phase 1 auth rules:
+### Phone OTP flow
 
-- no password login
-- no Google/social OAuth
-- no multiple auth methods
-- user enters the supported identifier and receives an OTP
-- successful OTP verification creates/authenticates the user
-- the backend issues JWT-based session tokens
-- signup and login are the same OTP flow from the user's perspective
+```txt
+Enter phone number
+→ Receive OTP
+→ Verify OTP
+→ Create or authenticate user
+→ Issue JWT-based session tokens
+```
+
+### Google OAuth flow
+
+```txt
+Continue with Google
+→ Complete Google OAuth
+→ Create or authenticate user
+→ Issue JWT-based application session tokens
+```
+
+### Password recovery
+
+Password recovery/reset must use verified phone OTP.
+
+Do not introduce email-based recovery as an alternative Phase 1 recovery path.
 
 Auth happens before protected user data is created or loaded.
 
-Day-0 onboarding starts immediately after successful authentication for a new user.
+Day-0 onboarding starts immediately after successful authentication for a new user, regardless of whether the user entered through phone OTP or Google OAuth.
 
-The exact OTP provider, token lifetimes, refresh-token storage, retry limits, and abuse controls belong in the implementation/security plan, not this ADR.
+### OTP controls to define before implementation
+
+Mahdi will define these during the implementation/security step:
+
+```txt
+OTP expiration
+Resend cooldown
+Maximum verification attempts
+Request rate limit
+Single-use OTP invalidation
+```
+
+These items are mandatory implementation decisions but are intentionally not specified in this ADR.
+
+The exact OTP/SMS provider, JWT lifetimes, refresh-token storage, and Google OAuth provider configuration belong in the implementation/security plan.
+
+## User timezone and day boundaries
+
+Phase 1 is initially designed for users in Iran.
+
+Use the IANA timezone identifier:
+
+```txt
+Asia/Tehran
+```
+
+Do not hardcode a fixed UTC offset such as `UTC+03:30`.
+
+Rules:
+
+- Store timestamps in UTC.
+- Interpret user-facing calendar days using the user's timezone.
+- For the initial Iran-focused Phase 1 test, default the user's timezone to `Asia/Tehran`.
+- Keep the timezone as an explicit user-level value so the system can support other regions later.
+- `plannedForDate` is a date-only value with no time component.
+- Reconcile day-boundary checks compare `plannedForDate` with the user's current local date, not the server's UTC date.
+- A task becomes eligible for Reconcile only after a new local calendar day has started for that user.
+
+Example:
+
+```txt
+plannedForDate = 2026-07-12
+userTimeZone = Asia/Tehran
+```
+
+The backend must not treat that task as missed merely because the UTC date has already changed.
+
+Detailed timezone fields and date types are owned by the Phase 1 Data Model spec.
 
 ## Event log placement and ownership
 
@@ -91,7 +158,7 @@ same PostgreSQL database
 separate append-only events table
 ```
 
-The detailed event schema, required metadata, enums, and indexes are owned by:
+The detailed event schema, required metadata, enums, indexes, and timezone fields are owned by:
 
 ```txt
 04-Specs/data-model-phase-1.md
@@ -185,8 +252,12 @@ AI Knowledge meter UI
 
 This ADR does not define:
 
-- detailed Goal / Task / Event schema
+- detailed User / Goal / Task / Event schema
 - event metadata contracts
+- exact OTP control values
+- JWT token lifetimes or refresh-token design
+- SMS provider selection
+- Google OAuth provider configuration
 - offline-first synchronization
 - caching architecture
 - microservices
@@ -208,14 +279,18 @@ Those are either owned by later specs or not justified by Phase 1.
 
 - frontend and backend share one explicit implementation baseline
 - auth timing relative to Day-0 is clear
+- phone OTP, Google OAuth, and OTP-based recovery paths are explicit
+- Iran-local day boundaries are protected from server-UTC errors
 - event-log ownership and transaction guarantees are clear
 - Data Model can be finalized without hidden infrastructure assumptions
 - future AI compatibility is preserved without building AI early
 
 ## Tradeoffs
 
-- OTP delivery introduces a dependency on an external provider
+- phone OTP delivery introduces a dependency on an SMS provider
+- Google OAuth adds a second authentication integration path
 - JWT lifecycle and revocation still require a small security design
+- timezone-aware day logic must be implemented consistently across backend queries and tests
 - VPS/Docker requires operational ownership
 - offline-first value is postponed
 
@@ -231,4 +306,13 @@ Create and review:
 04-Specs/data-model-phase-1.md
 ```
 
-The Data Model spec should use this ADR as its technical baseline and own the detailed event schema.
+The Data Model spec should use this ADR as its technical baseline and own:
+
+```txt
+User timezone field
+Phone / Google identity fields
+plannedForDate date-only type
+Goal / Task / Event schema
+Detailed event metadata
+Transaction and indexing details
+```
