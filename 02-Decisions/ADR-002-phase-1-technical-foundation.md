@@ -8,7 +8,7 @@ Accepted for Phase 1.
 
 Record the minimum shared technical assumptions needed before finalizing the Phase 1 Data Model and implementation plan.
 
-This ADR is intentionally bounded. It documents the current build surface; it is not a framework comparison exercise or a long-term infrastructure blueprint.
+This ADR is intentionally bounded. Detailed frameworks and package choices are owned by [[04-Specs/phase-1-implementation-stack]].
 
 ## Sequence
 
@@ -16,6 +16,7 @@ This ADR is intentionally bounded. It documents the current build surface; it is
 Day-0 Onboarding Spec — done
 → Reconcile UX Spec — done
 → Phase 1 Technical Foundation ADR — this file
+→ Phase 1 Implementation Stack — done
 → Phase 1 Data Model Spec
 → Implementation Plan
 ```
@@ -33,10 +34,8 @@ React + TypeScript + Vite
 Rationale:
 
 - Phase 1 is an application, not an SEO/content product.
-- SSR and Next.js server/client boundaries do not add meaningful value to the Reconcile validation.
-- React + Vite keeps local development, deployment, and frontend ownership simpler.
-
-This ADR records the chosen baseline. It does not reopen a React-vs-Next framework debate.
+- SSR and Next.js server/client boundaries do not add meaningful value to Reconcile validation.
+- React + Vite keeps local development and deployment simpler.
 
 ## Backend baseline
 
@@ -46,9 +45,9 @@ Java + Spring Boot
 
 Rationale:
 
-- The backend developer is more productive with Java and Spring.
-- Spring Boot provides a stable base for REST APIs, validation, transactions, persistence, security, and later AI integration.
-- Choosing the team's strongest backend stack reduces implementation risk under local package/network constraints.
+- the backend developer is more productive with Java and Spring
+- Spring Boot provides REST, validation, transactions, persistence, security, and a future AI integration path
+- using the team's strongest backend stack reduces risk under local network/package constraints
 
 ## Database
 
@@ -56,98 +55,91 @@ Rationale:
 PostgreSQL
 ```
 
-Use one PostgreSQL instance for Phase 1 application data and behavioral events.
+Use one PostgreSQL instance for application data and behavioral events.
 
-No separate analytics database or event platform is required for the closed 10–20 tester validation.
+Phase 1 does not require a separate analytics service or event platform.
 
 ## Authentication
 
-Phase 1 supports these authentication and account-access paths:
+Phase 1 uses one authentication identity:
 
 ```txt
-Phone-number OTP authentication
-Google OAuth
-JWT-based application sessions
-Password recovery/reset through phone OTP only
+Iranian phone number
 ```
+
+Supported account-access paths:
+
+```txt
+phone-number OTP signup/login
+JWT-based application sessions
+password recovery/reset through verified phone OTP
+```
+
+Explicit exclusions:
+
+```txt
+Google OAuth
+social login
+email login
+password login
+multi-provider identity linking
+```
+
+Reason:
+
+Google OAuth may be unreliable for the Iran-focused product because of sanctions and access restrictions. Phase 1 therefore keeps authentication dependent only on an Iranian SMS provider and the application's own JWT session system.
 
 ### Phone OTP flow
 
 ```txt
 Enter phone number
-→ Receive OTP
+→ Receive SMS OTP
 → Verify OTP
 → Create or authenticate user
 → Issue JWT-based session tokens
 ```
 
-### Google OAuth flow
-
-```txt
-Continue with Google
-→ Complete Google OAuth
-→ Create or authenticate user
-→ Issue JWT-based application session tokens
-```
-
-### Password recovery
-
-Password recovery/reset must use verified phone OTP.
-
-Do not introduce email-based recovery as an alternative Phase 1 recovery path.
-
 Auth happens before protected user data is created or loaded.
 
-Day-0 onboarding starts immediately after successful authentication for a new user, regardless of whether the user entered through phone OTP or Google OAuth.
+Day-0 onboarding starts immediately after successful authentication for a new user.
 
 ### OTP controls to define before implementation
 
-Mahdi will define these during the implementation/security step:
+Mahdi will define:
 
 ```txt
 OTP expiration
-Resend cooldown
-Maximum verification attempts
-Request rate limit
-Single-use OTP invalidation
+resend cooldown
+maximum verification attempts
+request rate limit
+single-use OTP invalidation
 ```
 
-These items are mandatory implementation decisions but are intentionally not specified in this ADR.
+These are mandatory implementation decisions but are intentionally not assigned values in this ADR.
 
-The exact OTP/SMS provider, JWT lifetimes, refresh-token storage, and Google OAuth provider configuration belong in the implementation/security plan.
+The exact SMS provider, JWT lifetimes, refresh-token storage, cookie settings, CORS rules, and CSRF strategy belong in the auth implementation plan.
 
 ## User timezone and day boundaries
 
 Phase 1 is initially designed for users in Iran.
 
-Use the IANA timezone identifier:
+Default IANA timezone:
 
 ```txt
 Asia/Tehran
 ```
 
-Do not hardcode a fixed UTC offset such as `UTC+03:30`.
-
 Rules:
 
-- Store timestamps in UTC.
-- Interpret user-facing calendar days using the user's timezone.
-- For the initial Iran-focused Phase 1 test, default the user's timezone to `Asia/Tehran`.
-- Keep the timezone as an explicit user-level value so the system can support other regions later.
-- `plannedForDate` is a date-only value with no time component.
-- Reconcile day-boundary checks compare `plannedForDate` with the user's current local date, not the server's UTC date.
-- A task becomes eligible for Reconcile only after a new local calendar day has started for that user.
+- store timestamps in UTC
+- keep timezone as an explicit user-level value
+- default new Phase 1 users to `Asia/Tehran`
+- `plannedForDate` is a date-only value
+- Reconcile compares against the user's local date, not server UTC date
+- a task becomes eligible for Reconcile only after a new local calendar day starts
+- never hardcode `UTC+03:30`
 
-Example:
-
-```txt
-plannedForDate = 2026-07-12
-userTimeZone = Asia/Tehran
-```
-
-The backend must not treat that task as missed merely because the UTC date has already changed.
-
-Detailed timezone fields and date types are owned by the Phase 1 Data Model spec.
+Detailed timezone fields and SQL/Java date types belong to the Data Model spec.
 
 ## Event log placement and ownership
 
@@ -158,17 +150,15 @@ same PostgreSQL database
 separate append-only events table
 ```
 
-The detailed event schema, required metadata, enums, indexes, and timezone fields are owned by:
+The detailed schema, metadata, enums, and indexes are owned by:
 
 ```txt
 04-Specs/data-model-phase-1.md
 ```
 
-This ADR records only the architectural boundary so the same reasoning is not duplicated across files.
-
 ## Atomic mutation principle
 
-For state-changing product actions, the domain mutation and its corresponding event append must succeed atomically in the same database transaction.
+For state-changing actions, the domain mutation and corresponding event append must succeed atomically in the same transaction.
 
 Examples:
 
@@ -179,7 +169,7 @@ drop task + append task_dropped
 skip reconcile + append reconcile_skipped
 ```
 
-The system must not leave task state updated without its event, or an event recorded without the matching state change.
+The system must not persist one side without the other.
 
 ## API boundary
 
@@ -190,6 +180,15 @@ React client
 → Spring Boot REST API
 → PostgreSQL
 ```
+
+Prefer same-site production routing:
+
+```txt
+https://app-domain/
+https://app-domain/api/
+```
+
+This reduces cookie and CORS complexity for JWT sessions stored in HttpOnly cookies.
 
 Phase 1 does not require GraphQL, WebSockets, microservices, or a separate analytics ingestion API.
 
@@ -203,12 +202,10 @@ Expected production shape:
 
 ```txt
 Nginx
-Frontend container/static build
+frontend static build/container
 Spring Boot backend container
 PostgreSQL container or managed PostgreSQL
 ```
-
-The exact hosting provider and CI/CD workflow may remain implementation choices, provided the baseline stays simple and reproducible.
 
 ## PWA decision
 
@@ -219,11 +216,11 @@ Offline-first: No, deferred
 
 Phase 1 may be installable as a basic PWA.
 
-This ADR does not define caching strategy, offline mutations, background sync, conflict resolution, or offline fallback behavior.
+This decision does not include offline mutations, background sync, conflict resolution, or offline-first storage.
 
 ## AI boundary
 
-Phase 1 is AI-ready at the schema and architecture level, but does not implement runtime LLM functionality.
+Phase 1 is AI-ready at the schema and architecture level but does not implement runtime LLM functionality.
 
 Keep:
 
@@ -243,33 +240,28 @@ AI planning endpoints
 structured-output runtime
 AI feature flags
 AI API calls
-AI Knowledge meter UI
+AI Knowledge Meter UI
 ```
 
 ---
 
-# Explicit exclusions
+# Explicit Exclusions
 
 This ADR does not define:
 
 - detailed User / Goal / Task / Event schema
 - event metadata contracts
-- exact OTP control values
-- JWT token lifetimes or refresh-token design
+- exact OTP security values
+- JWT lifetimes or refresh-token design
 - SMS provider selection
-- Google OAuth provider configuration
+- cookie/CORS/CSRF values
 - offline-first synchronization
-- caching architecture
 - microservices
 - message queues
 - advanced observability
 - scaling architecture
-- multi-region deployment
-- production analytics pipeline
 - runtime AI infrastructure
 - framework comparison essays
-
-Those are either owned by later specs or not justified by Phase 1.
 
 ---
 
@@ -277,20 +269,20 @@ Those are either owned by later specs or not justified by Phase 1.
 
 ## Positive
 
-- frontend and backend share one explicit implementation baseline
+- frontend and backend share one explicit baseline
+- authentication has one identity anchor: normalized phone number
+- no multi-provider identity table or account-linking logic is needed
 - auth timing relative to Day-0 is clear
-- phone OTP, Google OAuth, and OTP-based recovery paths are explicit
 - Iran-local day boundaries are protected from server-UTC errors
 - event-log ownership and transaction guarantees are clear
-- Data Model can be finalized without hidden infrastructure assumptions
 - future AI compatibility is preserved without building AI early
 
 ## Tradeoffs
 
-- phone OTP delivery introduces a dependency on an SMS provider
-- Google OAuth adds a second authentication integration path
-- JWT lifecycle and revocation still require a small security design
-- timezone-aware day logic must be implemented consistently across backend queries and tests
+- SMS delivery depends on a regional provider
+- JWT lifecycle and revocation require a small security design
+- cookie-based auth requires explicit Nginx, CORS, SameSite, Secure, and CSRF configuration
+- timezone-aware day logic must be tested consistently
 - VPS/Docker requires operational ownership
 - offline-first value is postponed
 
@@ -298,7 +290,15 @@ These tradeoffs are accepted for Phase 1.
 
 ---
 
-# Next step
+# Implementation Stack Reference
+
+Frameworks, packages, testing tools, and scaffold rules are defined in:
+
+```txt
+04-Specs/phase-1-implementation-stack.md
+```
+
+# Next Step
 
 Create and review:
 
@@ -306,13 +306,13 @@ Create and review:
 04-Specs/data-model-phase-1.md
 ```
 
-The Data Model spec should use this ADR as its technical baseline and own:
+The Data Model spec should use:
 
 ```txt
+User normalizedPhone as the single identity anchor
 User timezone field
-Phone / Google identity fields
 plannedForDate date-only type
 Goal / Task / Event schema
-Detailed event metadata
-Transaction and indexing details
+detailed event metadata
+transaction and indexing details
 ```
