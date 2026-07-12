@@ -1,7 +1,8 @@
 # Discussion 003 — Phase 1 Implementation Sequence
 
 ## Status
-Claude reviewed — Mahdi decisions applied. Ready to turn into formal specs.
+
+Mahdi Day-0 answers added — waiting for Claude agreement before Technical Foundation / Stack Decision.
 
 ## Context
 
@@ -20,25 +21,41 @@ Rule-based confidence only
 14-day validation test
 ```
 
-The next question is not "what is the product?"
+The next implementation sequence was originally proposed as:
 
-The next question is:
+```txt
+Day-0 Onboarding Spec
+→ Reconcile UX Spec
+→ Phase 1 Data Model Spec
+```
 
-> What should we define next so the designer and backend developer can start without inventing incompatible versions of the same product?
+Mahdi now raised a better sequencing question:
 
-GPT proposes the next three implementation specs:
+> Should we harden the stack and technical foundation before writing these formal implementation specs?
 
-1. Day-0 Onboarding Spec
-2. Reconcile UX Spec
-3. Phase 1 Data Model Spec
+GPT view:
 
-This discussion collected Claude's review, Mahdi's decisions, and the final constraints before these become real spec files.
+Yes. Before turning Day-0, Reconcile UX, and Data Model into formal specs, the project should first lock a short Technical Foundation / Stack Decision.
+
+Suggested sequence:
+
+```txt
+1. Technical Foundation / Stack Decision
+2. Day-0 Onboarding Spec
+3. Reconcile UX Spec
+4. Phase 1 Data Model Spec
+5. Implementation Plan
+```
+
+Reason:
+
+The stack affects auth, event logging, deployment, frontend architecture, backend boundaries, and the eventual AI integration path. Writing UX/data specs before stack decisions can make the docs prettier than the build reality, which is how software projects grow decorative horns and then charge rent.
 
 ---
 
 # Claude Review Summary
 
-Claude agreed with the sequence:
+Claude agreed with the original sequence:
 
 ```txt
 Day-0 Onboarding
@@ -118,7 +135,7 @@ Do not use this:
 AI is fully implemented but hidden.
 ```
 
-That sentence is too ambiguous and can quietly smuggle scope creep into the build. Truly majestic how one sentence can bankrupt a sprint.
+That sentence is too ambiguous and can quietly smuggle scope creep into the build.
 
 ---
 
@@ -132,18 +149,120 @@ That sentence is too ambiguous and can quietly smuggle scope creep into the buil
 
 ## Goal of Day-0
 
-Get the user from zero to a real Today page with real work in under 3–5 minutes.
+Get the user from zero to a real Today page with real work quickly, without forcing a rigid setup ritual.
 
-## Day-0 should accomplish
+## Mahdi Decisions on Day-0 Open Questions
 
-1. Explain the product promise briefly.
-2. Ask the user for one real goal/project.
-3. Help the user create 3–5 real tasks manually.
-4. Let the user choose which tasks are planned for today or tomorrow.
-5. Show the Today page.
-6. Avoid AI personalization claims.
-7. Explain that the system learns from real behavior over time.
-8. Keep AI hidden from user-facing Phase 1 validation.
+### Question 1 — Is 3–5 tasks too many for Day-0?
+
+Mahdi decision:
+
+It does not matter. The user can add 1 task, 3 tasks, or even 100 tasks in the first days.
+
+The system should not limit task entry early.
+
+Important distinction:
+
+```txt
+User input is free.
+System suggestions are gated.
+```
+
+The product should allow many tasks, but should only make suggestions after it has enough behavior data.
+
+GPT interpretation:
+
+Do not force a fixed task count in Day-0. Use optional guidance instead:
+
+```txt
+Add a few tasks to get started. You can add more later.
+```
+
+### Question 2 — Should goal creation be mandatory?
+
+Mahdi decision:
+
+Users can create independent tasks.
+
+A task can be standalone or optionally linked to a goal.
+
+GPT interpretation:
+
+This supports lower-friction Day-0.
+
+Data model should allow:
+
+```txt
+goalId = null
+```
+
+Goal-linked tasks remain useful, but the app should not force every task into a goal from day one. That would be tidy in a database and annoying in a human life, which is somehow always the tradeoff.
+
+### Question 3 — Should Day-0 force at least one task planned for today?
+
+Mahdi decision:
+
+No force at all.
+
+GPT interpretation:
+
+Do not force the user to plan a task for Today.
+
+However, the UI can still provide a guided default path:
+
+```txt
+Want to start today? Pick one task for Today.
+```
+
+This keeps the path clear without coercion.
+
+### Question 4 — Should the user see a vague preview of Reconcile during onboarding?
+
+Mahdi asked what this means.
+
+Answer:
+
+A vague preview means one short promise about what happens when plans break, without explaining the exact Reconcile mechanics.
+
+Do not teach:
+
+```txt
+Done / Carry / Drop
+```
+
+Do not explain the whole flow.
+
+Use only a simple product promise:
+
+```txt
+Plans break. When they do, this app helps you clean things up and continue.
+```
+
+GPT recommendation:
+
+Include one short vague preview in Day-0, because it explains the product philosophy without turning onboarding into a tutorial graveyard.
+
+Question for Claude:
+
+Is this one-line preview useful, or should Reconcile be discovered only when the user first needs it?
+
+### Question 5 — Is 3–5 minutes realistic?
+
+Mahdi decision:
+
+No fixed opinion yet.
+
+GPT interpretation:
+
+Do not lock a hard time threshold before prototype testing.
+
+Keep a soft target:
+
+```txt
+The user should reach a usable Today page quickly.
+```
+
+Measure actual onboarding time during prototype/testing instead of pretending we know it in advance, the ancient startup sport.
 
 ## Proposed Day-0 Flow
 
@@ -151,41 +270,24 @@ Get the user from zero to a real Today page with real work in under 3–5 minute
 1. Welcome / Promise
    "This planner helps you recover when plans break, not punish you for falling behind."
 
-2. Create first goal
-   User enters one real goal/project.
+2. Optional goal/project
+   User may create one goal/project, but this is not mandatory.
 
-3. Create first tasks
-   User adds 3–5 tasks related to that goal.
+3. Task entry
+   User can add any number of tasks.
+   Suggested copy: "Add a few tasks to get started. You can add more later."
 
-4. Choose planned day
-   User selects Today / Tomorrow / Later for each task.
+4. Optional planned day
+   User may choose Today / Tomorrow / Later for each task.
+   No forced planning.
 
 5. Today page
-   User sees only tasks planned for today.
+   User sees tasks planned for today if any exist.
+   If none exist, Today has a calm empty state and a clear add/plan action.
 
-6. Micro-explanation
-   "If something is unfinished later, we'll help you sort it out."
+6. Vague Reconcile preview
+   "Plans break. When they do, this app helps you clean things up and continue."
 ```
-
-## Applied Claude Correction
-
-Day-0 must not hardcode the exact Reconcile action vocabulary.
-
-Do not say:
-
-```txt
-we will help you decide: done, carry, or drop
-```
-
-Use softer copy instead:
-
-```txt
-If something is unfinished later, we'll help you sort it out.
-```
-
-Reason:
-
-Reconcile UX should own the exact action language, tone, and behavior.
 
 ## What Day-0 must not do
 
@@ -194,6 +296,9 @@ Reconcile UX should own the exact action language, tone, and behavior.
 - no visible AI Knowledge meter
 - no user-facing AI-generated task plan in Phase 1
 - no hidden LLM execution
+- no forced goal
+- no forced task count
+- no forced task planned for Today
 - no routines
 - no time-blocking
 - no deadlines
@@ -206,47 +311,35 @@ The first success moment is not account creation.
 
 It is:
 
-> The user sees a clean Today page with a few real tasks they intentionally planned.
+> The user reaches a usable planning surface with tasks they intentionally entered or planned.
+
+If they planned tasks for today, this is the Today page.
+
+If they did not plan anything for today, the success state is still a calm, clear app state where they understand how to add or plan work next.
 
 ## Designer Notes
 
 Designer should focus on:
 
 - low-friction task creation
+- optional goal linking
 - clear empty states
 - calm copy
-- fast path to Today page
+- fast path to Today
 - avoiding setup fatigue
+- guidance without force
 
 ## Backend Notes
 
 Backend must support:
 
-- create goal
-- create task
-- link task to goal
-- schedule task for day
+- create optional goal
+- create standalone task
+- link task to goal optionally
+- schedule task for day optionally
 - mark source as `manual`
 - log onboarding events
 - keep source tagging ready for Phase 2 AI comparison
-
-## Resolved Decision
-
-Do not add AI to user-facing Day-0 Phase 1 just to make it feel more exciting.
-
-Reason:
-
-The target segment is developers / solo builders / technical users, who can handle manual task creation. Reintroducing AI here would reopen the same confound Phase 1 is designed to avoid.
-
-If Day-0 completion is low during the test, treat that as a signal later.
-
-## Remaining Day-0 Questions
-
-1. Is 3–5 tasks too many for Day-0?
-2. Should goal creation be mandatory, or can users create standalone tasks?
-3. Should Day-0 force at least one task planned for today?
-4. Should the user see a vague preview of reconcile during onboarding, or only learn it later when needed?
-5. Is 3–5 minutes realistic?
 
 ---
 
@@ -294,10 +387,6 @@ meaningful_action_after_reconcile_skip
 
 If the user skips reconcile, do not show reconcile again later that same day.
 
-Reason:
-
-Repeated same-day prompting becomes nagging and pollutes the skip-rate signal.
-
 Reconcile may reappear on the next app open on a later day if unresolved planned-for-day tasks still exist.
 
 ## After skipped reconcile — Phase 1 decision
@@ -313,21 +402,11 @@ Skipped reconcile
 → reconcile can appear again on next app open on a later day
 ```
 
-## Why Option A
+Reason:
 
 Option A has the lowest build cost and cleanest validation signal.
 
-Avoid in Phase 1:
-
-- Today banner for unresolved tasks
-- separate unresolved/backlog page
-- manual review link after skip
-
-Reason:
-
 A persistent banner or separate page creates a second path back to unresolved tasks, which contaminates the skip signal.
-
-If the user skips reconcile and still acts, we want to know whether that action was organic, not prompted by a second UI surface.
 
 If testers complain that skipped reconcile made old tasks feel lost, then a calm review banner or separate recovery page can be added later with evidence behind it.
 
@@ -436,17 +515,6 @@ reconcile_skipped
 - no blocking dead-end
 - no productivity score
 
-## Suggested Completion State
-
-After reconcile:
-
-```txt
-Today is clean.
-Here is what you chose to keep.
-```
-
-Then route to Today page.
-
 ---
 
 # Step 3 — Phase 1 Data Model Spec
@@ -537,16 +605,7 @@ type Event = {
 
 Do not create a stored `DailyRollup` table in Phase 1.
 
-Reason:
-
 For 10–20 testers over 14 days, event volume is small enough to compute rollups through queries.
-
-A stored rollup table creates sync drift risk:
-
-```txt
-event log says one thing
-rollup table says another
-```
 
 Use query-based rollups first. Materialize later only if volume or performance requires it.
 
@@ -569,15 +628,11 @@ previousPlannedForDate
 carryCountAtEvent
 ```
 
-Reason:
-
 Capturing `carryCountAtEvent` on drop helps later identify patterns like:
 
 ```txt
 task carried 3 times, then dropped
 ```
-
-This may suggest the task was too vague, too large, or no longer relevant.
 
 ### `reconcile_shown`
 
@@ -607,36 +662,6 @@ Do not add speculative metadata just because it might be useful someday. That is
 - complex project hierarchy
 - calendar integration
 
-## Important Data Decisions
-
-### carryCount
-
-Store it on Task for simple UI/performance, but treat Event as source of truth.
-
-### plannedForDate
-
-A task can exist without a planned date.
-
-Tasks can be goal-linked but unscheduled.
-
-### dropped vs archived
-
-Use `dropped` as status in Phase 1.
-
-Archive can be later.
-
-### source
-
-Keep `source` in Phase 1 even though user-facing AI planning is hidden.
-
-Set all Phase 1 user-created tasks to:
-
-```txt
-source = manual
-```
-
-This prepares Phase 2 comparison without overbuilding.
-
 ---
 
 # Resolved Cuts Before Formal Specs
@@ -646,14 +671,19 @@ Apply these cuts before creating formal specs:
 1. Remove hardcoded Done/Carry/Drop copy from Day-0.
 2. Do not add user-facing AI to Day-0 Phase 1.
 3. Do not implement runtime AI/LLM functionality in Phase 1.
-4. Carry defaults to Today, with one-tap date change.
-5. Drop uses undo toast, no confirmation.
-6. No same-day Reconcile re-trigger after skip.
-7. After skipped reconcile, use Option A: no banner, no separate page, reappear later.
-8. No stored DailyRollup table in Phase 1.
-9. Carried is not a Task status.
-10. Event metadata stays metric-driven.
-11. Capture `carryCountAtEvent` on `task_dropped` as well as `task_carried`.
+4. Allow standalone tasks.
+5. Do not force goal creation.
+6. Do not force a task count.
+7. Do not force planning a task for Today.
+8. Use only a vague one-line Reconcile preview, if any.
+9. Carry defaults to Today, with one-tap date change.
+10. Drop uses undo toast, no confirmation.
+11. No same-day Reconcile re-trigger after skip.
+12. After skipped reconcile, use Option A: no banner, no separate page, reappear later.
+13. No stored DailyRollup table in Phase 1.
+14. Carried is not a Task status.
+15. Event metadata stays metric-driven.
+16. Capture `carryCountAtEvent` on `task_dropped` as well as `task_carried`.
 
 ---
 
@@ -663,11 +693,8 @@ These are still open before formal specs:
 
 ## Day-0 Onboarding
 
-1. Is 3–5 tasks too many for Day-0?
-2. Should goal creation be mandatory, or can users create standalone tasks?
-3. Should Day-0 force at least one task planned for today?
-4. Should the user see a vague preview of reconcile during onboarding, or only learn it later when needed?
-5. Is 3–5 minutes realistic?
+1. Should Day-0 include the vague one-line Reconcile preview, or should the user discover Reconcile only when needed?
+2. Is a soft target like "reach a usable planning surface quickly" enough, or should the team set a measurable onboarding-time target after prototype testing?
 
 ## Reconcile UX
 
@@ -683,20 +710,40 @@ These are still open before formal specs:
 3. What exact metadata should be required for each event type?
 4. Should event type be a strict enum from day one?
 
+## Technical Foundation / Stack
+
+This should now be addressed before formal Day-0 / Reconcile / Data Model specs.
+
+Open stack decisions:
+
+1. Frontend: React + Vite or Next.js?
+2. Backend: Spring Boot or another backend stack?
+3. Database: PostgreSQL or something else?
+4. Auth: simple test auth, email/password, magic link, or OAuth?
+5. Deployment: VPS/Docker, managed platform, or other?
+6. PWA: basic installable PWA now, offline-first later?
+7. Event log architecture: append-only table shape and API boundary?
+8. AI readiness: what exactly belongs in Phase 1 without runtime LLM implementation?
+
 ---
 
-# GPT Suggested Sequence
+# Updated GPT Suggested Sequence
 
 ```txt
-1. Create Day-0 Onboarding Spec
-2. Create Reconcile UX Spec
-3. Create Data Model Phase 1 Spec
-4. Review with Claude/backend/designer
-5. Mahdi approves
-6. Start design + backend implementation planning
+1. Claude confirms the final Day-0 answers and remaining concerns
+2. Create Technical Foundation / Stack Decision
+3. Review stack with Claude/backend developer
+4. Create Day-0 Onboarding Spec
+5. Create Reconcile UX Spec
+6. Create Data Model Phase 1 Spec
+7. Review with Claude/backend/designer
+8. Mahdi approves
+9. Start implementation planning
 ```
 
 ## Why this order
+
+Technical foundation defines the build surface.
 
 Day-0 defines the first user experience.
 
@@ -706,14 +753,14 @@ Data model defines what must be built to support both.
 
 This order reduces premature backend complexity while keeping implementation grounded.
 
-## Next Recommended Action
+## Claude Review Request
 
-Create the three formal specs now, using the resolved decisions above:
+Please review the newly resolved Day-0 answers and the updated sequence:
 
-```txt
-04-Specs/day-0-onboarding.md
-04-Specs/reconcile-ux.md
-04-Specs/data-model-phase-1.md
-```
-
-Then send those files to Claude / backend / designer for review.
+1. Do you agree that task count should not be forced and the user can add any number of tasks?
+2. Do you agree standalone tasks should be allowed?
+3. Do you agree nothing should be forced in Day-0, including goal creation or planning a task for Today?
+4. Should Day-0 include a vague one-line Reconcile preview, or should Reconcile be discovered only when needed?
+5. Should onboarding time remain a soft target until prototype testing?
+6. Do you agree Technical Foundation / Stack Decision should happen before the three formal specs?
+7. What should be included or excluded from the Technical Foundation decision?
