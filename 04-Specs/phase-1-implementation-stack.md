@@ -1,0 +1,910 @@
+# Phase 1 Implementation Stack
+
+## Status
+
+Accepted implementation baseline for Phase 1.
+
+## Purpose
+
+This file turns [[02-Decisions/ADR-002-phase-1-technical-foundation]] into an implementation-ready stack.
+
+It defines the frameworks, libraries, packages, build tools, testing tools, and deployment baseline the team should use when scaffolding the frontend and backend.
+
+The goal is to remove avoidable setup debates before implementation starts.
+
+Version policy:
+
+- pin exact versions in `package.json`, `package-lock.json`, `pom.xml`, and Docker image tags when the repositories are scaffolded
+- stay inside the major versions listed here during Phase 1
+- do not upgrade major versions during the 14-day validation unless a security or blocking compatibility issue requires it
+
+---
+
+# 1. Repository Shape
+
+Recommended structure:
+
+```txt
+adaptive-planner/
+  frontend/
+  backend/
+  infra/
+    nginx/
+    docker/
+  docs/
+```
+
+Phase 1 does not require a monorepo framework such as Nx or Turborepo.
+
+Use one Git repository with two independent build systems:
+
+```txt
+frontend: npm
+backend: Maven Wrapper
+```
+
+---
+
+# 2. Frontend Stack
+
+## Runtime and build
+
+```txt
+Node.js: current LTS supported by Vite 8
+Package manager: npm
+React: 19.2.x
+TypeScript: 5.x, strict mode enabled
+Vite: 8.x
+```
+
+Required packages:
+
+```txt
+react
+react-dom
+typescript
+vite
+@vitejs/plugin-react
+```
+
+TypeScript rules:
+
+```txt
+strict: true
+noUncheckedIndexedAccess: true
+exactOptionalPropertyTypes: true
+noImplicitOverride: true
+```
+
+Do not use Next.js in Phase 1.
+
+## Routing
+
+```txt
+React Router: 8.x
+Mode: client-side browser router
+```
+
+Package:
+
+```txt
+react-router
+```
+
+Use `createBrowserRouter` with route-level lazy loading.
+
+Minimum route groups:
+
+```txt
+/auth
+/onboarding
+/today
+/tasks
+/goals
+/reconcile
+/settings
+```
+
+## Server-state and API cache
+
+```txt
+TanStack Query: 5.x
+```
+
+Packages:
+
+```txt
+@tanstack/react-query
+@tanstack/react-query-devtools
+```
+
+Use TanStack Query for:
+
+- API reads
+- mutations
+- cache invalidation
+- loading/error state
+- retries for safe idempotent reads
+
+Do not duplicate API response state inside Zustand.
+
+## Client state
+
+```txt
+Zustand: 5.x
+```
+
+Package:
+
+```txt
+zustand
+```
+
+Use Zustand only for client-only state such as:
+
+- temporary auth/session UI state
+- onboarding draft state before submission
+- local filters
+- non-server UI preferences
+
+Do not use Redux in Phase 1.
+
+## HTTP client
+
+```txt
+Axios: 1.x
+```
+
+Package:
+
+```txt
+axios
+```
+
+Create one configured API client with:
+
+- `/api/v1` base path
+- JWT attachment strategy
+- refresh handling if refresh tokens are implemented
+- normalized API error mapping
+- request timeout
+
+Do not call Axios directly from components. API calls belong in feature API modules.
+
+## Forms and validation
+
+```txt
+React Hook Form: 7.x
+Zod: 4.x
+```
+
+Packages:
+
+```txt
+react-hook-form
+zod
+@hookform/resolvers
+```
+
+Use:
+
+- React Hook Form for form state
+- Zod for frontend input validation and API response boundary validation where useful
+- shared form components for phone OTP, tasks, goals, and settings
+
+Frontend validation improves UX but never replaces backend validation.
+
+## Styling and design system
+
+```txt
+Tailwind CSS: 4.x
+Radix UI primitives
+Class Variance Authority
+```
+
+Packages:
+
+```txt
+tailwindcss
+@tailwindcss/vite
+@radix-ui/react-dialog
+@radix-ui/react-dropdown-menu
+@radix-ui/react-popover
+@radix-ui/react-toast
+@radix-ui/react-tooltip
+@radix-ui/react-tabs
+@radix-ui/react-checkbox
+@radix-ui/react-radio-group
+@radix-ui/react-switch
+@radix-ui/react-slot
+class-variance-authority
+clsx
+tailwind-merge
+```
+
+Use Radix only when a primitive is actually needed. Do not install its entire ecosystem preemptively.
+
+Component conventions:
+
+- application components are owned by the project
+- primitives live under `src/components/ui`
+- feature components live under `src/features/<feature>`
+- no large prebuilt component suite such as MUI or Ant Design in Phase 1
+
+## Icons
+
+```txt
+Iconify React
+```
+
+Package:
+
+```txt
+@iconify/react
+```
+
+Use a limited icon collection consistently. Do not mix five visual icon languages because humans apparently notice this only after launch.
+
+## Dates and timezone
+
+Packages:
+
+```txt
+date-fns
+date-fns-tz
+```
+
+Rules:
+
+- timestamps from the backend are UTC ISO-8601 instants
+- `plannedForDate` is an ISO local date: `YYYY-MM-DD`
+- default Phase 1 timezone is `Asia/Tehran`
+- frontend sends the detected IANA timezone during signup/profile creation
+- never hardcode `UTC+03:30`
+- Reconcile day-boundary decisions use the user's local date
+
+Use the Gregorian ISO date internally even when the user interface later displays another calendar.
+
+## PWA
+
+```txt
+vite-plugin-pwa
+```
+
+Package:
+
+```txt
+vite-plugin-pwa
+```
+
+Phase 1 PWA responsibilities:
+
+- web manifest
+- installable shell
+- application icons
+- basic static-asset caching generated by the plugin
+- update notification strategy
+
+Explicitly excluded:
+
+- offline task mutation
+- background sync
+- offline-first data storage
+- conflict resolution
+- local event queues
+
+## Notifications and feedback
+
+Use a small toast library:
+
+```txt
+sonner
+```
+
+Package:
+
+```txt
+sonner
+```
+
+Use it for actions such as:
+
+```txt
+Dropped. Undo
+Saved
+Could not connect
+```
+
+Do not use toasts as a substitute for visible form errors.
+
+## Testing
+
+```txt
+Vitest: 4.x
+React Testing Library
+MSW
+Playwright
+```
+
+Packages:
+
+```txt
+vitest
+@vitest/coverage-v8
+jsdom
+@testing-library/react
+@testing-library/jest-dom
+@testing-library/user-event
+msw
+@playwright/test
+```
+
+Testing responsibilities:
+
+- Vitest: utilities, hooks, stores, schemas
+- React Testing Library: component behavior
+- MSW: API boundary tests
+- Playwright: critical user flows
+
+Mandatory Playwright flows before Phase 1 test:
+
+```txt
+phone OTP login flow with mocked provider
+Google OAuth callback flow with mocked provider
+new user Day-0 onboarding
+empty Today path
+create standalone task
+create goal-linked task
+Reconcile Done
+Reconcile Carry
+Reconcile Drop + Undo
+Not now / skipped reconcile
+no same-day Reconcile re-trigger
+next-local-day Reconcile re-trigger
+```
+
+## Frontend quality tooling
+
+Packages:
+
+```txt
+eslint
+@eslint/js
+typescript-eslint
+eslint-plugin-react-hooks
+eslint-plugin-react-refresh
+prettier
+prettier-plugin-tailwindcss
+```
+
+Rules:
+
+- ESLint errors fail CI
+- TypeScript errors fail CI
+- formatting is automated
+- no `any` without an explicit localized justification
+
+---
+
+# 3. Backend Stack
+
+## Runtime and build
+
+```txt
+Java: 21 LTS
+Spring Boot: 4.1.x
+Build tool: Maven Wrapper
+Packaging: executable JAR
+Web model: Spring MVC / servlet stack
+```
+
+Use Java 21 even though Spring Boot supports older and newer versions. Java 21 gives the project a stable LTS baseline without chasing the newest JDK during validation.
+
+Required base dependencies:
+
+```txt
+spring-boot-starter-webmvc
+spring-boot-starter-validation
+spring-boot-starter-data-jpa
+spring-boot-starter-security
+spring-boot-starter-oauth2-client
+spring-boot-starter-oauth2-resource-server
+spring-boot-starter-actuator
+```
+
+Do not use WebFlux in Phase 1.
+
+## Persistence
+
+```txt
+PostgreSQL: 17
+Hibernate/JPA: managed by Spring Boot
+Database migrations: Flyway
+```
+
+Dependencies:
+
+```txt
+org.postgresql:postgresql
+org.flywaydb:flyway-core
+org.flywaydb:flyway-database-postgresql
+```
+
+Rules:
+
+- Flyway owns schema changes
+- Hibernate schema auto-generation is disabled outside tests
+- `ddl-auto` must be `validate` in production
+- migrations are immutable after deployment
+- use database constraints, not application validation alone
+
+## API contracts
+
+Use DTOs at the HTTP boundary.
+
+Recommended mapping:
+
+```txt
+MapStruct
+```
+
+Dependencies:
+
+```txt
+org.mapstruct:mapstruct
+org.mapstruct:mapstruct-processor
+```
+
+Do not expose JPA entities directly from controllers.
+
+Use Java records for immutable request/response DTOs where appropriate.
+
+## Authentication and security
+
+Official Phase 1 auth methods:
+
+```txt
+phone-number OTP
+Google OAuth 2.0 login
+JWT-based application sessions
+password reset/recovery using phone OTP
+```
+
+Dependencies:
+
+```txt
+spring-boot-starter-security
+spring-boot-starter-oauth2-client
+spring-boot-starter-oauth2-resource-server
+```
+
+Use Spring Security's JWT support based on Nimbus rather than introducing a second JWT framework unless a concrete missing capability is found.
+
+Recommended token transport:
+
+```txt
+HttpOnly Secure SameSite cookie
+```
+
+If bearer tokens are used instead, document the XSS/storage tradeoff before implementation.
+
+Auth packages/modules should be isolated under an `auth` feature package and should include:
+
+- phone normalization
+- OTP request
+- OTP verification
+- Google authorization initiation
+- Google callback handling
+- identity linking
+- JWT issuance
+- refresh/revocation if implemented
+- password recovery via verified phone OTP
+
+Items Mahdi must define before auth implementation:
+
+```txt
+OTP expiration
+resend cooldown
+maximum verification attempts
+request rate limit
+single-use OTP invalidation
+```
+
+These are reminders only. Their exact values and provider behavior are intentionally not decided in this spec.
+
+## OTP provider integration
+
+Define an interface owned by the application:
+
+```java
+public interface OtpDeliveryGateway {
+    void send(String normalizedPhoneNumber, String code);
+}
+```
+
+Provider-specific code stays behind an adapter.
+
+Do not call the SMS provider directly from controllers or domain services.
+
+Use the Spring `RestClient` for provider HTTP calls unless the provider SDK is clearly simpler and maintainable under local network/package constraints.
+
+## Google OAuth
+
+Use Spring Security OAuth2 Client.
+
+Persist the Google provider subject identifier, not only email:
+
+```txt
+provider = GOOGLE
+googleSubjectId = sub claim
+```
+
+Account-linking rules must be explicit in the Data Model/Auth implementation plan so phone and Google login do not accidentally create duplicate users.
+
+## JWT implementation
+
+Use Spring Security OAuth2 JOSE support managed by the resource-server dependencies.
+
+Required JWT claims:
+
+```txt
+sub: internal user id
+iss: application issuer
+iat
+exp
+jti
+roles or authorities when needed
+```
+
+Do not put private profile data into JWT claims.
+
+## Domain and module organization
+
+Use package-by-feature:
+
+```txt
+com.adaptiveplanner
+  auth
+  user
+  goal
+  task
+  reconcile
+  event
+  common
+  config
+```
+
+Each feature may contain:
+
+```txt
+api
+application
+domain
+infrastructure
+```
+
+Do not create a ceremonial clean-architecture maze for four entities. Keep dependency direction clear without generating forty empty interfaces.
+
+## Transactions and events
+
+Use Spring `@Transactional` on application-service commands.
+
+The state mutation and behavioral event append must occur in the same PostgreSQL transaction.
+
+Examples:
+
+```txt
+complete task + task_completed event
+carry task + task_carried event
+drop task + task_dropped event
+skip reconcile + reconcile_skipped event
+```
+
+Detailed event fields belong to [[04-Specs/data-model-phase-1]].
+
+## Validation and errors
+
+Use:
+
+```txt
+Jakarta Bean Validation
+Problem Details for HTTP APIs
+```
+
+Implement one global exception handler with `@RestControllerAdvice`.
+
+Recommended error shape:
+
+```json
+{
+  "type": "validation_error",
+  "title": "Request validation failed",
+  "status": 400,
+  "traceId": "...",
+  "errors": {
+    "title": ["must not be blank"]
+  }
+}
+```
+
+Do not leak stack traces or database errors to clients.
+
+## API documentation
+
+Use OpenAPI documentation:
+
+```txt
+org.springdoc:springdoc-openapi-starter-webmvc-ui
+```
+
+Expose Swagger UI only in development/test environments or protect it in production.
+
+## Logging and health
+
+Use Spring Boot defaults:
+
+```txt
+SLF4J + Logback
+Spring Boot Actuator
+```
+
+Minimum endpoints:
+
+```txt
+/actuator/health
+/actuator/info
+```
+
+Log:
+
+- request correlation/trace ID
+- authentication failures without secrets or OTP codes
+- provider integration failures
+- unexpected Reconcile transaction failures
+
+Never log:
+
+- OTP values
+- JWT values
+- refresh tokens
+- Google authorization codes
+
+## Backend testing
+
+Dependencies:
+
+```txt
+spring-boot-starter-test
+spring-security-test
+spring-boot-testcontainers
+org.testcontainers:junit-jupiter
+org.testcontainers:postgresql
+WireMock or MockWebServer
+```
+
+Recommended external-service mocking:
+
+```txt
+org.wiremock:wiremock
+```
+
+Testing layers:
+
+- unit tests for domain decisions
+- controller/security tests for auth and authorization
+- repository tests against real PostgreSQL through Testcontainers
+- integration tests for atomic mutation + event append
+- provider adapter contract tests
+
+Mandatory backend integration tests:
+
+```txt
+task update rolls back when event insert fails
+event insert rolls back when task update fails
+Reconcile only selects unresolved tasks before the user's local date
+Asia/Tehran boundary behavior
+phone identity uniqueness
+Google subject uniqueness
+phone and Google identity linking
+OTP single-use behavior after Mahdi defines the rule
+```
+
+---
+
+# 4. Database Baseline
+
+```txt
+PostgreSQL 17
+UTF-8
+UTC timestamps
+IANA user timezone
+ISO local DATE for plannedForDate
+```
+
+Core extensions:
+
+```txt
+pgcrypto
+```
+
+Use UUIDs generated by PostgreSQL or the application consistently. Do not mix strategies by table.
+
+Initial indexes should cover:
+
+```txt
+users.normalized_phone unique
+user_identities(provider, provider_subject) unique
+tasks(user_id, status, planned_for_date)
+tasks(goal_id)
+events(user_id, occurred_at)
+events(user_id, type, occurred_at)
+events(entity_type, entity_id, occurred_at)
+```
+
+Exact schema belongs to [[04-Specs/data-model-phase-1]].
+
+---
+
+# 5. Infrastructure and Deployment
+
+## Containers
+
+Use Docker Compose for development and VPS deployment.
+
+Services:
+
+```txt
+frontend
+backend
+postgres
+nginx
+```
+
+Optional development-only service:
+
+```txt
+Mailpit is not needed because OTP is phone-based.
+```
+
+Use multi-stage Dockerfiles for frontend and backend.
+
+## Reverse proxy
+
+```txt
+Nginx
+```
+
+Responsibilities:
+
+- TLS termination
+- static frontend serving
+- `/api` proxy to Spring Boot
+- security headers
+- compression
+- SPA route fallback
+
+## Configuration
+
+Use environment variables and Spring profiles:
+
+```txt
+local
+test
+production
+```
+
+Never commit secrets.
+
+Required secret categories:
+
+```txt
+JWT signing material
+Google OAuth client secret
+OTP provider credentials
+database credentials
+```
+
+## CI baseline
+
+GitHub Actions should run:
+
+Frontend:
+
+```txt
+npm ci
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+Backend:
+
+```txt
+./mvnw verify
+```
+
+Integration tests should start PostgreSQL with Testcontainers.
+
+Do not add Kubernetes, Terraform, message brokers, or distributed tracing in Phase 1.
+
+---
+
+# 6. Deliberately Excluded Packages
+
+Do not add these without a concrete Phase 1 requirement:
+
+```txt
+Redux
+Next.js
+GraphQL
+WebSockets
+Kafka/RabbitMQ
+Redis
+Elasticsearch
+Kubernetes
+Temporal workflow engine
+offline sync libraries
+AI SDKs
+vector databases
+microservice libraries
+```
+
+A package is not progress merely because npm or Maven successfully downloaded it.
+
+---
+
+# 7. Scaffold Checklist
+
+## Frontend
+
+- [ ] Create Vite React TypeScript project
+- [ ] Enable strict TypeScript rules
+- [ ] Configure React Router
+- [ ] Configure TanStack Query
+- [ ] Configure Zustand conventions
+- [ ] Configure Axios API client
+- [ ] Configure React Hook Form + Zod
+- [ ] Configure Tailwind CSS 4
+- [ ] Add only required Radix primitives
+- [ ] Configure Iconify
+- [ ] Configure timezone/date utilities
+- [ ] Configure PWA plugin
+- [ ] Configure Vitest, Testing Library, MSW, Playwright
+- [ ] Configure ESLint and Prettier
+
+## Backend
+
+- [ ] Create Java 21 / Spring Boot 4.1 Maven project
+- [ ] Add Web MVC, Validation, JPA, Security, OAuth2 Client, Resource Server, Actuator
+- [ ] Configure PostgreSQL and Flyway
+- [ ] Configure package-by-feature structure
+- [ ] Configure global Problem Details errors
+- [ ] Configure OpenAPI
+- [ ] Configure OTP provider port/adapter
+- [ ] Configure Google OAuth
+- [ ] Configure JWT encoder/decoder
+- [ ] Configure `Asia/Tehran` default timezone behavior
+- [ ] Configure Testcontainers and integration tests
+- [ ] Add atomic mutation/event transaction tests
+
+## Infrastructure
+
+- [ ] Add Dockerfiles
+- [ ] Add Docker Compose
+- [ ] Add Nginx config
+- [ ] Define environment templates without secrets
+- [ ] Add GitHub Actions frontend/backend checks
+- [ ] Pin container image versions
+
+---
+
+# 8. Next Step
+
+Use this stack while creating:
+
+```txt
+04-Specs/data-model-phase-1.md
+```
+
+The Data Model spec should not choose new frameworks. It should define entities, identities, constraints, events, indexes, and transaction behavior using the stack fixed here.
