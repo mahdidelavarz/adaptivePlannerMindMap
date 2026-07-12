@@ -1,7 +1,7 @@
 # Discussion 003 — Phase 1 Implementation Sequence
 
 ## Status
-Claude Round 1 reviewed — Mahdi decisions applied, one skipped-task question still open
+Claude reviewed — Mahdi decisions applied. Ready to turn into formal specs.
 
 ## Context
 
@@ -12,18 +12,13 @@ Manual goal/task entry
 Reconcile-on-open
 Skippable reconcile
 Goal → Task → optional planned day
-AI implemented in stack, but hidden/disabled for user-facing Phase 1 validation
+AI-ready schema and architecture only in Phase 1
+No actual LLM/AI planning implementation in Phase 1
 No visible AI Knowledge meter in Phase 1
 No routines / time-blocking / deadlines in Phase 1
 Rule-based confidence only
 14-day validation test
 ```
-
-Important clarification from Mahdi:
-
-AI should not be removed from architecture or implementation planning.
-
-The AI layer can be fully implemented and considered in the stack/map, but for Phase 1 validation it should be disabled or hidden from users so reconcile can be tested cleanly.
 
 The next question is not "what is the product?"
 
@@ -37,11 +32,11 @@ GPT proposes the next three implementation specs:
 2. Reconcile UX Spec
 3. Phase 1 Data Model Spec
 
-This discussion is for Claude to critique the sequence, reduce scope, and identify missing constraints before these become real spec files.
+This discussion collected Claude's review, Mahdi's decisions, and the final constraints before these become real spec files.
 
 ---
 
-# Claude Round 1 Summary
+# Claude Review Summary
 
 Claude agreed with the sequence:
 
@@ -51,7 +46,7 @@ Day-0 Onboarding
 → Phase 1 Data Model
 ```
 
-But identified several corrections before these become formal specs:
+Claude identified these corrections:
 
 1. Day-0 should not hardcode exact Reconcile action copy.
 2. Do not add AI to Day-0 just to make onboarding more exciting.
@@ -61,26 +56,75 @@ But identified several corrections before these become formal specs:
 6. DailyRollup should not be a stored Phase 1 table; compute it from event queries.
 7. Carried is not a Task status.
 8. Event metadata should be minimal and metric-driven.
+9. AI Phase 1 should mean schema/architecture readiness only, not actual LLM implementation.
+10. After skipped reconcile, use Option A for Phase 1: no banner, no same-day resurfacing, unresolved tasks reappear only on a later app open.
 
-Mahdi accepted these, with one added open question:
+Mahdi accepted these decisions.
 
-> What should happen to skipped tasks? Should the user have a place to view them or bring them back into plans later?
+---
+
+# Important Clarification — AI in Phase 1
+
+## Decision
+
+Phase 1 should be **AI-ready**, not **AI-implemented**.
+
+This means:
+
+```txt
+Keep:
+- source field
+- ai_generated enum value
+- AI docs / guardrails
+- Phase 2 AI planning in the map
+- architecture awareness that AI will exist later
+
+Defer:
+- actual LLM integration
+- prompt execution
+- AI plan generation endpoint
+- structured output enforcement runtime
+- hidden AI feature flag
+- AI API calls
+- AI Knowledge meter UI
+```
+
+## Reason
+
+Schema readiness is cheap and useful.
+
+Actual AI implementation is not cheap. It adds:
+
+- engineering time
+- API cost risk
+- hidden code path bugs
+- feature flag leakage risk
+- extra QA surface
+- possible contamination of Phase 1 validation
+
+Phase 1 exists to validate Reconcile. The AI vision stays in the map, but real AI execution starts in Phase 2.
+
+## Final phrasing
+
+Use this:
+
+```txt
+Phase 1 keeps the product AI-ready at the schema and architecture level, but does not implement user-facing or hidden LLM functionality.
+```
+
+Do not use this:
+
+```txt
+AI is fully implemented but hidden.
+```
+
+That sentence is too ambiguous and can quietly smuggle scope creep into the build. Truly majestic how one sentence can bankrupt a sprint.
 
 ---
 
 # Step 1 — Day-0 Onboarding Spec
 
-## Why this should come first
-
-Day-0 defines the user's first contact with the product.
-
-If this is vague, every other flow becomes unstable. The Today page, task creation, goal model, and validation test all depend on what the user does in the first few minutes.
-
-A bad onboarding flow can kill the test before reconcile even gets a chance to appear. Humanity has a long tradition of blaming product hypotheses after ruining first-run UX, so let's not contribute to the pile.
-
-## GPT Recommendation
-
-Create:
+## Recommended file
 
 ```txt
 04-Specs/day-0-onboarding.md
@@ -99,7 +143,7 @@ Get the user from zero to a real Today page with real work in under 3–5 minute
 5. Show the Today page.
 6. Avoid AI personalization claims.
 7. Explain that the system learns from real behavior over time.
-8. Keep AI implementation hidden from user-facing Phase 1 validation.
+8. Keep AI hidden from user-facing Phase 1 validation.
 
 ## Proposed Day-0 Flow
 
@@ -149,24 +193,12 @@ Reconcile UX should own the exact action language, tone, and behavior.
 - no long questionnaire
 - no visible AI Knowledge meter
 - no user-facing AI-generated task plan in Phase 1
+- no hidden LLM execution
 - no routines
 - no time-blocking
 - no deadlines
 - no productivity score
 - no shame copy
-
-## AI Architecture Note
-
-AI may exist in the codebase, stack, and architecture during Phase 1.
-
-But for Phase 1 validation:
-
-- do not show AI-generated plans to users
-- do not expose AI Knowledge meter
-- do not let AI planning affect success metrics
-- keep source tagging ready for Phase 2
-
-This preserves the long-term AI vision without contaminating the first Reconcile validation.
 
 ## First Success Moment
 
@@ -196,15 +228,11 @@ Backend must support:
 - schedule task for day
 - mark source as `manual`
 - log onboarding events
-- keep AI source tagging ready for Phase 2
+- keep source tagging ready for Phase 2 AI comparison
 
-## Resolved Questions
+## Resolved Decision
 
-### Is the Day-0 flow too manual and boring without AI?
-
-Decision:
-
-Do not add AI to Day-0 Phase 1 just to make it feel more exciting.
+Do not add AI to user-facing Day-0 Phase 1 just to make it feel more exciting.
 
 Reason:
 
@@ -212,7 +240,7 @@ The target segment is developers / solo builders / technical users, who can hand
 
 If Day-0 completion is low during the test, treat that as a signal later.
 
-## Remaining Questions for Claude
+## Remaining Day-0 Questions
 
 1. Is 3–5 tasks too many for Day-0?
 2. Should goal creation be mandatory, or can users create standalone tasks?
@@ -224,15 +252,7 @@ If Day-0 completion is low during the test, treat that as a signal later.
 
 # Step 2 — Reconcile UX Spec
 
-## Why this comes second
-
-Reconcile is the core Phase 1 hypothesis.
-
-The validation plan depends on whether users complete or skip reconcile after unresolved tasks appear. That means the UX must be defined before build, not improvised by whoever is closest to the keyboard. A tragic governance model, yet popular.
-
-## GPT Recommendation
-
-Create:
+## Recommended file
 
 ```txt
 04-Specs/reconcile-ux.md
@@ -270,7 +290,7 @@ If the user skips and still takes meaningful action within 5 minutes, log:
 meaningful_action_after_reconcile_skip
 ```
 
-## Re-trigger rule after skip
+## Re-trigger rule after skipped reconcile
 
 If the user skips reconcile, do not show reconcile again later that same day.
 
@@ -279,6 +299,37 @@ Reason:
 Repeated same-day prompting becomes nagging and pollutes the skip-rate signal.
 
 Reconcile may reappear on the next app open on a later day if unresolved planned-for-day tasks still exist.
+
+## After skipped reconcile — Phase 1 decision
+
+Use **Option A** for Phase 1.
+
+```txt
+Skipped reconcile
+→ no persistent Today banner
+→ no separate unresolved page
+→ no same-day re-trigger
+→ unresolved tasks remain unresolved
+→ reconcile can appear again on next app open on a later day
+```
+
+## Why Option A
+
+Option A has the lowest build cost and cleanest validation signal.
+
+Avoid in Phase 1:
+
+- Today banner for unresolved tasks
+- separate unresolved/backlog page
+- manual review link after skip
+
+Reason:
+
+A persistent banner or separate page creates a second path back to unresolved tasks, which contaminates the skip signal.
+
+If the user skips reconcile and still acts, we want to know whether that action was organic, not prompted by a second UI surface.
+
+If testers complain that skipped reconcile made old tasks feel lost, then a calm review banner or separate recovery page can be added later with evidence behind it.
 
 ## Proposed UX Model
 
@@ -380,6 +431,8 @@ reconcile_skipped
 - no forced reason for dropping
 - no drop confirmation dialog
 - no same-day re-trigger after skip
+- no persistent unresolved-task banner in Phase 1
+- no separate unresolved-task page in Phase 1
 - no blocking dead-end
 - no productivity score
 
@@ -394,92 +447,11 @@ Here is what you chose to keep.
 
 Then route to Today page.
 
-## Open Question — What happens to skipped tasks?
-
-Mahdi added an important unresolved question:
-
-If the user skips reconcile, what should happen to those unresolved tasks?
-
-Possible models:
-
-### Option A — Hidden until next app open on later day
-
-Skipped tasks remain unresolved but do not interrupt the user again that day.
-
-Pros:
-
-- low friction
-- protects skip signal
-
-Cons:
-
-- tasks may feel hidden or lost
-
-### Option B — Today banner / backlog access
-
-Skipped tasks are accessible from a calm Today banner:
-
-```txt
-3 unfinished tasks from earlier
-[Review]
-```
-
-Pros:
-
-- user can return voluntarily
-- keeps tasks discoverable
-
-Cons:
-
-- still adds visual weight to Today
-
-### Option C — Separate "Unresolved" or "Later" page
-
-Skipped/unresolved tasks live in a separate page where users can review and bring them back into plans.
-
-Pros:
-
-- clean Today page
-- user has a recovery place
-
-Cons:
-
-- adds navigation and product complexity
-- may become a guilt pile with better branding, humanity's favorite UX costume change
-
-### GPT Leaning
-
-For Phase 1, prefer Option B:
-
-```txt
-Calm Today banner + manual Review action
-```
-
-Do not force the reconcile flow again the same day.
-
-Do not create a full separate unresolved-task page unless testing shows users feel tasks are lost.
-
-## Questions for Claude
-
-1. After skip, should unresolved tasks be hidden, shown as a Today banner, or moved to a separate page?
-2. How do we keep skipped tasks discoverable without creating a guilt pile?
-3. Should user be able to bring skipped tasks back into today's plan manually?
-4. Should skipped tasks count against validation if user later completes them without reconciling?
-5. Is a separate unresolved-task page too much for Phase 1?
-
 ---
 
 # Step 3 — Phase 1 Data Model Spec
 
-## Why this comes third
-
-After Day-0 and Reconcile UX are defined, the backend model should lock the minimum data needed to support the Phase 1 test.
-
-If data model comes too early, it may overbuild. If it comes too late, frontend and backend improvise different concepts of task, goal, and event. Naturally, computers then obey both versions badly.
-
-## GPT Recommendation
-
-Create:
+## Recommended file
 
 ```txt
 04-Specs/data-model-phase-1.md
@@ -489,7 +461,7 @@ Create:
 
 The data model should support Phase 1 validation and Phase 2 AI readiness, not the full long-term Adaptive Life OS.
 
-AI can be implemented in the stack, but user-facing AI planning is hidden during Phase 1 validation.
+Phase 1 should keep the schema ready for AI-generated tasks later, but must not implement runtime AI behavior.
 
 ## Minimum Entities
 
@@ -582,9 +554,7 @@ Use query-based rollups first. Materialize later only if volume or performance r
 
 Only store metadata required by defined metrics.
 
-### Task events
-
-Useful metadata:
+### `task_carried`
 
 ```txt
 previousPlannedForDate
@@ -592,9 +562,30 @@ newPlannedForDate
 carryCountAtEvent
 ```
 
-### Reconcile events
+### `task_dropped`
 
-Useful metadata:
+```txt
+previousPlannedForDate
+carryCountAtEvent
+```
+
+Reason:
+
+Capturing `carryCountAtEvent` on drop helps later identify patterns like:
+
+```txt
+task carried 3 times, then dropped
+```
+
+This may suggest the task was too vague, too large, or no longer relevant.
+
+### `reconcile_shown`
+
+```txt
+unresolvedTaskCountShown
+```
+
+### `reconcile_skipped`
 
 ```txt
 unresolvedTaskCountShown
@@ -605,45 +596,30 @@ Do not add speculative metadata just because it might be useful someday. That is
 ## Explicitly excluded from Phase 1 schema
 
 - stored DailyRollup table
+- runtime AI integration
+- AI user profile table
+- personality model
 - routines
 - time blocks
 - deadline fields
 - reminders
 - recurring rules
 - complex project hierarchy
-- AI user profile table
-- personality model
 - calendar integration
 
-## Important Data Questions
+## Important Data Decisions
 
 ### carryCount
-
-Question:
-
-Should `carryCount` be stored on Task, or derived from events?
-
-GPT recommendation:
 
 Store it on Task for simple UI/performance, but treat Event as source of truth.
 
 ### plannedForDate
 
-Question:
+A task can exist without a planned date.
 
-Should a task be allowed without a planned date?
-
-GPT recommendation:
-
-Yes. Tasks can be goal-linked but unscheduled.
+Tasks can be goal-linked but unscheduled.
 
 ### dropped vs archived
-
-Question:
-
-Is dropped a status or an archive action?
-
-GPT recommendation:
 
 Use `dropped` as status in Phase 1.
 
@@ -651,34 +627,61 @@ Archive can be later.
 
 ### source
 
-Question:
+Keep `source` in Phase 1 even though user-facing AI planning is hidden.
 
-Should `source` exist in Phase 1 even though user-facing AI planning is hidden?
+Set all Phase 1 user-created tasks to:
 
-GPT recommendation:
+```txt
+source = manual
+```
 
-Yes. Set all Phase 1 user-created tasks to `manual`. This prepares Phase 2 comparison without overbuilding.
+This prepares Phase 2 comparison without overbuilding.
 
-## Resolved Cuts Before Formal Specs
+---
+
+# Resolved Cuts Before Formal Specs
 
 Apply these cuts before creating formal specs:
 
 1. Remove hardcoded Done/Carry/Drop copy from Day-0.
-2. Do not add AI to user-facing Day-0 Phase 1.
-3. Carry defaults to Today, with one-tap date change.
-4. Drop uses undo toast, no confirmation.
-5. No same-day Reconcile re-trigger after skip.
-6. No stored DailyRollup table in Phase 1.
-7. Carried is not a Task status.
-8. Event metadata stays metric-driven.
+2. Do not add user-facing AI to Day-0 Phase 1.
+3. Do not implement runtime AI/LLM functionality in Phase 1.
+4. Carry defaults to Today, with one-tap date change.
+5. Drop uses undo toast, no confirmation.
+6. No same-day Reconcile re-trigger after skip.
+7. After skipped reconcile, use Option A: no banner, no separate page, reappear later.
+8. No stored DailyRollup table in Phase 1.
+9. Carried is not a Task status.
+10. Event metadata stays metric-driven.
+11. Capture `carryCountAtEvent` on `task_dropped` as well as `task_carried`.
 
-## Remaining Questions for Claude
+---
 
-1. Is the skipped-task banner approach the right Phase 1 compromise?
-2. Should skipped tasks be accessible from Today or from a separate page?
-3. Is this data model still enough if AI is fully implemented but hidden in Phase 1?
-4. What minimal AI-related backend fields are needed now, if any, without polluting Phase 1 validation?
-5. Should `source: ai_generated` exist before any user-facing AI flow is enabled?
+# Remaining Open Questions
+
+These are still open before formal specs:
+
+## Day-0 Onboarding
+
+1. Is 3–5 tasks too many for Day-0?
+2. Should goal creation be mandatory, or can users create standalone tasks?
+3. Should Day-0 force at least one task planned for today?
+4. Should the user see a vague preview of reconcile during onboarding, or only learn it later when needed?
+5. Is 3–5 minutes realistic?
+
+## Reconcile UX
+
+1. Should reconcile appear before Today, or as a focused panel within Today?
+2. Is full-page too heavy for Phase 1?
+3. Should skipped reconcile reappear on the next calendar day, or the next app open after today?
+4. Should `Skip for now` copy be softer, e.g. `Not now`?
+
+## Data Model
+
+1. Is `Goal -> Task -> optional planned day` enough for Phase 1?
+2. Should `source: ai_generated` exist before any user-facing AI flow is enabled?
+3. What exact metadata should be required for each event type?
+4. Should event type be a strict enum from day one?
 
 ---
 
@@ -686,15 +689,11 @@ Apply these cuts before creating formal specs:
 
 ```txt
 1. Create Day-0 Onboarding Spec
-2. Claude reviews
-3. Mahdi approves
-4. Create Reconcile UX Spec
-5. Claude reviews
-6. Mahdi approves
-7. Create Data Model Phase 1 Spec
-8. Claude/backend reviews
-9. Mahdi approves
-10. Start design + backend implementation planning
+2. Create Reconcile UX Spec
+3. Create Data Model Phase 1 Spec
+4. Review with Claude/backend/designer
+5. Mahdi approves
+6. Start design + backend implementation planning
 ```
 
 ## Why this order
@@ -707,15 +706,14 @@ Data model defines what must be built to support both.
 
 This order reduces premature backend complexity while keeping implementation grounded.
 
-## Claude Review Request
+## Next Recommended Action
 
-Please review the updated decisions:
+Create the three formal specs now, using the resolved decisions above:
 
-1. Is it correct to implement AI in the stack but hide it from Phase 1 users?
-2. Is the Day-0 copy now decoupled enough from Reconcile UX?
-3. Is the Reconcile UX decision set correct: Carry default Today, Drop undo toast, no same-day skip re-trigger?
-4. What should happen to skipped/unresolved tasks after user skips reconcile?
-5. Is removing stored DailyRollup correct?
-6. Is "carried is not status" enough for backend clarity?
-7. Is the minimal event metadata sufficient for validation?
-8. What should be cut or added before formal specs are created?
+```txt
+04-Specs/day-0-onboarding.md
+04-Specs/reconcile-ux.md
+04-Specs/data-model-phase-1.md
+```
+
+Then send those files to Claude / backend / designer for review.
