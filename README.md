@@ -1,35 +1,65 @@
 # Adaptive Planner Mind Map
 
-This vault is the planning, research, and decision space for the Adaptive Planner / Adaptive Life OS project.
+This vault is the product, architecture, research, and implementation source of truth for Adaptive Planner / Adaptive Life OS.
 
-The goal is not to start coding too early. The goal is to make the product thinking visible, reviewable, and stable before implementation starts.
+Phase 0 definition and architecture are closed. The project is now ready to begin Phase 1 implementation.
 
-## How this vault works
+Start with:
 
-- `00-Canvas/` is for visual overview and mind-storming.
-- `01-Open-Discussions/` is for GPT × Claude review loops.
-- `02-Decisions/` is for locked product decisions.
-- `03-Research/` is for articles, evidence, references, and confidence labels.
-- `04-Specs/` is for product specs before coding.
-- `05-Flows/` is for Mermaid flowcharts and user/system flows.
-- `06-References/` is for links, quotes, and source notes.
+- [[00-START-HERE]]
+- [[02-Decisions/ADR-003-phase-0-closure]]
+- [[05-Implementation/phase-1-plan]]
+
+## Repository structure
+
+- `00-Canvas/` — visual overview and mind-storming
+- `01-Open-Discussions/` — active or resolved GPT × Claude review loops
+- `02-Decisions/` — accepted ADRs and locked decisions
+- `03-Research/` — evidence, references, and confidence notes
+- `04-Specs/` — accepted product and technical specifications
+- `05-Implementation/` — active build sequence, gates, and implementation planning
+- `05-Flows/` — historical or supporting Mermaid/user/system flows when present
+- `06-References/` — links, quotes, and source notes
 
 ## Current product frame
 
-Adaptive Planner is a personal planning system that adapts to real behavior instead of relying only on questionnaires, streaks, or guilt-heavy overdue lists.
+Adaptive Planner is a personal planning system that adapts to real behavior instead of relying on questionnaires, streaks, or guilt-heavy overdue lists.
 
-The MVP direction is **reconcile-on-open**:
+The Phase 1 core loop is:
 
-1. User opens the app.
-2. The system checks unresolved tasks.
-3. User reconciles them: Done, Carry, or Drop.
-4. The Today page becomes clean again.
-5. Events are logged.
-6. Weekly review turns behavior into planning signals.
-7. AI proposes drafts only; the user approves or edits.
+1. User logs in with phone OTP.
+2. Day-0 setup allows optional Goal and Task creation.
+3. User plans work through Tasks and Today.
+4. On a later open, unresolved prior Tasks may trigger Reconcile.
+5. User resolves them through Done, Carry, Drop, or Skip.
+6. Behavioral events support the 14-day validation.
 
-## Current rule
+Phase 1 intentionally excludes AI runtime, Weekly Review, calendar integration, routines, time blocking, refresh tokens, OAuth/password login, and offline-first mutations.
 
-FigJam is optional visual output.
+## Team
 
-This vault is the source of truth.
+The plan assumes:
+
+```txt
+Mahdi — frontend + product/spec ownership + E2E coordination
+Backend developer — Java/Spring/PostgreSQL + security + transactions
+Designer — UX/UI + interaction states + responsive behavior
+```
+
+This is two engineering streams and one design stream. The designer is not treated as a third developer.
+
+## Source-of-truth rule
+
+When documents conflict, follow:
+
+```txt
+latest accepted ADR
+→ latest accepted formal spec
+→ accepted implementation plan
+→ resolved discussion summary
+→ research or historical draft
+```
+
+Resolved discussions preserve decision history. They do not override formal specs.
+
+FigJam is optional visual output. This repository remains the source of truth.
