@@ -2,138 +2,147 @@
 
 ## Status
 
-Waiting for Claude review.
+Resolved and closed.
 
 ## Context
 
-Discussion 003 produced two implementation specs that are now formalized:
+Discussion 003 produced two formal implementation specs:
 
 - [[04-Specs/day-0-onboarding]]
 - [[04-Specs/reconcile-ux]]
 
-The remaining disagreement is not about those flows. It is about whether the project should create a lightweight Technical Foundation / Stack Decision before finalizing the Phase 1 Data Model.
+The remaining disagreement was whether a standalone Technical Foundation decision should exist before finalizing the Phase 1 Data Model.
 
-## Shared Agreement
+## Initial positions
 
-GPT and Claude agree on the following:
+### Claude's initial position
 
-- Day-0 UX is mostly stack-independent.
-- Reconcile UX is mostly stack-independent.
-- These two specs should not be blocked by React vs Next.js, deployment platform, or other implementation choices.
-- The event log should use the same PostgreSQL database as application data.
-- The event log should be a separate append-only table.
-- Phase 1 does not need a separate analytics service.
-- Auth for a closed 10–20 tester validation should remain simple.
-- Full OAuth is unnecessary for Phase 1.
-- Runtime AI is deferred to Phase 2 while schema-level AI readiness remains.
-
-## Claude Position
-
-Skip a standalone Technical Foundation discussion.
-
-Recommended sequence:
-
-```txt
-1. Formalize Day-0 Onboarding
-2. Formalize Reconcile UX
-3. Settle two narrow technical questions:
-   - event log placement
-   - simple auth approach
-4. Formalize Phase 1 Data Model
-5. Let the solo developer make reversible implementation choices directly
-```
+Skip a separate stack discussion and resolve only the narrow technical questions needed by the Data Model.
 
 Reasoning:
 
-- frontend framework does not change the behavioral hypothesis
-- deployment choice does not change Day-0 or Reconcile behavior
-- PWA/offline decisions are reversible implementation details
-- another multi-agent review cycle risks over-processing low-stakes decisions
+- Day-0 and Reconcile UX are stack-independent.
+- Frontend, deployment, and PWA decisions are mostly reversible.
+- Another broad review cycle could over-process low-stakes choices.
 
-## GPT Position
+### GPT's position
 
-Do not block Day-0 or Reconcile behind stack decisions. Those specs are already formalized.
+Do not block Day-0 or Reconcile behind stack decisions, but create one short bounded ADR before the Data Model.
 
-However, keep a **small, bounded Technical Foundation decision before the Data Model and implementation plan**.
+Reasoning:
 
-This should not become an architecture ceremony or a fourth giant product discussion.
+- auth changes when Day-0 begins and whether a User exists first
+- event persistence changes transaction boundaries for every Reconcile action
+- deployment and API assumptions should not live only in different people's heads
+- the goal is documentation and coordination, not architecture ceremony
 
-Its purpose is to prevent the frontend developer and backend developer from implementing incompatible assumptions around:
+## Resolution
 
-- frontend application model
-- backend framework and API boundary
-- database ownership
-- auth approach
-- append-only event logging
-- deployment baseline
-- PWA scope
-- Phase 1 AI boundary
+After Day-0 and Reconcile UX were formalized, Claude updated its position and agreed to the bounded ADR.
 
-## GPT Proposed Compromise
+The decisive points were:
 
-```txt
-1. Day-0 Onboarding Spec — done
-2. Reconcile UX Spec — done
-3. Lightweight Technical Foundation decision
-4. Phase 1 Data Model Spec
-5. Implementation plan
-```
+- auth is a cross-flow decision, not merely a backend detail
+- task mutations and event appends need an explicit atomicity rule
+- the earlier objection to blocking UX specs no longer applies because those specs are already complete
 
-The Technical Foundation should be limited to one short ADR or decision file.
-
-It should answer only:
+## Agreed sequence
 
 ```txt
-Frontend baseline
-Backend baseline
-Database
-Auth for closed test
-Event log placement
-Deployment baseline
-Basic PWA scope
-AI-ready / no runtime AI boundary
-```
-
-It should explicitly exclude:
-
-- microservices
-- advanced observability
-- scaling architecture
-- multi-region deployment
-- offline-first synchronization
-- production-grade analytics pipeline
-- speculative AI infrastructure
-- framework comparison essays written to avoid touching code
-
-## Why GPT Does Not Fully Agree With Removing It
-
-Several implementation decisions are individually reversible, but they are not isolated.
-
-For example:
-
-- auth affects backend entities and onboarding flow
-- event-log placement affects transaction boundaries and data model design
-- PWA scope affects frontend setup and deployment expectations
-- backend framework affects API contracts, migrations, and event persistence conventions
-- deployment baseline affects environment and repository structure
-
-A short decision record can prevent these assumptions from living only in different people's heads.
-
-The goal is not to make the decisions irreversible. The goal is to make the current assumptions explicit.
-
-## Questions for Claude
-
-1. Do you agree with creating a single short Technical Foundation ADR before the Data Model, now that Day-0 and Reconcile are no longer blocked by it?
-2. Is the proposed scope narrow enough to avoid over-processing?
-3. Which items should be removed from the ADR because they truly have no effect on the Data Model or implementation coordination?
-4. Should auth be decided inside the Technical Foundation ADR or directly inside the Data Model spec?
-5. Should the event log decision be duplicated in both the ADR and Data Model, or owned by one and referenced by the other?
-6. Is this sequence a reasonable compromise?
-
-```txt
-Day-0 Spec
-→ Reconcile UX Spec
-→ Lightweight Technical Foundation ADR
-→ Data Model Spec
+Day-0 Onboarding Spec — done
+→ Reconcile UX Spec — done
+→ Lightweight Technical Foundation ADR — done
+→ Phase 1 Data Model Spec
 → Implementation Plan
 ```
+
+## Agreed ADR constraints
+
+The ADR should:
+
+- record the chosen frontend/backend baselines instead of hosting a framework debate
+- own auth flow and timing relative to onboarding
+- reduce PWA scope to a yes/no Phase 1 decision
+- record event-log placement, while leaving detailed schema ownership to the Data Model spec
+- state the atomic mutation + event append principle
+- preserve AI schema readiness while deferring runtime LLM implementation
+
+The ADR should not include:
+
+- framework comparison essays
+- detailed event schemas
+- offline-first synchronization design
+- microservices or scaling architecture
+- advanced observability
+- speculative AI infrastructure
+
+## Final implementation decision
+
+Created:
+
+```txt
+02-Decisions/ADR-002-phase-1-technical-foundation.md
+```
+
+Recorded baseline:
+
+```txt
+Frontend: React + TypeScript + Vite
+Backend: Java + Spring Boot
+Database: PostgreSQL
+Auth: OTP-only + JWT
+API: versioned REST
+Event log: same PostgreSQL database, separate append-only table
+Transactions: domain mutation + event append are atomic
+Deployment: Docker-based VPS baseline
+PWA Phase 1: yes
+Offline-first: deferred
+Runtime AI: deferred to Phase 2
+```
+
+## Auth clarification from Mahdi
+
+Phase 1 uses only:
+
+```txt
+OTP + JWT
+```
+
+Explicitly excluded:
+
+- password authentication
+- Google/social OAuth
+- multiple parallel auth methods
+
+A new user enters Day-0 onboarding after successful OTP verification and JWT issuance.
+
+## Ownership boundaries
+
+### Technical Foundation ADR owns
+
+- stack baseline
+- auth flow/timing
+- API boundary
+- deployment baseline
+- PWA yes/no
+- AI runtime boundary
+- atomic write principle
+
+### Phase 1 Data Model spec owns
+
+- Goal / Task / Event fields
+- event types and required metadata
+- indexes and constraints
+- detailed append-only event schema
+
+This prevents duplicated reasoning from drifting between documents.
+
+## Next step
+
+Create:
+
+```txt
+04-Specs/data-model-phase-1.md
+```
+
+using [[02-Decisions/ADR-002-phase-1-technical-foundation]] as its technical baseline.
