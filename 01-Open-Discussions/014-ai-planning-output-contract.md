@@ -4,7 +4,7 @@
 
 Open for GPT × Claude review.
 
-This version contains GPT's proposed decisions and is not yet accepted.
+This version contains GPT's proposed decisions, including Mahdi's explicit one-Goal and one-week planning constraints. It is not yet accepted.
 
 Related accepted discussions:
 
@@ -24,7 +24,10 @@ What may the draft contain?
 How does it map to Goal, Project, Task, and Routine?
 What limits prevent oversized or incoherent drafts?
 How are assumptions, warnings, invalid values, and partial results represented?
-What may the user edit and approve?
+How is the hierarchy shown for review?
+What may the user edit, include, exclude, and approve?
+What happens to children when a proposed parent is rejected?
+What is the maximum actionable planning horizon?
 ```
 
 The draft is ephemeral. It is not a canonical product entity and creates nothing by itself.
@@ -39,21 +42,22 @@ Core invariant inherited from Discussion 013:
 
 This discussion does not define:
 
-- conversation entry or clarification flow — Discussion 013
-- persistence tables, database constraints, transactions, or events — Discussion 019
-- model provider, runtime, retries, schema-enforcement library, or API transport — Discussion 020
-- Today execution, occurrence generation, or Carry behavior — Discussion 015
-- Reconcile output or adaptation actions — Discussions 016 and 017
-- detailed safety detection or provider failure policy — Discussion 018
+- conversation entry or clarification limits — Discussion 013
+- visual styling, exact component layout, animation, or responsive implementation
+- persistence tables, constraints, transactions, or events — Discussion 019
+- provider, runtime, retry, transport, or schema-enforcement implementation — Discussion 020
+- Today execution, occurrence generation, or Carry — Discussion 015
+- detailed weekly-review trigger and adaptation flow — Discussions 015–017
+- detailed safety detection or provider-failure policy — Discussion 018
 - implementation sequencing — Discussion 022
 
-A structured contract is defined here conceptually. Its eventual JSON Schema, DTOs, database mapping, and API envelope belong to later technical discussions.
+This discussion does define the UX semantics required to review the contract coherently. Later UX specifications may choose cards, trees, accordions, or other visual components, but may not change the accepted review behavior silently.
 
 ---
 
 ## 3. Accepted Dependencies
 
-Discussion 012 established:
+Discussion 012 established the canonical concepts:
 
 ```txt
 Goal
@@ -63,7 +67,7 @@ Routine
 RoutineOccurrence
 ```
 
-The planning draft may propose creation of:
+Planning AI may propose:
 
 ```txt
 Goal
@@ -72,7 +76,7 @@ Task
 Routine
 ```
 
-It does not directly propose `RoutineOccurrence`. Occurrences belong to scheduling and execution behavior.
+It does not directly propose `RoutineOccurrence`.
 
 Ownership constraints remain unchanged:
 
@@ -89,9 +93,9 @@ Discussion 013 established:
 - Goal creation is not mandatory
 - clarification may be skipped
 - the user may request `Draft now`
-- assumptions must be visible
+- material assumptions must be visible
 - no canonical entities exist before approval
-- safety fallback produces no planning draft
+- safety fallback produces no PlanningDraft
 
 ---
 
@@ -99,38 +103,101 @@ Discussion 013 established:
 
 ### 4.1 Draft, Not Hidden Execution
 
-Planning AI returns a proposal that the product can render and validate.
+Planning AI returns a proposal that the product can render, edit, validate, and approve.
 
 It must not:
 
 - create canonical entities before approval
 - return hidden actions that bypass review
 - invent product concepts outside Discussion 012
-- silently repair a materially different user intention
-- claim that a proposed date, recurrence, or ownership has already been applied
+- silently change a materially different user intention
+- claim proposed dates, recurrence, or ownership were already applied
 
-### 4.2 Product Meaning Before Transport Shape
+### 4.2 One Coherent Intention and Maximum One Goal
 
-The contract describes product meaning first.
+One PlanningDraft represents one coherent planning intention.
 
-Field names shown below are canonical conceptual names for this discussion, but exact API casing, serialization details, IDs, and DTO structure belong to Discussions 019 and 020.
+Planning AI may propose:
 
-### 4.3 Minimal Complete Draft
+```txt
+zero Goals
+or exactly one Goal
+```
 
-A draft should contain only the structures justified by the user intention.
+It must never propose more than one Goal in a single draft.
 
-Valid examples include:
+When the input contains multiple independent desired outcomes, the AI must:
+
+```txt
+1. ask the user to choose one Goal
+or
+2. produce a draft for the most immediate coherent intention with a visible omission
+or
+3. propose separate future planning flows
+```
+
+It must not bundle several Goals into one approval package merely because they appeared in one message.
+
+This limit applies to proposed new Goals. A contextual planning flow may reference one existing Goal without proposing another unrelated Goal.
+
+### 4.3 Minimal Complete Structure
+
+The draft contains only structures justified by the intention.
+
+Valid forms include:
 
 ```txt
 one standalone Task
 one standalone Routine
-one standalone Project with Tasks
+one standalone Project with child work
 one Goal with direct Tasks and Routines
 one Goal with Projects and child work
-multiple standalone Tasks
+multiple standalone Tasks under one coherent intention
 ```
 
-A draft does not become better merely because it contains more hierarchy, a recurring software superstition with impressive endurance.
+The AI must not create Goal or Project wrappers merely to make the output look more organized.
+
+### 4.4 Long-Term Direction, One-Week Action Horizon
+
+A Goal or Project may represent work lasting months or years.
+
+However, one PlanningDraft may schedule actionable work for a maximum horizon of seven calendar days.
+
+```txt
+Long-term Goal or Project structure
++ maximum seven-day actionable plan
+```
+
+Even when the user asks for a one-year plan, the AI must not create a fully scheduled one-year execution backlog.
+
+It should instead provide:
+
+- the long-term Goal or Project structure justified by the request
+- only the Tasks and Routine placements that are actionable or reviewable for the first seven days
+- an explicit note that later weeks require renewed confirmation
+
+The one-week limit is not a limit on Goal duration, Project duration, or Routine lifetime. It limits only the currently approved detailed execution horizon.
+
+### 4.5 Weekly Continuation Requires User Confirmation
+
+At the beginning of the next planning week, the system must not silently roll the same detailed plan forward as if it remains suitable.
+
+The product must obtain a lightweight user decision:
+
+```txt
+Continue this plan as-is
+Adjust the plan
+Pause or stop relevant work
+Review with AI
+```
+
+The exact trigger timing, Today integration, evidence used for adaptation, and Reconcile behavior belong to Discussions 015–017.
+
+The invariant established here is:
+
+> No detailed weekly execution plan becomes the next week's accepted plan without user confirmation.
+
+A Routine may remain a canonical recurring definition after approval, but its next-week planning presentation and any AI-proposed adaptation still require the weekly review behavior defined later.
 
 ---
 
@@ -143,7 +210,8 @@ PlanningDraft
 - assumptions[]
 - warnings[]
 - unresolvedQuestions[]
-- suggestedFirstWeek?
+- firstWeekPlan?
+- continuationPolicy
 ```
 
 ### 5.1 `draftSummary`
@@ -153,17 +221,12 @@ A short user-facing summary of what the AI understood and proposed.
 Rules:
 
 - one to three short sentences
-- no unsupported claim that the Goal is achievable
-- no motivational diagnosis or personality inference
-- no hidden decision absent from the structured proposals
-
-Example:
-
-> I interpreted this as a Goal to find a frontend job, supported by one portfolio Project, several one-off Tasks, and a recurring interview-practice Routine.
+- no claim that the Goal is guaranteed or objectively achievable
+- no personality or motivational diagnosis
+- no hidden decision absent from structured proposals
+- when the intention is long-term, state that detailed scheduling covers only the first week
 
 ### 5.2 `proposals[]`
-
-An ordered collection of proposed canonical entities.
 
 Each proposal contains:
 
@@ -179,42 +242,21 @@ Proposal
 - fields
 ```
 
-#### `draftId`
+#### Temporary Identity
 
-A temporary identifier used only to connect items inside the draft.
+`draftId` connects proposals inside the ephemeral draft. It is not a canonical product ID.
 
-It is not a canonical product ID.
+#### Parent Relationships
 
-#### `entityType`
-
-Must be one of the four entities that Planning AI may propose:
-
-```txt
-GOAL
-PROJECT
-TASK
-ROUTINE
-```
-
-#### `title`
-
-Required, concise, and user-editable.
-
-#### `description`
-
-Optional supporting detail. It must not duplicate the title merely to satisfy a field.
-
-#### `parentDraftId`
-
-Optional reference to another proposal in the same draft.
-
-Allowed parent mappings:
+Allowed mappings:
 
 ```txt
 PROJECT → GOAL
 TASK → GOAL | PROJECT
 ROUTINE → GOAL | PROJECT
 ```
+
+A Task or Routine with no parent is standalone.
 
 Forbidden mappings:
 
@@ -225,85 +267,72 @@ TASK → TASK | ROUTINE
 ROUTINE → TASK | ROUTINE
 ```
 
-A Task or Routine with no `parentDraftId` is standalone.
-
-#### `source`
+#### Source
 
 ```txt
 EXPLICIT
-```
+The proposal directly reflects user input.
 
-The proposal directly reflects user-provided intent.
-
-```txt
 INFERRED
+The AI introduced structure beyond literal wording.
 ```
 
-The AI added or structured the proposal beyond the user's literal wording.
+Inferred structure must remain visible during review.
 
-This label supports transparent review. It is not evidence that inferred content is correct.
+#### Confidence
 
-#### `confidence`
-
-Confidence describes interpretation confidence, not predicted success.
+Confidence describes interpretation confidence, not success probability.
 
 ```txt
 HIGH
-The item directly follows from explicit user input.
+Directly follows explicit input.
 
 MEDIUM
-The item is a reasonable interpretation with limited ambiguity.
+Reasonable interpretation with limited ambiguity.
 
 LOW
-The item depends on a visible assumption or may require user correction.
+Depends on a material assumption or likely correction.
 ```
 
-The system must not present confidence as a psychological or statistical score.
-
-### 5.3 Entity-Specific Fields
-
-#### Goal Fields
+### 5.3 Goal Fields
 
 ```txt
 GoalFields
 - desiredOutcome
 ```
 
-`desiredOutcome` is required when proposing a Goal. It should describe the outcome or direction in normal user language.
+Rules:
 
-The AI may clarify or rewrite a user-provided Goal for review, but it must not silently replace the user's intended outcome.
+- required when proposing a Goal
+- maximum one proposed Goal per PlanningDraft
+- may clarify the user's outcome but must not replace it silently
+- contains no AI-calculated achievement percentage
 
-A Goal draft does not contain an AI-calculated progress percentage.
-
-#### Project Fields
+### 5.4 Project Fields
 
 ```txt
 ProjectFields
 - completionMeaning?
 ```
 
-`completionMeaning` may explain what would make the finite effort complete when this is useful and supported.
+A Project must represent a finite or independently manageable effort. It must not exist only as an artificial wrapper.
 
-The AI must not create a Project only as a wrapper for one child item unless the user explicitly asked for a Project or the finite effort has independent meaning.
-
-#### Task Fields
+### 5.5 Task Fields
 
 ```txt
 TaskFields
 - plannedDate?
 ```
 
-`plannedDate` is optional.
+A planned date may appear only when:
 
-It may be included only when:
+- explicitly supplied
+- deterministically derived from confirmed context
+- or shown as a visible editable assumption
 
-- the user explicitly provided a date
-- the date follows deterministically from explicit context
-- or the AI presents it as a visible assumption that the user may edit
+Any proposed `plannedDate` must fall within the current seven-day actionable horizon. Longer-term work may remain undated or represented at Project level.
 
-A Task does not require a planned date merely because the draft contains a first-week view.
-
-#### Routine Fields
+### 5.6 Routine Fields
 
 ```txt
 RoutineFields
@@ -313,9 +342,7 @@ RoutineFields
 - durationMinutes?
 ```
 
-`recurrence` is required for a Routine proposal.
-
-The initial supported conceptual recurrence patterns are:
+Supported conceptual recurrence patterns:
 
 ```txt
 DAILY
@@ -326,40 +353,25 @@ N_TIMES_PER_WEEK
 MONTHLY_ON_DAY
 ```
 
-Examples:
+A Routine definition may describe recurrence beyond one week, but the detailed first-week plan may show only occurrences or placements within seven days.
+
+Unsupported recurrence must not be silently converted to a nearby supported pattern.
+
+### 5.7 `continuationPolicy`
 
 ```txt
-DAILY
-Every day
-
-WEEKDAYS
-Monday through Friday
-
-SPECIFIC_WEEKDAYS
-Monday, Wednesday, Friday
-
-WEEKLY
-Every Friday
-
-N_TIMES_PER_WEEK
-Three times per week, without fixed occurrence dates yet
-
-MONTHLY_ON_DAY
-The first day of each month
+ContinuationPolicy
+- reviewRequiredAtNextWeek: true
+- allowedChoices:
+  - CONTINUE_AS_IS
+  - ADJUST
+  - PAUSE_OR_STOP
+  - REVIEW_WITH_AI
 ```
 
-Unsupported or ambiguous recurrence must not be silently converted to the nearest supported pattern.
+For AI-generated multi-day or long-term plans, `reviewRequiredAtNextWeek` is always `true`.
 
-Examples requiring warning, clarification, or partial output:
-
-```txt
-every so often
-whenever I feel behind
-three business days after every client reply
-on alternating lunar Tuesdays, because apparently calendars were not already complicated enough
-```
-
-The exact recurrence encoding and occurrence-generation behavior belong to Discussions 015 and 019.
+This field records the product invariant. Exact persistence and triggering belong to later discussions.
 
 ---
 
@@ -373,24 +385,9 @@ Assumption
 - impact: LOW | MATERIAL
 ```
 
-Assumptions must describe values or structures not explicitly confirmed by the user.
+Every material inferred ownership, date, recurrence, entity classification, or reparenting choice must be visible.
 
-Examples:
-
-```txt
-I assumed “practice English regularly” means three times per week.
-I treated “launch my portfolio” as a standalone Project rather than a Goal.
-I left the application Tasks undated because no deadline was provided.
-```
-
-Rules:
-
-- every material inferred ownership, date, recurrence, or entity classification must be visible
-- assumptions may not conceal unsupported professional advice
-- a draft with a material assumption remains reviewable, but the assumption must be prominent
-- the user may edit or reject any assumption by editing the affected proposal
-
-Low-impact wording cleanup does not require its own assumption entry.
+The user resolves an assumption by editing, accepting, or excluding the affected proposal.
 
 ---
 
@@ -404,42 +401,18 @@ Warning
 - severity: INFO | IMPORTANT | BLOCKING
 ```
 
-Warnings identify contract or user-intent problems. They do not shame the user.
-
-### INFO
-
-The draft is valid, but the user should notice a limitation or omission.
-
-Example:
-
-```txt
-No target date was provided, so Tasks are currently undated.
-```
-
-### IMPORTANT
-
-The draft is usable, but approval should require explicit attention to the affected item.
-
-Example:
-
-```txt
-The requested recurrence was interpreted as weekdays. Please verify it.
-```
-
-### BLOCKING
-
-The affected proposal cannot be approved until corrected or removed.
+`BLOCKING` prevents approval of the affected proposal until corrected or excluded.
 
 Examples:
 
-```txt
-A Routine has no supported recurrence.
-A parent reference is invalid.
-A Task is attached to both a Goal and a Project.
-A provided date is impossible or internally contradictory.
-```
+- invalid parent reference
+- Task or Routine assigned to both Goal and Project
+- unsupported recurrence
+- impossible date
+- proposed Task date beyond the current seven-day planning horizon
+- more than one proposed Goal
 
-Safety crisis input does not produce a PlanningDraft with a blocking warning. It follows `SAFETY_FALLBACK` from Discussion 013 and produces no draft.
+Safety-crisis input produces no PlanningDraft and routes to `SAFETY_FALLBACK` from Discussion 013.
 
 ---
 
@@ -453,34 +426,18 @@ UnresolvedQuestion
 - blocking: true | false
 ```
 
-This collection exists for partial drafts produced through `Draft now`, clarification exhaustion, or unsupported input portions.
+Unresolved questions are used for partial drafts. They must not restart an unlimited interview.
 
-It must not restart an unlimited interview inside the draft.
-
-A blocking unresolved question prevents approval only for the affected proposal, not automatically for unrelated valid proposals.
-
-Example:
-
-```txt
-What days should “three times per week” occur?
-```
-
-This is non-blocking if `N_TIMES_PER_WEEK` is supported without fixed weekdays.
-
-Example:
-
-```txt
-Should this Routine belong to the existing Goal or the proposed Project?
-```
-
-This is blocking when ownership cannot be represented without choosing one.
+A blocking question prevents approval only for affected proposals, unless the unresolved issue corrupts the whole hierarchy.
 
 ---
 
-## 9. Suggested First Week
+## 9. First-Week Plan
 
 ```txt
-SuggestedFirstWeek
+FirstWeekPlan
+- startDate
+- endDate
 - entries[]
 ```
 
@@ -491,34 +448,43 @@ FirstWeekEntry
 - note?
 ```
 
-The first-week schedule is optional.
+### 9.1 Horizon Rule
 
-It may be included when it helps the user understand immediate workload, especially for multi-item drafts.
+The detailed plan covers no more than seven consecutive calendar days.
 
-It is not required for:
+```txt
+endDate - startDate <= 6 days
+```
 
-- a single standalone Task
-- a single Routine with clear recurrence
-- a draft with no meaningful timing information
-- a long-term Goal whose initial work is not yet dated
+The AI must not create detailed week-two or later placements inside the same initial approval draft.
 
-Rules:
+### 9.2 When It Is Required
 
-- it may reference proposed Tasks and Routines only
-- it may not create separate canonical entities
-- it must not directly create `RoutineOccurrence`
-- it must remain editable and disappear if the referenced proposal is removed
-- dates must remain consistent with Task planned dates and Routine recurrence
+A first-week plan is required when the AI proposes a multi-step or long-term plan with actionable Tasks or Routines.
 
-Discussion 015 determines how approved work enters Today and how occurrences are generated.
+It may be omitted for:
+
+- one standalone Task with an explicit date
+- one standalone Routine whose recurrence is already fully clear
+- a Goal or Project definition with no actionable work yet
+- a partial draft that cannot safely schedule work
+
+### 9.3 Rules
+
+- references Tasks and Routines only
+- creates no separate canonical entity
+- creates no `RoutineOccurrence` directly
+- remains editable before approval
+- disappears or updates when referenced proposals are excluded or edited
+- must remain consistent with Task dates and Routine recurrence
+- cannot contain entries outside the seven-day horizon
+- must state that next-week continuation requires user confirmation
 
 ---
 
 ## 10. Numeric Limits
 
-The limits are product guardrails for one planning response, not universal limits on what a user may eventually create.
-
-### Proposed Default Limits per Draft
+Limits per PlanningDraft:
 
 ```txt
 Goals: maximum 1
@@ -530,94 +496,34 @@ First-week entries: maximum 21
 Assumptions: maximum 10
 Warnings: maximum 10
 Unresolved questions: maximum 5
+Detailed planning horizon: maximum 7 calendar days
 ```
 
-### Rationale
+These are limits on one AI draft, not universal limits on canonical user data.
 
-- one conversation should represent one coherent planning intention
-- multiple Goals in one approval bundle create ambiguous scope and review complexity
-- 15 Tasks permit a useful plan without generating a ceremonial backlog the user did not ask for
-- 5 Routines reduce the risk of proposing an unrealistic lifestyle reconstruction in one click
-- the user may request a smaller continuation draft later
-
-If the request exceeds the limits, the AI should:
-
-```txt
-1. prioritize the most immediate coherent subset
-2. state what was omitted
-3. offer to prepare another draft after the current one is resolved
-```
-
-It must not silently truncate output.
+When input exceeds limits, the AI must prioritize a coherent immediate subset, state what was omitted, and offer another planning flow later. It must not silently truncate.
 
 ---
 
 ## 11. Zero and Partial Output
 
-### 11.1 Zero Tasks
+Zero Tasks or zero Routines are valid when the intention does not justify them.
 
-Valid when:
-
-- the user requested only a Routine
-- the draft proposes only a Goal or Project definition pending later planning
-- no Task can be proposed without inventing important details
-
-### 11.2 Zero Routines
-
-Valid when:
-
-- the intention contains only one-off work
-- recurrence would add no value
-- the user explicitly asked for Tasks only
-
-### 11.3 Zero Proposals
-
-Valid only when:
-
-- the planning input is unsupported but not a safety fallback
-- contradictions prevent any coherent proposal
-- the user requested `Draft now` before enough planning meaning existed
-
-A zero-proposal response must include at least one warning or unresolved question explaining why no draft items were produced.
-
-### 11.4 Partial Draft
+Zero proposals are valid only when no coherent supported proposal can be produced. The result must explain why through warnings or unresolved questions.
 
 A partial draft may contain valid proposals while omitting or blocking unresolved portions.
 
-Example:
-
-```txt
-User asks for a portfolio Project and “some healthy routine” without defining the routine.
-
-Valid partial result:
-- portfolio Project and supported Tasks
-- no invented health Routine
-- unresolved question for the omitted Routine portion
-```
+The AI must not generate filler Tasks merely to occupy all seven days.
 
 ---
 
 ## 12. Duplicate Handling
 
-The AI should avoid duplicates within the draft through semantic comparison.
+The AI should avoid semantic duplicates within the draft.
 
-Examples of likely duplicates:
+It may merge only when meaning is clearly equivalent. Uncertain or materially different items must remain separate or be surfaced for review.
 
-```txt
-Update CV
-Improve my resume
-
-Practice English every weekday
-Do English practice Monday to Friday
-```
-
-When two items express the same action:
-
-- merge them when meaning is clearly equivalent
-- preserve distinct items when their scope differs
-- expose uncertainty rather than silently merging materially different work
-
-Duplicate checking against existing canonical user data belongs partly to later product and data discussions. In this draft contract, existing-item conflicts may be represented as warnings, not silently resolved.
+Conflicts with existing canonical data may be represented as warnings; silent replacement or merging is forbidden.
 
 ---
 
@@ -625,88 +531,107 @@ Duplicate checking against existing canonical user data belongs partly to later 
 
 A PlanningDraft is structurally valid only when:
 
-- every proposal has a unique temporary `draftId`
-- every `entityType` is supported
+- every proposal has a unique `draftId`
+- every entity type is supported
+- no more than one Goal is proposed
 - every title is non-empty
-- every parent reference points to a proposal in the same draft or to explicit existing context handled by the later API contract
-- every parent mapping obeys Discussion 012
+- parent references are valid
+- parent mappings obey Discussion 012
 - no Task or Routine has both Goal and Project ownership
-- every Routine has a supported recurrence or a blocking warning that prevents its approval
-- dates are parseable and internally consistent
+- every Routine has supported recurrence or is blocked
+- dates are valid and consistent
+- actionable dates and first-week entries stay inside seven days
 - counts remain within limits
-- every first-week entry references an existing proposal
-- warnings and assumptions reference valid draft items when references are present
+- warnings, assumptions, and questions reference valid items
+- first-week entries reference included Task or Routine proposals
+- continuation policy requires next-week review where applicable
 
-### Semantic Validation
+Semantic validation should also check:
 
-The system should also check:
-
-- Project is not an artificial wrapper without independent meaning
-- Goal does not merely restate a single Task
+- Project is not an artificial wrapper
+- Goal is not merely a renamed Task
 - Task is actionable and non-recurring
 - Routine represents recurring behavior
-- title and description do not contradict each other
-- schedule does not contradict recurrence
-- inferred content does not exceed user intent without visible assumptions
+- hierarchy and descriptions do not contradict each other
+- the first week is not unrealistically overloaded
+- inferred structure remains visible
 
-Semantic validation may use AI assistance, but deterministic contract rules take precedence.
+Deterministic contract rules take precedence over AI semantic judgment.
 
 ---
 
 ## 14. Repair and Failure Behavior
 
-Structured output validation occurs before the draft is shown as ready for approval.
-
 Conceptual repair sequence:
 
 ```txt
-1. validate deterministic structure
-2. perform one bounded repair attempt for formatting or contract violations
-3. revalidate
-4. if still invalid, preserve the conversation and enter GENERATION_FAILED
+1. deterministic validation
+2. one bounded structural repair attempt
+3. revalidation
+4. GENERATION_FAILED if still invalid
 ```
 
-The repair step may correct:
+Repair may fix formatting, missing optional containers, obvious enum spelling, or unambiguous temporary references.
 
-- malformed structured syntax
-- missing optional containers
-- invalid temporary references when the intended reference is unambiguous
-- unsupported enum spelling when the intended supported value is exact and obvious
-
-The repair step must not silently change:
+Repair must not silently change:
 
 - user intent
-- entity ownership
+- Goal versus Project classification
+- ownership
 - dates
 - recurrence meaning
-- Goal versus Project classification
 - requested scope
-
-Provider, retry count, schema library, parsing, and idempotency details belong to Discussions 018 and 020.
+- parent-removal outcome
+- the seven-day horizon
 
 ---
 
-## 15. User Review Semantics
+## 15. Draft Review and Relationship UX Semantics
 
-The user may edit before approval:
+### 15.1 Hierarchy Must Be Visible
 
-- titles
-- descriptions
+The review experience must present ownership clearly enough that a normal user can understand:
+
+```txt
+Goal
+├── Project
+│   ├── Task
+│   └── Routine
+├── direct Task
+└── direct Routine
+```
+
+The exact visual component is deferred, but the hierarchy must not be flattened into an ambiguous list.
+
+Each item must visibly communicate:
+
+- entity type
+- parent or standalone status
+- included, excluded, or blocked state
+- material assumptions or warnings attached to it
+- first-week placements where relevant
+
+### 15.2 Edit Before Approval
+
+The user edits the draft before canonical creation.
+
+Editable fields include:
+
+- title and description
 - entity classification
-- parent ownership
-- Task dates
+- ownership
+- Task date
 - Routine recurrence and timing
-- assumptions by editing the affected items
-- inclusion or removal of any proposal
 - first-week placement
+- include or exclude selection
 
-The user may also request AI-assisted revision, but every revised result remains an unapproved draft.
+AI-assisted revision is allowed, but every revision remains unapproved until final confirmation.
 
-### Approval Unit
+The product must not require the user to approve unwanted entities first and repair them after creation.
 
-The default interaction presents one draft for review, but approval occurs at item level within one confirmation action.
+### 15.3 Review Selection States
 
-Before final confirmation, each proposal is in one of these review selections:
+Each proposal has one review state:
 
 ```txt
 INCLUDED
@@ -714,50 +639,81 @@ EXCLUDED
 BLOCKED
 ```
 
-- `INCLUDED`: will be created after confirmation
+- `INCLUDED`: valid and selected for creation
 - `EXCLUDED`: will not be created
 - `BLOCKED`: cannot be included until corrected
 
-The user may confirm all currently included and valid proposals together.
+### 15.4 Approval Unit
 
-This avoids forcing one confirmation dialog per Task while still allowing selective approval.
-
-### Parent Removal
-
-If the user excludes a parent proposal:
-
-- child proposals must not silently disappear
-- the UI must ask or visibly offer valid alternatives
-
-Possible outcomes:
+The user reviews items individually but performs one final confirmation for all currently included and valid proposals.
 
 ```txt
-exclude child too
-make child standalone
-move child to another valid included parent
+item-level review
+→ edit / include / exclude
+→ resolve structural conflicts
+→ one final explicit approval
 ```
 
-The system must not silently reparent consequential structure.
+This avoids both blind all-or-nothing approval and one confirmation dialog per Task.
 
-### Partial Approval
+Partial approval is allowed when the remaining included hierarchy is valid.
 
-Partial approval is allowed when the remaining included proposals are independently valid.
+### 15.5 Parent Exclusion Must Never Be Silent
+
+When a Goal or Project is excluded, its children must not silently disappear or silently receive a new owner.
+
+The product must enter an explicit dependency-resolution interaction.
+
+Valid choices may include:
+
+```txt
+1. exclude the parent and all selected descendants
+2. keep eligible children as standalone items
+3. move eligible children to another valid included parent
+4. cancel parent exclusion
+```
+
+Only semantically valid options should be shown.
 
 Examples:
 
-- approve a Project and Tasks while excluding a proposed Routine
-- approve standalone Tasks while excluding the proposed Goal
-- exclude one invalid Task while approving unrelated valid items
+- a Project may become standalone after its Goal is excluded
+- a Task or Routine may become standalone when allowed
+- a Project-owned Task may move to the parent Goal only with explicit user selection
+- a Project-owned Routine may be moved only after making the changed lifecycle meaning visible
 
-Approval creates only the included, valid proposals.
+The system must revalidate all affected items after any reparenting.
+
+### 15.6 Child Exclusion
+
+Excluding a child does not exclude its parent.
+
+If excluding all children leaves an inferred Project with no independent meaning, the system should warn that the Project may now be an artificial empty wrapper. It must not remove it silently.
+
+### 15.7 Questions and Warnings in Review
+
+Warnings, assumptions, and unresolved questions should appear beside or within the affected item, not only in one detached global list.
+
+Global summaries may exist, but they do not replace item-level context.
+
+### 15.8 Exact Visual Design Deferred
+
+Deferred UX details include:
+
+- tree versus nested cards
+- accordion behavior
+- mobile navigation
+- drag-and-drop
+- modal versus inline editing
+- icons, spacing, colors, animation, and wording polish
+
+A later UX specification may decide these details but must preserve the semantics above.
 
 ---
 
 ## 16. Direct Answers to Original Questions
 
-### 1. What exact fields exist in the planning draft?
-
-The conceptual contract contains:
+### What exact fields exist?
 
 ```txt
 draftSummary
@@ -765,64 +721,52 @@ proposals[]
 assumptions[]
 warnings[]
 unresolvedQuestions[]
-suggestedFirstWeek?
+firstWeekPlan?
+continuationPolicy
 ```
 
-Each proposal includes temporary identity, entity type, title, optional description, optional parent, source, confidence, and entity-specific fields.
+### Does AI create or only clarify a Goal?
 
-### 2. Does AI create or only clarify the Goal?
+It may propose zero or one Goal. It may never propose more than one Goal per draft. Nothing is created before approval.
 
-It may propose a new Goal, clarify an explicitly stated Goal, or propose no Goal. Nothing is created before approval.
-
-### 3. What are the maximum Task and Routine counts?
+### What are the maximum Task and Routine counts?
 
 ```txt
-maximum 15 Tasks
-maximum 5 Routines
+15 Tasks
+5 Routines
 ```
 
-### 4. Is a seven-day schedule required or optional?
+### Is a seven-day plan required?
 
-Optional.
+A detailed first-week plan is required for multi-step or long-term actionable drafts. The maximum detailed horizon is seven calendar days.
 
-### 5. Which Tasks receive planned dates?
+### Can a Goal last longer than a week?
 
-Only Tasks with explicit, deterministic, or visibly assumed dates.
+Yes. Goal, Project, and Routine lifetimes may be long-term. Only the detailed approved execution horizon is capped at one week.
 
-### 6. Which recurrence patterns are supported?
+### Which Tasks receive planned dates?
 
-```txt
-DAILY
-WEEKDAYS
-SPECIFIC_WEEKDAYS
-WEEKLY
-N_TIMES_PER_WEEK
-MONTHLY_ON_DAY
-```
+Only Tasks with explicit, deterministic, or visible assumed dates, and only inside the current seven-day horizon.
 
-### 7. Are assumptions, rationale, and warnings included?
+### Can AI return zero Tasks or zero Routines?
 
-Assumptions and warnings are included. A separate verbose rationale field is excluded. `draftSummary` and visible assumptions provide sufficient explanation without encouraging AI to manufacture post-hoc reasoning.
+Yes, when they are not justified by the intention.
 
-### 8. Can the AI intentionally return zero Tasks or zero Routines?
+### What may the user edit?
 
-Yes. Both are valid when unsupported by the intention.
+All consequential proposal fields, ownership, timing, inclusion, and first-week placement before final approval.
 
-### 9. How are invalid dates, unsupported recurrence, and duplicate items handled?
+### Is approval whole-draft or item-by-item?
 
-Through deterministic validation, warnings or blocking status, bounded repair for formatting only, and explicit duplicate merge or uncertainty handling.
+Items are reviewed individually, but all included valid items are confirmed in one final action. Partial approval is allowed.
 
-### 10. How is structured output validated and repaired?
+### What happens when a parent is rejected?
 
-Deterministic validation first, one bounded non-semantic repair attempt, revalidation, then `GENERATION_FAILED` if still invalid.
+The system asks the user how to handle descendants. It never silently deletes or reparents them.
 
-### 11. What may the user edit before confirmation?
+### What happens next week?
 
-All consequential proposal fields, ownership, timing, inclusion, and first-week placement.
-
-### 12. Is the whole draft confirmed together or item by item?
-
-The user reviews items individually but confirms all included valid items in one final action. Partial approval is allowed.
+The system asks whether the user wants to continue, adjust, pause/stop, or review with AI. Detailed weekly-review mechanics are finalized later.
 
 ---
 
@@ -837,111 +781,80 @@ User: Buy groceries tomorrow.
 Expected:
 
 ```txt
-one TASK
-plannedDate = tomorrow
+one standalone Task
 no Goal
 no Project
-no Routine
-optional first-week view omitted
+firstWeekPlan may be omitted
 ```
 
-### Scenario B — Standalone Routine
+### Scenario B — One-Year Learning Goal
 
 ```txt
-User: Practice English for 30 minutes every weekday.
+User: Make me a one-year plan to reach English B2.
 ```
 
 Expected:
 
 ```txt
-one ROUTINE
-recurrence = WEEKDAYS
-durationMinutes = 30
-zero Tasks
+maximum one Goal
+long-term outcome preserved
+Projects may describe major finite efforts
+only first seven days receive detailed Task or Routine placement
+no 365-day generated backlog
+continuationPolicy requires review next week
 ```
 
-### Scenario C — Goal with Direct Work
+### Scenario C — Multiple Goals in One Message
 
 ```txt
-User: I want to reach English B2. I should take a placement test and practice every weekday.
+User: Help me learn English, find a new job, and get fit.
 ```
 
 Expected:
 
 ```txt
-one GOAL
-one Goal-owned TASK
-one Goal-owned ROUTINE
-no forced Project
+no three-Goal draft
+ask the user to choose one intention
+or produce one explicitly prioritized Goal draft with visible omissions
 ```
 
-### Scenario D — Goal with Project
+### Scenario D — Excluding a Project
 
 ```txt
-User: Help me find a frontend job. I need to build a portfolio and apply to companies.
+Goal: Find a frontend job
+Project: Build portfolio
+- Task: Buy domain
+- Task: Write case study
+- Routine: Work on portfolio weekdays
 ```
 
-Possible coherent result:
+If the user excludes `Build portfolio`, the product must ask what to do with its children. No descendant is silently removed or moved.
 
-```txt
-one GOAL
-one PROJECT: Build portfolio
-Project-owned Tasks
-Goal-owned application Tasks or a second Project only if independently justified
-```
+### Scenario E — Excluding a Goal
 
-The AI must expose any inferred separation through assumptions.
-
-### Scenario E — Narrow Task Request
-
-```txt
-User: Email three companies tomorrow.
-```
-
-Expected:
-
-```txt
-one TASK or three Tasks depending on whether the companies are distinct known actions
-no invented Goal
-no invented job-search Project
-```
+If the Goal is excluded, child Projects, Tasks, and Routines may be excluded or explicitly converted to valid standalone structures. No automatic conversion occurs.
 
 ### Scenario F — Oversized Request
 
 ```txt
-User: Plan everything I need to do for the next six months to change careers.
+Plan every action I need for the next year.
 ```
 
 Expected:
 
 ```txt
-bounded first draft
-maximum limits respected
-visible omission warning
-no silent 100-item backlog
+bounded structure
+maximum one Goal
+maximum seven-day detailed plan
+visible omitted-future-work notice
+no ceremonial backlog
 ```
 
-### Scenario G — Unsupported Recurrence
-
-```txt
-User: Review my finances whenever the market feels unstable.
-```
-
-Expected:
-
-```txt
-no silently invented recurrence
-partial draft or blocking warning
-no financial advice
-```
-
-### Scenario H — Crisis Input
-
-Expected:
+### Scenario G — Crisis Input
 
 ```txt
 no PlanningDraft
-route to SAFETY_FALLBACK from Discussion 013
+route to SAFETY_FALLBACK
 ```
 
 ---
@@ -951,86 +864,93 @@ route to SAFETY_FALLBACK from Discussion 013
 ### Included Now
 
 - conceptual PlanningDraft contract
-- supported proposal types
-- temporary parent relationships
+- maximum one proposed Goal
+- seven-day maximum detailed planning horizon
+- mandatory next-week confirmation invariant
+- hierarchy visibility requirements
+- edit-before-approval behavior
+- item selection and one final confirmation
+- partial approval
+- explicit parent-exclusion resolution
 - assumptions, warnings, and unresolved questions
-- optional first-week view
 - numeric limits
-- zero and partial output behavior
-- deterministic validation boundaries
-- bounded formatting repair
-- selective item review and partial approval
+- zero and partial output
+- validation and bounded structural repair
 
 ### Explicitly Excluded
 
 - persisted `Plan` entity
 - direct RoutineOccurrence creation
+- more than one proposed Goal per draft
+- detailed scheduling beyond seven days
+- silent next-week continuation
+- silent parent cascade or reparenting
 - hidden AI actions
 - unlimited generated backlogs
-- mandatory seven-day scheduling
-- verbose chain-of-thought or rationale field
+- verbose hidden rationale or chain-of-thought
 - automatic approval
 - one confirmation dialog per proposed item
 
 ### Deferred
 
+- exact visual components and wireframes
+- exact weekly review trigger and notification timing
+- evidence shown during weekly review
+- adaptation and Reconcile behavior
 - exact JSON Schema and DTO syntax
-- IDs for existing canonical context
-- persistence and transaction behavior
-- occurrence generation
-- duplicate detection against existing stored data
-- runtime repair implementation
-- analytics events
-- provider and retry architecture
+- persistence, transactions, and events
+- duplicate detection against stored data
+- provider and runtime repair implementation
+- analytics
 
 ---
 
 ## 19. Mind Map Impact — Record Only, Do Not Apply Yet
 
-After Discussion 021 consolidation, the Mind Map should later add or revise:
+After Discussion 021 consolidation, add or revise:
 
 ### AI Responsibilities
 
 - produce bounded structured PlanningDrafts
-- map output only to Goal, Project, Task, and Routine
-- expose assumptions and warnings
-- generate partial drafts without fabricating missing content
-- respect numeric limits
-- validate ownership and recurrence before review
-- avoid silent semantic repair
+- propose at most one Goal per draft
+- preserve long-term direction while planning no more than seven detailed days
+- expose assumptions, warnings, and unresolved questions
+- generate partial drafts without fabricating content
+- validate hierarchy and recurrence
+- avoid silent reparenting and semantic repair
 
 ### User Flow
 
-Add:
-
 ```txt
 Draft generated
-→ item-level review
-→ edit / include / exclude / resolve blocked items
+→ hierarchy review
+→ edit / include / exclude
+→ resolve parent-child conflicts
+→ review first-week plan
 → one final confirmation
-→ create included valid entities only
+→ create included valid entities
+→ next-week confirmation before detailed continuation
 ```
 
 ### AI Guardrails
 
-Add:
-
 - no hidden creation before approval
-- no mandatory Goal or Project wrapper
+- no multiple-Goal draft
+- no detailed schedule beyond seven days
+- no silent weekly rollover
 - no unsupported recurrence conversion
-- no silent truncation of oversized drafts
-- no silent reparenting when a parent is excluded
-- no PlanningDraft for safety-fallback input
-- no verbose hidden rationale requirement
+- no silent truncation
+- no silent deletion or reparenting of descendants
+- no PlanningDraft for safety fallback
 
 ### Open Questions to Remove or Narrow
 
-- whether first-week schedule is mandatory
-- whether zero-Task or zero-Routine output is valid
+- whether more than one Goal may be proposed
+- whether first-week scheduling is optional for long-term plans
 - whether approval is all-or-nothing
-- whether AI may propose a Goal
-- whether assumptions and warnings are part of the draft
-- what default output limits apply
+- whether editing happens before or after creation
+- what happens when a parent is excluded
+- whether future weeks are generated in advance
 
 No Mind Map change is applied yet.
 
@@ -1038,30 +958,34 @@ No Mind Map change is applied yet.
 
 ## 20. Affected Formal Documents — Record Only, Do Not Update Yet
 
-After Discussion 021 consolidation, accepted decisions from this discussion should update or create:
+After Discussion 021 consolidation, accepted decisions should update or create:
 
 - PlanningDraft product contract
 - AI planning responsibility specification
 - draft review and approval UX specification
+- hierarchy and dependency-resolution UX specification
+- weekly planning and continuation specification
 - AI guardrail specification
-- Today intake specification in coordination with Discussion 015
+- Today intake specification with Discussion 015
+- weekly review and adaptation specification with Discussions 015–017
 - data model and transaction specification in Discussion 019
 - runtime structured-output and API specification in Discussion 020
 - validation plan in Discussion 021
 - implementation plan in Discussion 022
 
-Potential ADR impact:
+Potential ADRs:
 
-- an ADR may be required for ephemeral PlanningDraft plus selective approval semantics
-- an ADR may be required if structured-output repair strategy materially constrains provider architecture
+- ephemeral PlanningDraft plus selective approval
+- one-Goal-per-draft boundary
+- seven-day detailed planning horizon and weekly user confirmation
 
-No formal document is updated from this discussion alone before consolidation after Discussion 021.
+No formal document is updated before consolidation after Discussion 021.
 
 ---
 
 ## 21. Structured Review Request for Claude
 
-Please review only the structural coherence of this proposed PlanningDraft contract.
+Please review only the structural coherence of this proposed PlanningDraft and review contract.
 
 For every issue, provide:
 
@@ -1075,26 +999,29 @@ For every issue, provide:
 Focus on:
 
 - contradictions with accepted Discussions 012 and 013
-- proposal relationships that cannot represent common cases
-- missing fields that are necessary for review but still within this discussion's scope
-- fields that add complexity without a defined product meaning
-- numeric limits that break ordinary planning scenarios
-- invalid or unsafe partial-approval behavior
+- whether maximum one Goal per draft breaks common coherent scenarios
+- whether long-term Goals and Projects remain representable with a seven-day detailed horizon
+- ambiguity between canonical Routine recurrence and weekly confirmation
+- whether the next-week confirmation invariant is placed in the correct discussion without overdefining 015–017
+- hierarchy fields necessary for understandable review
+- parent-exclusion cases that may corrupt descendant meaning
+- invalid partial-approval outcomes
+- whether item-level review plus one final confirmation is coherent
 - ambiguity between assumptions, warnings, and unresolved questions
-- contract rules that cannot be validated consistently
-- silent semantic changes during repair
-- cases where excluding a parent corrupts child meaning
+- validation rules that cannot be enforced consistently
+- any UX semantic rule that is actually presentation-only and should be deferred
 
 Do not expand the review into:
 
-- database tables or constraints
+- visual styling or wireframes
+- database tables
 - API implementation
 - provider selection
 - prompt wording
 - analytics
-- occurrence generation
-- Today execution
-- Reconcile
+- occurrence generation details
+- full Today execution mechanics
+- detailed Reconcile behavior
 - implementation sequencing
 
 This discussion must remain open until Claude reviews this exact version and accepted corrections, final resolution, Mind Map impact, and affected formal documents are recorded.
