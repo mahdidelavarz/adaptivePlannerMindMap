@@ -2,23 +2,9 @@
 
 ## Status
 
-Open for GPT × Claude review.
+Accepted and closed after GPT × Claude review.
 
-## Review Direction for Claude
-
-Mahdi has explicitly chosen an AI-native first version of Adaptive Planner.
-
-This discussion is not asking whether the product should be reduced to a manual Todo app in order to make the MVP cheaper. The AI-native direction is already chosen.
-
-Please focus this review on the conceptual and technical coherence of the core product model:
-
-- whether the concepts are distinct and necessary
-- whether their ownership rules are coherent
-- whether the relationships create contradictions
-- whether the proposed lifecycle boundaries make sense
-- whether any important core concept is missing or redundant
-
-Do not expand this discussion into AI prompts, Reconcile behavior, database design, APIs, analytics, transaction handling, concurrency, occurrence-generation strategy, or implementation sequencing. Those topics belong to Discussions 013–022.
+Claude reviewed the proposed core model and confirmed that no blocking contradiction remains. Mahdi is the final decision-maker and has accepted the model below.
 
 Related discussions:
 
@@ -29,7 +15,7 @@ Related discussions:
 
 ## 1. Scope
 
-This discussion defines only the canonical product concepts, their boundaries, their allowed relationships, and their high-level lifecycle meaning.
+This discussion defines only the canonical product concepts, their boundaries, allowed relationships, and high-level lifecycle meanings.
 
 It answers:
 
@@ -40,11 +26,36 @@ How may those nouns relate to each other?
 What does completion mean at each level?
 ```
 
-It does not define how those concepts are persisted, generated, scheduled, rendered, reconciled, or implemented.
+It does not define persistence, database fields, APIs, scheduling mechanics, AI prompts, Reconcile behavior, analytics, transactions, or implementation sequencing.
+
+### Included now
+
+- canonical concepts
+- conceptual ownership rules
+- high-level lifecycle meanings
+- distinction between execution and real-world outcome
+
+### Explicitly excluded
+
+- Task dependency graph
+- generic persisted Task order
+- persisted Plan entity
+- automatic Goal-achievement inference
+
+### Deferred
+
+- AI conversation and draft contract — Discussions 013–014
+- execution, Today, scheduling, and occurrence mechanics — Discussion 015
+- Reconcile — Discussions 016–017
+- safety and failure policy — Discussion 018
+- persistence and events — Discussion 019
+- runtime architecture — Discussion 020
+- validation — Discussion 021
+- implementation sequence — Discussion 022
 
 ---
 
-## 2. Proposed Core Model
+## 2. Accepted Core Concepts
 
 The initial product model contains five first-class concepts:
 
@@ -56,7 +67,7 @@ Routine
 RoutineOccurrence
 ```
 
-The product allows both structured and direct work:
+The model supports structured and standalone work:
 
 ```txt
 Goal
@@ -66,23 +77,13 @@ Goal
 ├── zero or more direct Tasks
 └── zero or more direct Routines
 
-Standalone work:
+Standalone:
 - Project
 - Task
 - Routine
 ```
 
-A Task or Routine may belong to:
-
-```txt
-one Goal
-or one Project
-or neither
-```
-
-A Task or Routine may never belong to a Goal and a Project at the same time.
-
-This prevents artificial one-item Projects while preserving Project as the boundary for genuinely finite or independently manageable efforts.
+No persisted `Plan` entity exists. The word “plan” may appear in the UX and AI may produce an ephemeral proposal, but approved content is persisted as Goal, Project, Task, and Routine entities.
 
 ---
 
@@ -99,13 +100,7 @@ Examples:
 - Improve physical fitness
 - Launch a sustainable personal product
 
-A Goal is not:
-
-- a finite batch of work
-- a list of Tasks
-- a recurring behavior
-- an automatically calculated percentage
-- proof that a real-world outcome occurred
+A Goal is not a finite batch of work, a Task list, a recurring behavior, an automatically calculated percentage, or proof that an outcome occurred.
 
 ### Ownership
 
@@ -115,54 +110,33 @@ A Goal may own:
 - zero or more direct Tasks
 - zero or more direct Routines
 
-Direct Goal ownership is appropriate for work that genuinely supports the Goal but does not justify a separate Project.
+Direct ownership is valid when the work supports the Goal but does not justify a separate Project.
 
-Example:
+### Outcome boundary
 
-```txt
-Goal: Reach English level B2
-
-Direct Task: Take a placement test
-Direct Routine: Practice English for 30 minutes each day
-
-Project: Complete English File Upper-Intermediate
-- Task: Buy the course book
-- Routine: Complete one lesson every weekday
-```
-
-### Evaluation Boundary
-
-The system can observe execution, but it cannot reliably infer that the real-world Goal was achieved.
+The system observes execution but cannot prove the real-world outcome:
 
 ```txt
-All Tasks completed
-+ all Routines followed
-+ all Projects completed
-≠ automatically proves Goal achieved
+Tasks completed
++ Routines followed
++ Projects completed
+≠ Goal automatically achieved
 ```
 
 Core principle:
 
-> The system tracks execution. The user confirms outcome.
+> The system tracks execution. The user confirms real-world outcome.
 
-The system may truthfully report activity facts such as:
+The system may report truthful activity facts, but it must not convert them into unsupported universal Goal-progress or achievement claims.
 
-- Projects completed
-- Tasks completed
-- current planned work completed
-- Routine adherence
-
-It must not convert those facts into an unsupported universal Goal progress percentage.
-
-### High-Level Lifecycle
+### High-level lifecycle
 
 ```txt
 ACTIVE → ACHIEVED | ABANDONED
 ```
 
-`ACHIEVED` means the user confirms the desired outcome was reached.
-
-`ABANDONED` means the user no longer intends to pursue the Goal.
+- `ACHIEVED`: the user confirms the desired outcome was reached.
+- `ABANDONED`: the user no longer intends to pursue it.
 
 ---
 
@@ -174,70 +148,49 @@ A Project represents a finite or independently manageable effort.
 
 Examples:
 
-```txt
-Goal: Reach English level B2
-Project: Complete English File Upper-Intermediate
+- Build a portfolio
+- Prepare for interviews
+- Complete English File Upper-Intermediate
+- Move to a new apartment
 
-Goal: Find a frontend job
-Project: Build a portfolio
-Project: Prepare for interviews
-Project: Apply to selected companies
-
-Standalone Project: Move to a new apartment
-```
-
-A Project gives stable structure to one specific effort without claiming that completing it proves the parent Goal was achieved.
-
-A Project should not be created merely to route a single direct Task or Routine to a Goal.
+A Project should not exist merely as an artificial wrapper around one direct Task or Routine.
 
 ### Ownership
 
 A Project may:
 
 - belong to one Goal
-- or exist standalone
+- exist standalone
 
-A Project may contain:
+A Project may contain multiple Tasks and Routines.
 
-- multiple Tasks
-- multiple Routines
+### Completion meaning
 
-### Completion Meaning
+Project completion means the finite effort is considered complete. It does not prove that a parent Goal is achieved.
 
-Project completion means:
+### Project-owned Routine rule
 
-> The finite effort represented by this Project is considered complete.
+A Routine owned by a Project is specific to that Project and is not shared across Projects.
 
-It does not mean the parent Goal is achieved.
-
-### Routine Ownership Rule
-
-A Routine belonging to a Project is specific to that Project.
-
-It is never shared across Projects and does not automatically become reusable elsewhere.
-
-When a Project is completed, every active Routine belonging to it is automatically stopped.
+When the Project completes, its active Routines automatically stop:
 
 ```txt
 Project ACTIVE → COMPLETED
-→ active child Routines become STOPPED
+→ active Project-owned Routines become STOPPED
 ```
 
-No extra user question is required because the ownership rule already determines the outcome.
+No extra confirmation is required because the ownership relationship already defines this lifecycle behavior.
 
-This rule applies only to Project-owned Routines. Goal-owned and standalone Routines are unaffected by Project completion.
+Goal-owned and standalone Routines are unaffected. Historical RoutineOccurrences remain unchanged.
 
-Historical RoutineOccurrences remain part of history. The operational details of stopping future occurrences belong to later discussions.
-
-### High-Level Lifecycle
+### High-level lifecycle
 
 ```txt
 ACTIVE → COMPLETED | STOPPED
 ```
 
-`COMPLETED` means the intended effort was finished.
-
-`STOPPED` means the effort was ended without being considered complete.
+- `COMPLETED`: the intended effort was finished.
+- `STOPPED`: the effort ended without being considered complete.
 
 ---
 
@@ -247,50 +200,41 @@ ACTIVE → COMPLETED | STOPPED
 
 A Task represents one actionable, non-recurring piece of work.
 
-Examples:
-
-- Take a placement test
-- Buy the course book
-- Write the landing-page headline
-- Email five selected companies
-
 ### Ownership
 
 A Task may:
 
 - belong directly to one Goal
 - belong to one Project
-- or exist standalone
+- exist standalone
 
-A Task may not belong to both a Goal and a Project simultaneously.
+A Task may not belong to both a Goal and a Project simultaneously. If it belongs to a Project, Goal context is inherited conceptually through that Project.
 
-If a Task belongs to a Project, any Goal context comes through that Project.
+### Carry principle
 
-### Carry Principle
-
-Carry is an action or transition, not a Task status.
+Carry is an action or transition, not a Task status:
 
 ```txt
 Task remains active
-→ its planned placement changes
+→ planned placement changes
 ```
 
-The exact scheduling and history model belongs to later discussions.
+Scheduling and history mechanics are deferred.
 
-### High-Level Lifecycle
+### High-level lifecycle
 
 ```txt
 ACTIVE → COMPLETED | DROPPED
 ```
 
-### Explicit Exclusion
+### Explicit exclusions
 
-The core model does not include:
+The canonical Task model does not include:
 
 - Task-to-Task dependencies
-- a generic Task `order` field
+- a generic persisted `order` field
 
-A suggested order may exist temporarily inside an AI draft, but it is not part of the canonical Task concept unless a later discussion defines one specific meaning for it.
+Suggested ordering may exist temporarily in an AI draft, but it is not a canonical Task property.
 
 ---
 
@@ -298,15 +242,7 @@ A suggested order may exist temporarily inside an AI draft, but it is not part o
 
 ### Definition
 
-A Routine represents a recurring behavior definition.
-
-Examples:
-
-- Practice English for 30 minutes every weekday
-- Practice interview questions three times per week
-- Review product feedback every Friday
-
-A Routine is not merely a duplicated Task. It represents repeated behavior and produces or defines individual occurrences.
+A Routine represents a recurring behavior definition. It is not a duplicated Task.
 
 ### Ownership
 
@@ -314,27 +250,23 @@ A Routine may:
 
 - belong directly to one Goal
 - belong to one Project
-- or exist standalone
+- exist standalone
 
-A Routine may not belong to both a Goal and a Project simultaneously.
+A Routine may not belong to a Goal and Project simultaneously, multiple Goals, or multiple Projects.
 
-A Routine cannot belong to multiple Goals or multiple Projects.
+### Ownership meaning
 
-### Ownership Meaning
+- Goal-owned Routine: supports the broader Goal and may remain relevant across Projects.
+- Project-owned Routine: specific to the Project and follows its lifecycle.
+- Standalone Routine: has no Goal or Project owner.
 
-A Goal-owned Routine supports the broader Goal and may remain relevant across multiple Projects.
-
-A Project-owned Routine is specific to that Project and follows the Project lifecycle. When that Project is completed, the Routine is stopped automatically.
-
-A standalone Routine has neither Goal nor Project ownership.
-
-### High-Level Lifecycle
+### High-level lifecycle
 
 ```txt
 ACTIVE → STOPPED
 ```
 
-Pause/resume behavior is not decided here.
+Pause and resume are not decided here.
 
 ---
 
@@ -344,49 +276,23 @@ Pause/resume behavior is not decided here.
 
 A RoutineOccurrence represents one scheduled instance of a Routine on a specific date.
 
-The user experiences it as something like:
-
-```txt
-Today's English practice
-Today's workout
-Friday review
-```
-
-The technical term `RoutineOccurrence` does not need to appear in the UI.
-
-### Ownership
-
 Every RoutineOccurrence belongs to exactly one Routine.
 
-### Core Behavior
+The technical name does not need to appear in the user interface.
 
-A past RoutineOccurrence never becomes accumulated debt through Carry.
+### Core behavior
 
 ```txt
 PENDING → DONE | MISSED
 ```
 
-How occurrences are created, stored, derived, or scheduled belongs to Discussions 015 and 019.
+A past missed occurrence does not become accumulated debt through Carry.
+
+Occurrence creation, storage, derivation, and scheduling are deferred to Discussions 015 and 019.
 
 ---
 
-## 8. Plan Is Not a Core Entity
-
-The word “plan” may exist in the user experience, but the initial product model does not contain a persisted `Plan` entity.
-
-The AI may produce an ephemeral proposal containing suggested Goals, Projects, Tasks, and Routines.
-
-```txt
-AI draft
-→ user reviews and approves
-→ approved product entities are created
-```
-
-The exact output contract belongs to Discussion 014.
-
----
-
-## 9. Allowed Relationships
+## 8. Accepted Relationships
 
 ```txt
 Goal 1 ── 0..* Project
@@ -405,7 +311,7 @@ Task may exist without Goal or Project.
 Routine may exist without Goal or Project.
 ```
 
-Exclusive-parent rule:
+Exclusive-parent invariant:
 
 ```txt
 Task belongs to at most one of: Goal, Project.
@@ -417,59 +323,144 @@ Forbidden relationships:
 ```txt
 Task → Goal and Project simultaneously
 Routine → Goal and Project simultaneously
-Routine → multiple Goals
-Routine → multiple Projects
-Task → multiple Goals
-Task → multiple Projects
+Task → multiple Goals or Projects
+Routine → multiple Goals or Projects
 Task → Task dependency
 ```
 
 ---
 
-## 10. Explicitly Deferred to Later Discussions
+## 9. Scenario Checks
 
-The following are intentionally not resolved here:
+### Reach English B2
 
-- AI conversation flow and clarification questions — Discussion 013
-- AI draft/output schema — Discussion 014
-- Today, scheduling, occurrence generation, and execution behavior — Discussion 015
-- Reconcile triggers and severity — Discussion 016
-- AI Reconcile grouping and actions — Discussion 017
-- guardrails, privacy, and failure handling — Discussion 018
-- database schema, events, transactions, and observability — Discussion 019
-- APIs, provider/runtime architecture, retries, and cost controls — Discussion 020
-- validation metrics and decision thresholds — Discussion 021
-- build sequence and milestone planning — Discussion 022
+- Goal: Reach English B2
+- direct Task: Take a placement test
+- direct Routine: Practice English daily
+- Project: Complete an upper-intermediate course
 
----
+No artificial Project is required for the direct Task or Routine.
 
-## 11. Questions for Claude
+### Find a frontend job
 
-Please challenge only the core model in this discussion:
+- Goal: Find a frontend job
+- Project: Build portfolio
+- Project: Prepare for interviews
+- direct Routine: Review job listings on weekdays
 
-1. Are Goal, Project, Task, Routine, and RoutineOccurrence conceptually distinct enough to justify separate first-class concepts?
-2. Does allowing Task and Routine to belong directly to Goal or Project remove forced wrappers without making ownership ambiguous?
-3. Is the mutually exclusive parent rule conceptually sufficient?
-4. Is allowing standalone Project, Task, and Routine coherent with the model?
-5. Is Project-specific Routine ownership too strict, or does it correctly preserve lifecycle meaning?
-6. Is automatic Routine stop on Project completion consistent with the ownership model?
-7. Are the proposed high-level lifecycle meanings missing any essential terminal state?
-8. Does excluding a persisted Plan entity create any conceptual gap?
-9. Is any allowed or forbidden relationship still contradictory or redundant?
-10. Does this model preserve the distinction between execution tracking and real-world Goal achievement without introducing unsupported progress claims?
+Completing the Projects does not automatically prove the user found a job.
 
-Do not answer these questions by expanding into implementation details assigned to Discussions 013–022.
+### Move to a new apartment
+
+A standalone Project is sufficient. No fake Goal is required.
+
+### Project-specific feedback review
+
+A Routine such as “Review onboarding feedback every weekday” may belong to the onboarding Project and stops when that Project completes.
+
+### Buy groceries
+
+A standalone Task is valid. The model does not manufacture a hierarchy merely to look sophisticated.
 
 ---
 
-## 12. Expected Resolution
+## 10. Final Accepted Decisions
 
-This discussion should close with only:
+- The canonical concepts are Goal, Project, Task, Routine, and RoutineOccurrence.
+- No persisted Plan entity exists.
+- Project may belong to one Goal or be standalone.
+- Task may belong to one Goal, one Project, or neither.
+- Routine may belong to one Goal, one Project, or neither.
+- Task and Routine use an exclusive-parent rule and cannot belong to Goal and Project simultaneously.
+- Project-owned Routines automatically stop when the Project completes.
+- Historical RoutineOccurrences remain historical facts.
+- Activity completion does not prove Goal achievement.
+- The system tracks execution; the user confirms outcome.
+- The MVP has no Task dependency graph.
+- The MVP has no generic persisted Task order field.
 
-- accepted core concepts
-- accepted definitions
-- accepted ownership relationships
-- accepted high-level lifecycle meanings
-- rejected/deferred core concepts
-- required changes to the current mind map
-- list of formal documents that must later be updated
+---
+
+## 11. Review Resolution
+
+Claude reviewed the model and confirmed that the five concepts are distinct, the ownership rules are coherent, standalone work is representable, and the absence of a persisted Plan does not create a conceptual gap.
+
+Claude noted the edge case where a Project-owned Routine might remain useful after the Project ends. This is already represented coherently by making such a Routine Goal-owned or standalone when its meaning extends beyond the Project. No change to the accepted lifecycle rule is required.
+
+No blocking or important unresolved issue remains.
+
+---
+
+## 12. Mind Map Impact
+
+Record for consolidation after Discussion 021. Do not apply yet.
+
+### Product model
+
+Add or revise:
+
+```txt
+Goal
+├── Project
+├── direct Task
+└── direct Routine
+
+Project
+├── Task
+└── Project-specific Routine
+
+Routine
+└── RoutineOccurrence
+
+Standalone
+├── Project
+├── Task
+└── Routine
+```
+
+### Core invariants
+
+Add:
+
+- Task/Routine exclusive parent: Goal, Project, or neither
+- Project completion stops active Project-owned Routines
+- execution facts do not equal Goal outcome
+- user confirms Goal achievement
+- Plan is an ephemeral proposal, not a persisted entity
+- no Task dependency graph in the MVP
+- no generic canonical Task order
+
+### Open questions to remove or narrow
+
+Remove or resolve questions about:
+
+- whether every Task requires a Project
+- whether every Project requires a Goal
+- whether Routine is merely a recurring Task
+- whether Plan is a persisted entity
+- whether activity completion proves Goal achievement
+
+---
+
+## 13. Affected Formal Documents
+
+Record for consolidation after Discussion 021. Do not update yet.
+
+Accepted decisions from this discussion must later update or create:
+
+- canonical product model specification
+- entity definition and lifecycle document
+- ownership and relationship invariant specification
+- AI draft specification dependency in Discussion 014
+- execution and occurrence specification dependency in Discussion 015
+- database constraint specification in Discussion 019
+- API and runtime model references in Discussion 020
+- implementation plan in Discussion 022
+
+Potential ADRs:
+
+- core entity model and absence of persisted Plan
+- exclusive Task/Routine ownership model
+- Project-owned Routine lifecycle rule
+
+No Mind Map or formal document is modified by closing this discussion alone.
