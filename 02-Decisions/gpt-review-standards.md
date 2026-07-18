@@ -33,9 +33,15 @@ For each Discussion from 012 onward:
 6. Test the proposal against concrete product scenarios.
 7. Ask Claude to identify only structural problems and minimal corrections.
 8. Evaluate Claude's critique rather than accepting or rejecting it automatically.
-9. Update the discussion with accepted corrections.
-10. Record Mind Map impact and affected formal documents, but do not update the
-    Mind Map until consolidation after Discussion 021.
+9. Update the discussion with accepted corrections and its final resolution.
+10. Before closing the discussion, add two explicit sections inside that same
+    discussion file:
+    - `Mind Map Impact`
+    - `Affected Formal Documents`
+11. Do not apply those changes to the Mind Map or formal documents at this stage.
+    Record the required changes only.
+12. Only after the final decisions, Mind Map impact, and affected documents are
+    recorded may the discussion status be changed to its closed/accepted state.
 
 Discussion 022 must begin only after accepted decisions from Discussions 012–021
 have been consolidated into the Mind Map and formal product documents.
@@ -259,9 +265,12 @@ Preserve these established principles unless Mahdi explicitly changes them:
 - Record why a decision changed, not only the final state.
 - Preserve rejected alternatives when their rejection explains the boundary.
 - Do not update the Mind Map after every discussion.
-- After each discussion, record only:
-  - Mind Map impact
-  - affected documents
+- Before closing each discussion, add `Mind Map Impact` and `Affected Formal
+  Documents` sections to that discussion file.
+- Those sections must record the exact future changes required, while leaving the
+  actual Mind Map and formal documents unchanged.
+- Do not mark the discussion closed until those sections and the final accepted
+  resolution are present.
 - After Discussion 021, consolidate all accepted decisions into the Mind Map and
   formal documents before finalizing Discussion 022.
 
@@ -279,4 +288,6 @@ Read these files first:
 
 Then propose answers and decisions for the current discussion before requesting
 Claude review. Preserve the scope boundaries and do not update the Mind Map yet.
+Before closing the discussion, record its Mind Map impact and affected formal
+documents inside the discussion file itself.
 ```
