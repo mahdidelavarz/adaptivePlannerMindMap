@@ -56,32 +56,33 @@ Routine
 RoutineOccurrence
 ```
 
-The main hierarchy is:
+The product allows both structured and direct work:
 
 ```txt
 Goal
-└── zero or more Projects
-    ├── zero or more Tasks
-    └── zero or more Routines
-        └── zero or more RoutineOccurrences
+├── zero or more Projects
+│   ├── zero or more Tasks
+│   └── zero or more Routines
+├── zero or more direct Tasks
+└── zero or more direct Routines
+
+Standalone work:
+- Project
+- Task
+- Routine
 ```
 
-Standalone work is also allowed:
+A Task or Routine may belong to:
 
 ```txt
-Standalone Project
-Standalone Task
-Standalone Routine
+one Goal
+or one Project
+or neither
 ```
 
-Core ownership rule:
+A Task or Routine may never belong to a Goal and a Project at the same time.
 
-```txt
-Task never links directly to Goal.
-Routine never links directly to Goal.
-```
-
-A Project is the boundary between a Goal and its executable work.
+This prevents artificial one-item Projects while preserving Project as the boundary for genuinely finite or independently manageable efforts.
 
 ---
 
@@ -108,9 +109,26 @@ A Goal is not:
 
 ### Ownership
 
-A Goal may contain zero or more Projects.
+A Goal may own:
 
-Tasks and Routines do not belong directly to a Goal. They belong to a Project or exist standalone.
+- zero or more Projects
+- zero or more direct Tasks
+- zero or more direct Routines
+
+Direct Goal ownership is appropriate for work that genuinely supports the Goal but does not justify a separate Project.
+
+Example:
+
+```txt
+Goal: Reach English level B2
+
+Direct Task: Take a placement test
+Direct Routine: Practice English for 30 minutes each day
+
+Project: Complete English File Upper-Intermediate
+- Task: Buy the course book
+- Routine: Complete one lesson every weekday
+```
 
 ### Evaluation Boundary
 
@@ -170,6 +188,8 @@ Standalone Project: Move to a new apartment
 
 A Project gives stable structure to one specific effort without claiming that completing it proves the parent Goal was achieved.
 
+A Project should not be created merely to route a single direct Task or Routine to a Goal.
+
 ### Ownership
 
 A Project may:
@@ -205,6 +225,8 @@ Project ACTIVE → COMPLETED
 
 No extra user question is required because the ownership rule already determines the outcome.
 
+This rule applies only to Project-owned Routines. Goal-owned and standalone Routines are unaffected by Project completion.
+
 Historical RoutineOccurrences remain part of history. The operational details of stopping future occurrences belong to later discussions.
 
 ### High-Level Lifecycle
@@ -227,19 +249,22 @@ A Task represents one actionable, non-recurring piece of work.
 
 Examples:
 
+- Take a placement test
 - Buy the course book
 - Write the landing-page headline
-- Update the resume introduction
 - Email five selected companies
 
 ### Ownership
 
 A Task may:
 
+- belong directly to one Goal
 - belong to one Project
 - or exist standalone
 
-A Task never links directly to a Goal.
+A Task may not belong to both a Goal and a Project simultaneously.
+
+If a Task belongs to a Project, any Goal context comes through that Project.
 
 ### Carry Principle
 
@@ -277,7 +302,7 @@ A Routine represents a recurring behavior definition.
 
 Examples:
 
-- Study for 30 minutes every weekday
+- Practice English for 30 minutes every weekday
 - Practice interview questions three times per week
 - Review product feedback every Friday
 
@@ -287,14 +312,21 @@ A Routine is not merely a duplicated Task. It represents repeated behavior and p
 
 A Routine may:
 
+- belong directly to one Goal
 - belong to one Project
 - or exist standalone
 
-A Routine never links directly to a Goal.
+A Routine may not belong to both a Goal and a Project simultaneously.
 
-A Routine cannot belong to multiple Projects.
+A Routine cannot belong to multiple Goals or multiple Projects.
 
-A Project-specific Routine follows the lifecycle of its Project. When that Project is completed, the Routine is stopped automatically.
+### Ownership Meaning
+
+A Goal-owned Routine supports the broader Goal and may remain relevant across multiple Projects.
+
+A Project-owned Routine is specific to that Project and follows the Project lifecycle. When that Project is completed, the Routine is stopped automatically.
+
+A standalone Routine has neither Goal nor Project ownership.
 
 ### High-Level Lifecycle
 
@@ -358,6 +390,8 @@ The exact output contract belongs to Discussion 014.
 
 ```txt
 Goal 1 ── 0..* Project
+Goal 1 ── 0..* direct Task
+Goal 1 ── 0..* direct Routine
 Project 1 ── 0..* Task
 Project 1 ── 0..* Routine
 Routine 1 ── 0..* RoutineOccurrence
@@ -367,16 +401,25 @@ Optional ownership:
 
 ```txt
 Project may exist without Goal.
-Task may exist without Project.
-Routine may exist without Project.
+Task may exist without Goal or Project.
+Routine may exist without Goal or Project.
+```
+
+Exclusive-parent rule:
+
+```txt
+Task belongs to at most one of: Goal, Project.
+Routine belongs to at most one of: Goal, Project.
 ```
 
 Forbidden relationships:
 
 ```txt
-Task → Goal
-Routine → Goal
+Task → Goal and Project simultaneously
+Routine → Goal and Project simultaneously
+Routine → multiple Goals
 Routine → multiple Projects
+Task → multiple Goals
 Task → multiple Projects
 Task → Task dependency
 ```
@@ -405,14 +448,14 @@ The following are intentionally not resolved here:
 Please challenge only the core model in this discussion:
 
 1. Are Goal, Project, Task, Routine, and RoutineOccurrence conceptually distinct enough to justify separate first-class concepts?
-2. Does requiring Project as the only bridge between Goal and executable work create any conceptual contradiction?
-3. Is allowing standalone Project, Task, and Routine coherent with the hierarchy?
-4. Is Project-specific Routine ownership too strict, or does it correctly preserve lifecycle meaning?
-5. Is automatic Routine stop on Project completion consistent with the proposed ownership model?
-6. Are the proposed high-level lifecycle meanings missing any essential terminal state?
-7. Does excluding a persisted Plan entity create any conceptual gap?
-8. Is any relationship listed as allowed actually ambiguous or redundant?
-9. Is any forbidden relationship necessary for the chosen product direction?
+2. Does allowing Task and Routine to belong directly to Goal or Project remove forced wrappers without making ownership ambiguous?
+3. Is the mutually exclusive parent rule conceptually sufficient?
+4. Is allowing standalone Project, Task, and Routine coherent with the model?
+5. Is Project-specific Routine ownership too strict, or does it correctly preserve lifecycle meaning?
+6. Is automatic Routine stop on Project completion consistent with the ownership model?
+7. Are the proposed high-level lifecycle meanings missing any essential terminal state?
+8. Does excluding a persisted Plan entity create any conceptual gap?
+9. Is any allowed or forbidden relationship still contradictory or redundant?
 10. Does this model preserve the distinction between execution tracking and real-world Goal achievement without introducing unsupported progress claims?
 
 Do not answer these questions by expanding into implementation details assigned to Discussions 013–022.
