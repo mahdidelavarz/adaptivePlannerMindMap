@@ -2,14 +2,9 @@
 
 ## Status
 
-Accepted after GPT × Claude review.
+Accepted and closed after GPT × Claude review.
 
-Claude review produced no blocking findings. Four minimal coherence fixes were accepted:
-
-1. add the direct `INTERPRETING → DRAFT_READY` transition
-2. map out-of-scope responses to an explicit conversation state behavior
-3. define what happens when a new global entry collides with an active unapproved draft
-4. define `RETRYING` and `MANUAL_FALLBACK`
+The original review found four coherence gaps. A later standards-based review identified one blocking safety gap. All five findings are now resolved, and Claude has confirmed the corrected direction.
 
 Related discussions:
 
@@ -22,56 +17,55 @@ Related discussions:
 
 ## 1. Scope
 
-This discussion defines how a user starts AI-assisted planning and moves from an initial intention to a reviewable draft.
+This discussion defines how a user enters AI-assisted planning and moves from an initial intention to a reviewable draft.
 
 It answers:
 
 ```txt
-Where may the planning flow begin?
+Where may the flow begin?
 What may the user provide first?
-When should the AI ask a question?
-When should it stop asking and produce a draft?
-How may the user leave, restart, or recover?
+When should the AI clarify?
+When should it produce a draft?
+How may the user leave, restart, recover, or hit a safety boundary?
 ```
 
-It does not define:
+### Included now
 
-- the final AI JSON contract — Discussion 014
-- Task, Routine, Today, or execution behavior — Discussion 015
-- Reconcile — Discussions 016 and 017
-- detailed safety, privacy, and provider-failure policy — Discussion 018
-- analytics, database schema, APIs, cost controls, or implementation — Discussions 019 and 020
+- global, contextual, and manual entry
+- conversation shape
+- clarification policy and limit
+- draft boundary
+- exit and recovery states
+- active-draft collision behavior
+- minimum fixed crisis fallback invariant
+
+### Explicitly excluded
+
+- final AI JSON contract — Discussion 014
+- Today and execution mechanics — Discussion 015
+- Reconcile — Discussions 016–017
+- detailed safety detection, localization, and resource-selection policy — Discussion 018
+- persistence and analytics — Discussion 019
+- provider/runtime architecture — Discussion 020
+- implementation sequencing — Discussion 022
 
 ---
 
 ## 2. Accepted Entry Model
 
-The AI planning flow supports both broad and narrow intentions.
-
-A user may begin with:
+The user may begin with:
 
 ```txt
 1. a desired outcome or direction
-2. a finite effort or Project idea
+2. a finite Project idea
 3. one or more Tasks
 4. one or more Routines
 5. an unstructured free-form intention
 ```
 
-Examples:
+A Goal is not required.
 
-```txt
-I want to find a frontend job.
-Help me prepare for IELTS.
-I need to launch my portfolio.
-Remind me to practice English every weekday.
-I need to email three companies tomorrow.
-My life is disorganized and I do not know where to start.
-```
-
-The user is not required to create or name a Goal before entering the flow.
-
-The AI interprets the intention using the accepted concepts from Discussion 012:
+The AI maps the request only into concepts accepted by Discussion 012:
 
 ```txt
 Goal
@@ -80,15 +74,15 @@ Task
 Routine
 ```
 
-`RoutineOccurrence` is not directly created through this conversation. It belongs to later scheduling and execution behavior.
+`RoutineOccurrence` is not directly created through this flow.
 
-The AI may propose no Goal when the request only justifies a standalone Project, Task, or Routine. It must not force every request into a Goal hierarchy.
+The AI must not force a Goal hierarchy when a standalone Project, Task, or Routine is sufficient.
 
 ---
 
 ## 3. Entry Points
 
-### 3.1 Global AI Planning Entry
+### 3.1 Global AI entry
 
 A primary action such as:
 
@@ -96,9 +90,9 @@ A primary action such as:
 Plan with AI
 ```
 
-opens AI planning without requiring existing Goal or Project context.
+opens the flow without requiring existing context.
 
-If an active unapproved conversation or draft already exists, the global entry must not silently replace it. The user first chooses:
+If an active unapproved conversation or draft exists, it must not be silently replaced. The user chooses:
 
 ```txt
 Continue previous draft
@@ -106,9 +100,9 @@ Start new and discard previous draft
 Cancel
 ```
 
-The product may later support multiple saved drafts, but this discussion does not require it.
+Multiple simultaneously saved drafts are not required in the MVP.
 
-### 3.2 Contextual Entry from an Existing Goal or Project
+### 3.2 Contextual entry
 
 From an existing Goal or Project, the user may choose:
 
@@ -116,98 +110,74 @@ From an existing Goal or Project, the user may choose:
 Plan next steps with AI
 ```
 
-The selected Goal or Project becomes explicit conversation context.
+The selected Goal or Project becomes explicit context.
 
-The AI must not silently move proposed items outside that context. If it believes another ownership model is more coherent, it must expose the change and request confirmation during draft review.
+The AI may propose a different ownership model only if the difference is visible and explicitly reviewable. It must not silently move proposed items outside the selected context.
 
-### 3.3 Manual Creation Entry
+### 3.3 Manual creation
 
-Manual creation remains permanently available outside the AI flow for:
+Manual creation remains permanently available for:
 
 - Goal
 - Project
 - Task
 - Routine
 
-Manual creation is a parallel path, not merely a failure fallback. The user must never be forced to use AI to create or edit canonical entities.
+Manual creation is a parallel path, not merely a failure fallback.
 
 ---
 
-## 4. First Screen and Empty State
+## 4. First Screen and Interaction Style
 
-The first screen uses one open input rather than a mandatory Goal form.
+The first screen uses one open input instead of a mandatory Goal form.
 
-Proposed primary prompt:
+Suggested prompt:
 
 > What do you want to make progress on?
 
-Supporting text:
-
-> Describe an outcome, project, task, routine, or even a rough intention. I’ll help turn it into a plan you can review before anything is created.
-
-Suggested examples may be shown as optional starters:
-
-- Find a better frontend job
-- Build and publish my portfolio
-- Practice English every weekday
-- Organize the tasks I need to finish this week
-
-The UI must make two facts clear before submission:
+The UI must make clear that:
 
 ```txt
 The AI may ask a small number of questions.
 Nothing is created until the user reviews and approves the draft.
 ```
 
----
-
-## 5. Conversation Style
-
 The interaction is hybrid:
 
 ```txt
-conversational input
+conversation
 + structured quick replies when useful
-+ free-text escape at every clarification step
++ free text at every clarification step
 ```
 
-The AI may use buttons, chips, date pickers, or short option lists for bounded questions such as:
+The system should prefer one question at a time unless two values are tightly coupled.
 
-- target date
-- preferred frequency
-- available days
-- ownership under an existing Goal or Project
-
-The user is never limited to predefined options when they do not fit.
-
-The system should prefer one question at a time unless two tightly coupled values are easier to answer together.
-
-The flow must not become a long form disguised as a chat, one of software’s less charming methods of pretending friction is innovation.
+The flow must not become a long form disguised as a chat, because apparently adding speech bubbles is how software occasionally attempts to disguise bureaucracy.
 
 ---
 
-## 6. Conversation States
+## 5. Conversation State Model
 
-### 6.1 Main Flow
+### 5.1 Main flow
 
 ```txt
 EMPTY
 → INTERPRETING
-→ CLARIFYING | DRAFT_READY
+→ CLARIFYING | DRAFT_READY | SAFETY_FALLBACK
 
 CLARIFYING
-→ CLARIFYING | DRAFT_READY | INPUT_BLOCKED | CANCELLED
+→ CLARIFYING | DRAFT_READY | INPUT_BLOCKED | SAFETY_FALLBACK | CANCELLED
 
 DRAFT_READY
-→ REVIEWING | GENERATION_FAILED | CANCELLED
+→ REVIEWING | GENERATION_FAILED | SAFETY_FALLBACK | CANCELLED
 
 REVIEWING
-→ DRAFT_READY | APPROVED | CANCELLED
+→ DRAFT_READY | APPROVED | SAFETY_FALLBACK | CANCELLED
 ```
 
 The direct `INTERPRETING → DRAFT_READY` transition is required when the initial request is already specific enough.
 
-### 6.2 Recovery Flow
+### 5.2 Recovery flow
 
 ```txt
 INTERPRETING | CLARIFYING
@@ -219,13 +189,13 @@ INTERPRETING | CLARIFYING | DRAFT_READY
 → RETRYING | MANUAL_FALLBACK | CANCELLED
 
 RETRYING
-→ INTERPRETING | DRAFT_READY | GENERATION_FAILED
+→ INTERPRETING | DRAFT_READY | GENERATION_FAILED | SAFETY_FALLBACK
 
 MANUAL_FALLBACK
 → manual creation path
 ```
 
-### 6.3 State Meanings
+### 5.3 State meanings
 
 #### EMPTY
 
@@ -233,146 +203,130 @@ No meaningful user intention has been submitted.
 
 #### INTERPRETING
 
-The system is identifying likely Goals, Projects, Tasks, Routines, ownership, and missing information.
+The system identifies likely product entities, ownership, and missing information.
 
 #### CLARIFYING
 
-The system asks only questions required to produce a useful and reviewable draft.
+The system asks only questions needed to produce a useful, reviewable draft.
 
-An out-of-scope or high-stakes request remains in `CLARIFYING` after the system states the boundary and offers a supported planning direction. The conversation waits for a revised or planning-relevant user input. The user may also cancel or continue manually.
-
-No separate safety state is introduced here. Discussion 018 defines detailed safety behavior.
+Ordinary unsupported expert requests may remain here after the system states the boundary and offers a supported planning alternative.
 
 #### INPUT_BLOCKED
 
-The system cannot proceed coherently because the input is too vague, contradictory, unsupported, or missing a required planning constraint.
+The system cannot proceed coherently because the request is too vague, contradictory, unsupported as a planning request, or missing a required constraint.
+
+This state is not used for crisis routing.
 
 #### DRAFT_READY
 
-A draft has been generated, but no canonical product entity has been created.
+A draft exists, but no canonical entity has been created.
 
 #### REVIEWING
 
-The user is editing, removing, accepting, or rejecting proposed items. Detailed draft editing and approval behavior belongs to Discussion 014.
+The user edits, removes, accepts, or rejects proposed items.
 
 #### APPROVED
 
-The user has explicitly approved creation of the accepted draft content.
+The user explicitly approves creation of the accepted draft content.
 
 #### CANCELLED
 
-The user exits without creating the proposed entities.
+The flow ends without creating proposed entities.
 
 #### GENERATION_FAILED
 
-The draft could not be produced because of a model, provider, network, parsing, or internal failure.
+Interpretation or draft generation failed because of a model, provider, network, parsing, or internal error.
 
 #### RETRYING
 
-The system is making a user-requested retry using the preserved conversation input. Retry limits and provider behavior belong to Discussions 018 and 020.
+The system performs a user-requested retry using preserved input.
 
 #### MANUAL_FALLBACK
 
-The AI conversation ends and transfers the understood user input or draft context into the relevant manual creation path without creating canonical entities automatically.
+The AI flow ends and transfers understood context into the relevant manual creation path without automatic entity creation.
+
+#### SAFETY_FALLBACK
+
+A mental-health-crisis, self-harm, or immediate-danger signal requires the normal planning conversation to stop.
+
+In this state:
+
+- open-ended planning reasoning stops
+- no planning draft is generated from the crisis content
+- no Goal, Project, Task, Routine, or change to existing data is proposed from that content
+- the system displays a fixed, pre-written safety response
+- the response directs the user toward immediate human help and appropriate crisis resources
+- the user may later begin a new, unrelated planning flow from `EMPTY`
+
+Discussion 018 must define detection, localization, resource selection, false-positive handling, and technical enforcement without weakening these invariants.
 
 ---
 
-## 7. Clarification Policy
+## 6. Clarification Policy
 
-Clarification is selective, not mandatory for every request.
+Clarification is selective, not mandatory.
 
-The AI should generate a draft immediately when the request is specific enough to produce a useful proposal without inventing important facts.
+The AI should generate a draft immediately when the request is already specific enough.
 
-Example:
+It asks a question only when the answer materially changes:
 
-```txt
-User: Create a routine to practice English for 30 minutes every weekday.
-Expected: generate a draft directly.
-```
+- entity type
+- ownership under Goal or Project
+- actionable content
+- required timing or recurrence
+- a constraint that prevents an unrealistic or contradictory proposal
 
-The AI asks a clarification only when the answer materially changes:
+### Mandatory clarification
 
-- whether the intention is a Goal, Project, Task, or Routine
-- ownership under an existing Goal or Project
-- the actionable content of the draft
-- timing or recurrence required to make the item meaningful
-- user constraints that prevent an unrealistic or contradictory proposal
-
----
-
-## 8. Mandatory, Optional, and Forbidden Questions
-
-### 8.1 Mandatory Clarification
-
-A question is mandatory only when the AI cannot generate a coherent draft without making a high-impact assumption.
+A question is mandatory only when a coherent draft would otherwise require a high-impact assumption.
 
 Typical cases:
 
-1. a recurring behavior is requested but no usable recurrence is provided
-2. a date-sensitive request contains conflicting or impossible timing
-3. an existing Goal or Project is referenced ambiguously
-4. two materially different intentions cannot safely be combined or separated
-5. the request depends on an explicit but undefined hard constraint
+- recurring behavior without usable recurrence
+- conflicting or impossible dates
+- ambiguous selected Goal or Project
+- two materially different intentions that cannot safely be combined
+- an explicit but undefined hard constraint
 
-### 8.2 Optional Clarification
+### Optional clarification
 
-Optional questions may improve the draft but are not required to produce one.
+Optional questions may improve the draft but are asked only when their value justifies another interaction.
 
-Examples:
-
-- preferred intensity
-- available time per day
-- preferred working days
-- desired target date
-- whether a standalone item should later connect to a Goal
-
-The AI may ask an optional question only when its expected value justifies another interaction step.
-
-### 8.3 Forbidden Clarification
+### Forbidden clarification
 
 The AI must not ask for:
 
-- sensitive personal data not required for planning
+- unnecessary sensitive data
 - a complete life history
 - psychological diagnosis
-- motivation-scoring questionnaires before planning
-- information already provided in the conversation or known context
-- implementation details the user should not need to understand
-- confirmation of obvious low-impact assumptions that can be shown in the draft
+- motivation-scoring questionnaires
+- information already provided
+- technical details the user should not need to know
+- confirmation of obvious low-risk assumptions that can be shown in the draft
 
-The AI must not repeatedly ask differently worded versions of the same unresolved question.
+It must not repeatedly rephrase the same unresolved question.
 
 ---
 
-## 9. Clarification Limit
+## 7. Clarification Limit and Draft Now
 
 The default clarification budget is:
 
 ```txt
-maximum 3 AI clarification turns before producing a draft
+maximum 3 AI clarification turns
 ```
 
-A clarification turn may contain one question or one tightly coupled question group. Most flows should need zero to two turns.
+Most flows should need zero to two turns.
 
-After the third turn, the AI must do one of the following:
+After the third turn, the AI must:
 
 ```txt
-1. generate a draft with clearly labeled assumptions
-2. generate a smaller partial draft for the understood portion
-3. explain the single blocking ambiguity and offer manual creation or restart
+1. generate a draft with visible assumptions
+2. generate a smaller partial draft
+3. identify the single blocking ambiguity and offer manual creation or restart
 ```
 
 It must not continue an open-ended interview.
-
-The limit resets only when:
-
-- the user materially changes the original intention
-- the user explicitly restarts
-- the user approves splitting the request into separate planning flows
-
----
-
-## 10. Draft Now
 
 At any clarification step, the user may choose:
 
@@ -380,15 +334,9 @@ At any clarification step, the user may choose:
 Draft now
 ```
 
-The AI then generates the best coherent draft using:
+The AI then uses explicit input, selected context, and low-risk assumptions.
 
-- explicit user input
-- selected Goal or Project context
-- low-risk assumptions
-
-Every material assumption must be visible in the draft.
-
-The AI must not silently invent:
+It must not silently invent:
 
 - deadlines
 - recurrence schedules
@@ -396,23 +344,21 @@ The AI must not silently invent:
 - measurable Goal outcomes
 - user availability
 
-If one of these is essential and cannot be safely assumed, the AI may produce a partial draft rather than fabricate a complete one.
+If one of these is essential, a partial draft is preferable to fabrication.
+
+`Draft now` does not override `SAFETY_FALLBACK`.
 
 ---
 
-## 11. Direct Narrow Requests
+## 8. Narrow Requests
 
-The user may directly request:
+The user may request only:
 
-```txt
-only a Task
-only multiple Tasks
-only a Routine
-only multiple Routines
-only a Project
-```
+- one or more Tasks
+- one or more Routines
+- one Project
 
-The AI must not create a Goal or Project merely to make the output look more structured.
+The AI must not create a Goal or Project merely to make the output appear more structured.
 
 Examples:
 
@@ -424,127 +370,65 @@ Practice English every weekday.
 → standalone Routine draft
 
 Plan the steps needed to move apartments.
-→ standalone Project with Tasks, when the finite effort justifies a Project
+→ standalone Project with Tasks
 ```
 
-Discussion 012 ownership rules remain unchanged:
-
-```txt
-Task or Routine may belong to one Goal, one Project, or neither.
-Task or Routine may not belong to Goal and Project simultaneously.
-```
+Discussion 012 ownership invariants remain unchanged.
 
 ---
 
-## 12. Vague, Contradictory, or Incomplete Input
+## 9. Vague, Contradictory, and Unsupported Input
 
-### 12.1 Vague but Usable
+### Vague but usable
 
-For input such as:
+The AI may ask one high-value question or produce a conservative draft with visible assumptions.
 
-```txt
-I want to get better at English.
-```
+### Too vague to plan
 
-The AI should ask one high-value question or generate a conservative draft with visible assumptions.
+The AI narrows the first area of concern without pretending to understand the user’s whole life.
 
-### 12.2 Too Vague to Plan
+### Contradictory
 
-For input such as:
+The AI identifies the contradiction and asks the smallest resolving question. It must not silently select one side.
 
-```txt
-Fix my life.
-```
+### Incomplete but non-blocking
 
-The AI should narrow the entry point without pretending it understands the entire problem.
+Missing information becomes an editable assumption rather than another unnecessary interview turn.
 
-A response may offer broad areas while preserving free text:
-
-```txt
-Which area feels most important to improve first?
-- work or study
-- health
-- personal organization
-- relationships
-- something else
-```
-
-### 12.3 Contradictory Input
-
-For input such as:
-
-```txt
-Create a daily routine, but I only want to do it once.
-```
-
-The AI must identify the contradiction and ask the smallest resolving question. It must not silently choose one side.
-
-### 12.4 Incomplete but Non-Blocking
-
-If missing information can be represented as an editable assumption, the AI should produce the draft rather than prolong clarification.
-
----
-
-## 13. Pilot Domain Boundary
-
-The pilot is domain-light rather than restricted to a tiny topic allowlist.
-
-The AI may assist with ordinary personal planning across domains such as:
-
-- work and career
-- learning and study
-- personal projects
-- home and life administration
-- fitness and general wellbeing habits
-- creative work
-- job search
-- product building
-
-The product does not claim expert authority in regulated or high-stakes domains.
-
-For requests involving medical treatment, mental-health crisis, legal strategy, financial investment, physical danger, or other high-stakes decisions:
-
-```txt
-The AI may organize user-provided actions or questions.
-It must not replace qualified professional judgment.
-It must not invent expert instructions.
-```
-
-Detailed safety language and refusal boundaries belong to Discussion 018.
-
-Capability boundary:
-
-> The system may structure ordinary intentions into planning entities, but it must not act as an unqualified domain expert.
-
----
-
-## 14. Out-of-Scope Requests
-
-When a request falls outside planning capability, the system should:
-
-1. state the boundary briefly
-2. preserve any planning-relevant portion
-3. offer the nearest supported planning action
-4. remain in `CLARIFYING` and wait for revised planning-relevant input, unless the user cancels or continues manually
+### Unsupported expert request
 
 Example:
 
 ```txt
-User: Diagnose my symptoms and create a treatment plan.
-
-Supported response direction:
-I cannot diagnose or prescribe treatment. I can help you prepare questions for a clinician, track appointments, or organize actions already recommended by a qualified professional.
+Diagnose my symptoms and create a treatment plan.
 ```
 
-The system must not create Tasks or Routines that imply unsupported professional advice.
+The system:
+
+```txt
+states the boundary
+→ offers supported planning alternatives
+→ remains in CLARIFYING for revised planning-relevant input
+```
+
+It may help organize user-provided actions, appointments, or questions, but must not diagnose, prescribe, invent legal or financial strategy, or imply professional authority.
+
+### Crisis or immediate danger
+
+Crisis content is not treated as an ordinary out-of-scope request.
+
+```txt
+crisis or immediate-danger signal
+→ SAFETY_FALLBACK
+→ fixed safety response
+→ no planning draft
+```
 
 ---
 
-## 15. Exit, Restart, and Context Change
+## 10. Exit, Restart, Recovery, and Failure
 
-The user may leave the flow at any point before approval.
-
-Available actions:
+Before approval, the user may:
 
 ```txt
 Cancel
@@ -554,98 +438,55 @@ Draft now
 Continue manually
 ```
 
-### Cancel
+- Cancel ends without creation.
+- Restart clears the current flow and returns to `EMPTY`.
+- Edit returns to initial input; existing content is discarded unless explicitly preserved.
+- Continue manually transitions to `MANUAL_FALLBACK`.
 
-Ends the flow without creating canonical entities.
+If the intention materially changes, the AI acknowledges the change and either continues as one revised flow or proposes separate drafts. It must not quietly blend unrelated intentions.
 
-### Restart
+An unapproved draft may be retained for short-term recovery, but:
 
-Clears the current planning conversation and returns to `EMPTY`.
+- it must remain clearly labeled unapproved
+- it must never reappear as an accepted plan
+- global-entry collision uses the choice defined in section 3.1
+- no canonical entity is created before approval
 
-### Edit Original Intention
-
-Returns to the initial input. Existing conversation content is discarded unless the user explicitly chooses to preserve it.
-
-### Continue Manually
-
-Transitions to `MANUAL_FALLBACK` and opens the relevant manual creation path.
-
-### Context Change
-
-If the user materially changes the intention during clarification, the AI must acknowledge the change and either:
-
-```txt
-continue as one revised flow
-or propose splitting it into separate drafts
-```
-
-It must not quietly blend unrelated intentions into one hierarchy.
+Generation failure preserves user input and offers retry, edit, manual fallback, or cancel.
 
 ---
 
-## 16. Session Recovery
-
-If the user leaves before approval, the product may preserve an unapproved conversation or draft for short-term recovery.
-
-Rules:
-
-- no Goal, Project, Task, or Routine is created before explicit approval
-- recovery must clearly label the content as an unapproved draft
-- the user may continue, discard and restart, continue manually, or cancel
-- opening global AI planning while such a draft exists must show the collision choice defined in section 3.1
-- detailed persistence duration and storage behavior belong to Discussions 018–020
-
-The conversation must never reappear as if it were an accepted plan.
-
----
-
-## 17. Failure Behavior
-
-When interpretation or generation fails, the user should see a recoverable state rather than a dead end.
-
-The flow offers:
+## 11. Accepted End-to-End Flow
 
 ```txt
-Retry
-Edit input
-Continue manually
-Cancel
-```
-
-Partial user input should not be lost merely because generation failed.
-
-The product must not claim entities were created unless creation actually succeeded after explicit approval.
-
-Detailed error taxonomy, retry limits, idempotency, and provider fallback belong to Discussions 018–020.
-
----
-
-## 18. Accepted End-to-End Flow
-
-```txt
-User opens AI planning
-→ if an active unapproved draft exists, choose continue / discard and restart / cancel
-→ enter a Goal, Project, Task, Routine, or rough intention
+Open AI planning
+→ resolve active-draft collision if needed
+→ submit broad or narrow intention
 → INTERPRETING
 
-If already specific enough:
+Specific enough
 → DRAFT_READY
 
-If a high-impact ambiguity exists:
+Material ambiguity
 → CLARIFYING
-→ ask up to 3 clarification turns
-→ user answers, chooses Draft now, restarts, cancels, or continues manually
+→ up to 3 clarification turns
+→ answer / Draft now / restart / cancel / manual fallback
 
-If input is outside planning capability:
-→ state boundary
-→ remain in CLARIFYING for revised planning-relevant input
+Ordinary unsupported expert request
+→ boundary response
+→ remain in CLARIFYING
 
-Then:
+Crisis or immediate danger
+→ SAFETY_FALLBACK
+→ fixed response
+→ no draft or entity creation
+
+Normal path
 → DRAFT_READY
 → REVIEWING
-→ user edits, removes, approves, or cancels
+→ edit / remove / approve / cancel
 
-Only after explicit approval:
+Explicit approval
 → APPROVED
 → canonical entities may be created
 ```
@@ -654,157 +495,181 @@ Core rule:
 
 > Conversation produces a proposal. Approval creates product entities.
 
----
+Safety override:
 
-## 19. Accepted Decisions
-
-### Entry Model
-
-- The flow accepts a Goal, Project idea, Task, Routine, or free-form intention.
-- A Goal is not required.
-- Narrow requests may produce standalone entities.
-- Entry is available globally and contextually from a Goal or Project.
-- Manual creation remains permanently available as a parallel path.
-- A new global entry cannot silently discard an active unapproved draft.
-
-### Clarification Policy
-
-- Clarification is selective.
-- The AI asks only questions that materially affect the draft.
-- The maximum default clarification budget is three turns.
-- The user may request `Draft now` at any clarification step.
-- Missing non-blocking details become visible draft assumptions.
-- High-impact facts must not be silently invented.
-
-### Interaction and State Model
-
-- The flow is conversational with structured quick replies where useful.
-- Free text remains available at every clarification step.
-- `INTERPRETING` may transition directly to `DRAFT_READY`.
-- Out-of-scope boundary responses remain in `CLARIFYING` pending revised input.
-- `RETRYING` and `MANUAL_FALLBACK` are explicit recovery states.
-
-### Domain Boundary
-
-- The pilot supports ordinary personal planning across broad life domains.
-- There is no brittle fixed topic allowlist in this discussion.
-- The system structures plans but does not replace professional judgment in high-stakes domains.
-
-### Exit and Failure Behavior
-
-- The user may cancel, restart, edit the intention, draft immediately, or continue manually.
-- No canonical entities are created before explicit approval.
-- Failure preserves user input and offers retry, edit, manual fallback, or cancel.
+> Crisis content stops proposal generation and routes to a fixed safety response.
 
 ---
 
-## 20. Mind Map Impact — Record Only, Do Not Apply Yet
+## 12. Final Accepted Decisions
 
-After acceptance, the Mind Map should later add or revise:
+### Entry model
 
-### AI Responsibilities
+- broad and narrow intentions are supported
+- Goal is optional
+- standalone Project, Task, and Routine drafts are supported
+- entry may be global or contextual
+- manual creation remains permanently available
+- active unapproved drafts cannot be silently discarded
 
-- interpret broad or narrow planning intent
-- ask only high-value clarification questions
-- respect the three-turn clarification budget
-- generate reviewable drafts with visible assumptions
-- preserve manual creation as a parallel path
-- never create canonical entities before approval
+### Clarification
 
-### User Flow
+- clarification is selective
+- default maximum is three AI clarification turns
+- `Draft now` is available during ordinary clarification
+- non-blocking assumptions remain visible
+- high-impact values are not silently invented
 
-Add:
+### Interaction and state model
+
+- hybrid conversation and quick replies
+- free text remains available
+- direct `INTERPRETING → DRAFT_READY` bypass
+- explicit `RETRYING` and `MANUAL_FALLBACK`
+- ordinary unsupported requests return to `CLARIFYING`
+- crisis content routes to distinct `SAFETY_FALLBACK`
+
+### Approval boundary
+
+- AI content remains ephemeral before approval
+- no canonical entities are created before explicit approval
+- consequential changes are never auto-applied
+
+### Safety boundary
+
+- crisis and self-harm inputs never enter open-ended planning reasoning
+- crisis input never produces planning entities
+- fixed safety fallback takes precedence over normal conversation controls, including `Draft now`
+
+---
+
+## 13. Review Resolution
+
+Claude’s first review identified:
+
+```txt
+F1 — Important
+Out-of-scope behavior lacked formal state mapping.
+Resolved: ordinary unsupported requests remain in CLARIFYING.
+
+F2 — Important
+The diagram omitted direct draft generation.
+Resolved: INTERPRETING may transition directly to DRAFT_READY.
+
+F3 — Important
+Global entry could silently collide with an active draft.
+Resolved: continue / discard and restart / cancel.
+
+F4 — Minor
+RETRYING and MANUAL_FALLBACK lacked definitions.
+Resolved: both are explicit states.
+```
+
+After reading the written review standards, Claude corrected its earlier review and identified:
+
+```txt
+SAFETY-01 — Blocking
+Mental-health-crisis input was included in the domain boundary while its
+protective mechanism was deferred to Discussion 018.
+
+Resolved:
+A distinct SAFETY_FALLBACK state stops conversational planning, prevents
+draft and entity generation, and displays a fixed pre-written safety response.
+Discussion 018 must define detailed enforcement without weakening this rule.
+```
+
+GPT accepts this correction. The earlier claim that no blocking issue existed was premature and has been replaced by the resolution above.
+
+Claude has confirmed Discussions 012 and 013 after the corrected direction. No unresolved blocking or important issue remains in Discussion 013.
+
+---
+
+## 14. Mind Map Impact
+
+Record for consolidation after Discussion 021. Do not apply yet.
+
+### User flow
+
+Add or revise:
 
 ```txt
 Global AI entry
 Active-draft collision choice
 Contextual Goal/Project entry
 Manual creation path
+Interpretation
 Direct draft bypass
 Clarification loop
-Out-of-scope boundary return to clarification
-Draft now path
-Draft review boundary
+Draft now
+Draft review
+Approval boundary
 Cancel/restart/manual fallback
-Generation failure and retry recovery
+Generation failure and retry
+Unsupported expert boundary
+Crisis detection → SAFETY_FALLBACK
 ```
 
-### AI Guardrails
+### AI responsibilities
+
+Add:
+
+- interpret broad and narrow intentions
+- ask only high-value questions
+- respect three-turn clarification budget
+- show material assumptions
+- preserve manual path
+- never create entities before approval
+
+### AI guardrails
 
 Add:
 
 - no forced Goal hierarchy
 - no silent high-impact assumptions
 - no repeated questioning for known information
-- no expert substitution in high-stakes domains
-- no claim of creation before approval succeeds
-- no silent replacement of an active unapproved draft
+- no unsupported professional authority
+- no silent replacement of active drafts
+- crisis input stops open-ended planning
+- crisis input produces no draft or canonical entity
+- fixed safety response overrides normal flow
 
-### Open Questions to Remove or Narrow
+### Open questions to remove or narrow
 
-- whether the user must start with a Goal
-- whether direct Task-only or Routine-only requests are supported
-- whether the experience is chat or form
+Resolve:
+
+- whether Goal is required at entry
+- whether direct Task/Routine requests are supported
+- whether interaction is chat or form
 - whether manual creation exists
 - whether clarification may be skipped
-- what happens when global entry meets an active draft
-- how out-of-scope requests map to conversation state
+- active-draft collision behavior
+- ordinary out-of-scope state behavior
+- minimum crisis-routing invariant
 
 No Mind Map change is applied yet.
 
 ---
 
-## 21. Documents Affected — Record Only, Do Not Update Yet
+## 15. Affected Formal Documents
 
-After Discussion 021 consolidation, accepted decisions from this discussion should update or create:
+Record for consolidation after Discussion 021. Do not update yet.
+
+Accepted decisions must later update or create:
 
 - AI planning conversation flow specification
 - product UX flow documentation
 - AI responsibility and guardrail specification
-- draft review specification in coordination with Discussion 014
-- failure, recovery, and safety specification in coordination with Discussion 018
-- runtime/API specification in coordination with Discussion 020
-- analytics event specification in coordination with Discussion 019
+- draft review specification with Discussion 014
+- execution entry dependencies in Discussion 015
+- safety, crisis fallback, privacy, and failure specification in Discussion 018
+- analytics event specification in Discussion 019
+- runtime/API and provider-failure specification in Discussion 020
 - implementation plan in Discussion 022
 
-Potential ADR impact:
+Potential ADRs:
 
-- an ADR may be required for the AI planning entry model and approval boundary if no existing ADR already locks them
+- AI planning entry and approval boundary
+- active unapproved draft collision policy
+- crisis safety override and fixed fallback invariant
 
-No Mind Map or formal document should be updated from this discussion alone before consolidation after Discussion 021.
-
----
-
-## 22. Review Resolution
-
-Claude confirmed that the following decisions are coherent without further change:
-
-- maximum three-turn clarification budget
-- manual creation as a permanent parallel path
-- planning capability boundary instead of a hard topic allowlist
-- prohibition on silently inventing high-impact values
-- broad and narrow AI entry intentions
-- explicit approval before canonical entity creation
-
-Accepted findings and resolutions:
-
-```txt
-F1 — Important
-Out-of-scope behavior lacked a formal state mapping.
-Resolved: boundary response remains in CLARIFYING and awaits revised planning-relevant input.
-Discussion 018 must preserve this transition while defining detailed safety behavior.
-
-F2 — Important
-The state diagram omitted direct draft generation.
-Resolved: INTERPRETING may transition directly to DRAFT_READY.
-
-F3 — Important
-Global entry could collide ambiguously with an active unapproved draft.
-Resolved: user chooses continue previous draft, discard and start new, or cancel.
-
-F4 — Minor
-RETRYING and MANUAL_FALLBACK appeared without definitions.
-Resolved: both states are explicitly defined.
-```
-
-No blocking issues remain. Discussion 013 is accepted and closed for the current review sequence.
+No Mind Map or formal document is modified by closing this discussion alone.
