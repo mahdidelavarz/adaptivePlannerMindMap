@@ -2,11 +2,11 @@
 
 ## Status
 
-Open for GPT × Claude review.
+Accepted and closed after GPT × Claude review.
 
-This amendment formally reopens one narrow part of Discussion 012 without reopening its accepted entity definitions, ownership model, lifecycle meanings, or Goal outcome boundary.
+This amendment reopens and resolves one narrow part of Discussion 012: temporal visibility for ACTIVE entities. It does not change accepted entity definitions, ownership, lifecycle meanings, or the Goal outcome boundary.
 
-Related accepted or active discussions:
+Related discussions:
 
 - [[01-Open-Discussions/012-core-product-model]]
 - [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
@@ -17,156 +17,160 @@ Related accepted or active discussions:
 
 ---
 
-## 1. Reason for Amendment
-
-The accepted model allows active Tasks, Projects, and Goals without an execution or review date.
-
-This creates a product risk:
+## 1. Accepted Core Principle
 
 ```txt
-active entity
-+ no future execution placement
-+ no future review checkpoint
-→ temporally invisible commitment
+No ACTIVE entity may become temporally invisible.
 ```
 
-Over time, such entities may become:
+Every ACTIVE canonical entity must have a derivable future temporal checkpoint.
 
-- forgotten
-- difficult to surface honestly
-- accumulated in an undated backlog
-- impossible to distinguish as intentionally deferred versus accidentally abandoned
-- unavailable to deterministic Reconcile timing
+A temporal checkpoint is not necessarily an execution deadline. It may mean:
 
-The amendment evaluates one principle:
+- execute a Task on a planned date
+- review whether a Task, Project, or Goal should remain active
+- reach a Project or Goal target date
+- generate the next Routine occurrence from recurrence
 
-```txt
-No ACTIVE entity should become temporally invisible.
-```
-
-This is not yet an accepted core invariant. It remains open for review.
-
----
-
-## 2. Proposed Core Principle
-
-Every active canonical entity should have a derivable future temporal checkpoint.
-
-A temporal checkpoint is not always an execution deadline.
-
-It may mean:
-
-- execute this item on a date
-- review whether this item remains active
-- reach a target date
-- generate the next Routine occurrence
-
-Proposed conceptual mapping:
+Accepted conceptual mapping:
 
 ```txt
 Goal
-→ reviewDate or targetDate
+→ targetDate and/or reviewDate
 
 Project
-→ reviewDate or targetDate
+→ targetDate and/or reviewDate
 
 Task
-→ reviewDate or plannedDate
+→ plannedDate and/or reviewDate
 
 Routine
 → next occurrence derived from recurrence
 ```
 
+Routine is not mechanically forced to store a separate review date when its active recurrence already yields a deterministic next occurrence.
+
 ---
 
-## 3. Proposed Entity Rules
+## 2. Goal Temporal Rule
 
-### 3.1 Goal
-
-Proposed fields:
+Accepted conceptual fields:
 
 ```txt
 targetDate?
 reviewDate
 ```
 
-Current proposal:
+Rules:
 
-- `targetDate` remains optional
-- `reviewDate` is conceptually required for an ACTIVE Goal
-- the product supplies a system default when the user does not provide one
-- creation or approval must not require an extra clarification question only to obtain `reviewDate`
-- the user may edit the default later
+- `targetDate` remains optional.
+- An ACTIVE Goal must have a `reviewDate`.
+- Missing `reviewDate` is supplied by deterministic product policy.
+- Goal creation or draft approval must not require a new clarification question solely to obtain this date.
+- The default is visible and editable.
 
-Initial default proposal for validation:
+Initial system-default policy:
 
 ```txt
-Goal.reviewDate = createdLocalDate + 90 days
+baseGoalReviewDate = createdLocalDate + 90 days
+
+Goal.reviewDate =
+  if targetDate exists:
+    min(baseGoalReviewDate, targetDate)
+  else:
+    baseGoalReviewDate
 ```
 
-The exact interval is not accepted yet.
+This prevents a short-term Goal target from arriving before its first review checkpoint.
 
-### 3.2 Project
+The 90-day interval is an initial MVP policy and may later be calibrated without changing the invariant.
 
-Proposed fields:
+---
+
+## 3. Project Temporal Rule
+
+Accepted conceptual fields:
 
 ```txt
 targetDate?
 reviewDate?
 ```
 
-Current proposal:
+An ACTIVE Project must have at least one temporal checkpoint:
 
 ```txt
-ACTIVE Project requires:
 targetDate != null
 OR
 reviewDate != null
 ```
 
-When `targetDate` is absent, the product should provide a system-generated `reviewDate` rather than forcing another planning question.
+When the user does not provide a review date, the product assigns one without adding another mandatory planning question.
 
-Initial default proposal for validation:
+Initial system-default policy:
 
 ```txt
-Project.reviewDate = createdLocalDate + 30 days
+baseProjectReviewDate = createdLocalDate + 30 days
+
+Project.reviewDate =
+  if targetDate exists:
+    min(baseProjectReviewDate, targetDate)
+  else:
+    baseProjectReviewDate
 ```
 
-The exact interval is not accepted yet.
+The review checkpoint must never be generated after an earlier Project target date.
 
-### 3.3 Task
+The 30-day interval is an initial MVP policy and may later be calibrated.
 
-Proposed fields:
+---
+
+## 4. Task Temporal Rule
+
+Accepted conceptual fields:
 
 ```txt
 plannedDate?
 reviewDate?
+deadline?
 ```
 
-Current proposal:
+An ACTIVE Task must have at least one temporal checkpoint:
 
 ```txt
-ACTIVE Task requires:
 plannedDate != null
 OR
 reviewDate != null
 ```
 
-A Task may remain intentionally unscheduled for execution while still having a future review checkpoint.
-
-Therefore:
+A Task may intentionally remain unscheduled for execution:
 
 ```txt
 plannedDate = null
 + reviewDate exists
-→ valid active Task
+→ valid ACTIVE Task
 ```
 
-### 3.4 Routine
+When a Task has no `plannedDate`, the product assigns a visible editable `reviewDate` through the applicable planning or Backlog policy.
 
-Routine does not require a separate review checkpoint merely to avoid temporal invisibility when an active recurrence can deterministically produce a next occurrence.
+Deadline guardrail:
 
-Proposed rule:
+```txt
+Task.reviewDate =
+  if deadline exists:
+    min(policyReviewDate, deadline)
+  else:
+    policyReviewDate
+```
+
+A Task review checkpoint must not occur after an earlier hard deadline.
+
+The exact Task review interval is deferred to the Task-placement and Backlog policy, but the temporal-visibility invariant is accepted.
+
+---
+
+## 5. Routine Temporal Rule
+
+An ACTIVE Routine satisfies temporal visibility when:
 
 ```txt
 ACTIVE Routine
@@ -174,15 +178,13 @@ ACTIVE Routine
 → derivable next occurrence
 ```
 
-Routine-specific periodic review may be introduced later, but is not required by this amendment.
+A separate periodic Routine review date may be introduced later, but it is not required by this amendment merely to avoid temporal invisibility.
 
 ---
 
-## 4. System Defaults Must Not Add Planning Friction
+## 6. System Defaults Must Preserve Low-Friction Planning
 
-Discussion 013 and Discussion 014 intentionally limit clarification and approval friction.
-
-Therefore the amendment must not introduce mandatory questions such as:
+The product must not introduce mandatory questions such as:
 
 ```txt
 When should we review this Goal again?
@@ -190,32 +192,30 @@ When should this undated Task return?
 When should this Project be reconsidered?
 ```
 
-Default behavior proposal:
+Accepted behavior:
 
 ```txt
 missing user-provided checkpoint
-→ product applies visible editable default
-→ approval remains possible
+→ apply visible editable system default
+→ keep draft approval possible
 ```
 
-The default must be visible in review UX but must not restart an interview.
+System defaults are deterministic product policy, not AI guesses about motivation, capacity, or intent.
 
 ---
 
-## 5. Backlog Remains a Valid Placement
+## 7. Backlog Remains a Valid Placement
 
-This amendment does not remove Backlog.
-
-Backlog represents an explicit placement decision:
+Backlog remains an explicit Task placement meaning:
 
 ```txt
 not scheduled for execution now
 ```
 
-A review checkpoint represents:
+A review checkpoint means:
 
 ```txt
-when the placement or commitment should be reconsidered
+when that placement or commitment should be reconsidered
 ```
 
 Therefore:
@@ -225,21 +225,18 @@ Backlog
 ≠ forgotten forever
 ```
 
-Current proposal:
+Accepted rules:
 
-- Backlog remains a valid explicit Task placement
-- Backlog Tasks still receive a `reviewDate`
-- `reviewDate` complements Backlog rather than replacing it
+- Backlog remains valid.
+- Backlog Tasks still require a future review checkpoint.
+- `reviewDate` complements Backlog rather than replacing it.
+- Moving a Task to Backlog must not make it temporally invisible.
 
 ---
 
-## 6. Derived `nextTemporalCheckpoint`
+## 8. Derived `nextTemporalCheckpoint`
 
-`nextTemporalCheckpoint` must not become an independent canonical source-of-truth field.
-
-It should be derived from authoritative fields.
-
-Conceptual derivation:
+`nextTemporalCheckpoint` is derived and must not become a separate editable canonical source of truth.
 
 ```txt
 Task.nextTemporalCheckpoint
@@ -259,16 +256,16 @@ Reasons:
 
 - avoids duplicated date truth
 - prevents synchronization defects
-- preserves the source-of-truth principles accepted in Discussion 014
-- supports deterministic queries without adding another editable date
+- preserves source-of-truth principles from Discussion 014
+- supports deterministic queries without another editable field
 
-Exact storage or indexing belongs to Discussion 019.
+Persistence, indexes, and query strategy belong to Discussion 019.
 
 ---
 
-## 7. Review Due Is Not Execution Overdue
+## 9. `REVIEW_DUE` Is Not `EXECUTION_OVERDUE`
 
-Two conditions must remain separate:
+These conditions are separate:
 
 ```txt
 EXECUTION_OVERDUE
@@ -282,11 +279,9 @@ entity.reviewDate <= currentLocalDate
 AND entity remains ACTIVE
 ```
 
-`REVIEW_DUE` does not mean execution failed or work is late.
+`REVIEW_DUE` means a management checkpoint arrived. It does not mean execution failed or work is late.
 
-It means an explicit or default management checkpoint has arrived.
-
-Proposed severity guardrail:
+Accepted severity guardrail:
 
 ```txt
 multiple REVIEW_DUE items
@@ -294,17 +289,24 @@ multiple REVIEW_DUE items
 ≠ automatic MEDIUM or RECOVERY
 ```
 
-Review checkpoints should be grouped separately from overdue execution and must not inflate Reconcile severity as if each were delayed work.
+Review checkpoints must be grouped separately from overdue execution and must not inflate Reconcile severity as if each were delayed work.
 
-Discussion 016 requires a later amendment after this model is accepted.
+Presentation guardrail for Discussion 016 amendment:
+
+```txt
+many REVIEW_DUE items arriving together
+→ group and chunk review presentation
+→ do not expose one overwhelming flat list
+→ do not convert the burst into execution severity
+```
+
+This is especially important because system defaults may cause entities created together to reach review boundaries together.
 
 ---
 
-## 8. Interaction with Goal Continuation Check
+## 10. Goal Continuation Dependency
 
-When a Goal review checkpoint arrives, Reconcile may present a deterministic continuation decision.
-
-Proposed options:
+When a Goal review checkpoint arrives, Reconcile may present a deterministic continuation decision:
 
 ```txt
 CONTINUE
@@ -312,7 +314,7 @@ REVIEW_LATER
 ABANDON_GOAL
 ```
 
-The question must be neutral and fixed:
+The question must use fixed neutral wording, such as:
 
 > Do you still want to continue this Goal?
 
@@ -324,85 +326,74 @@ This mechanism:
 - does not infer intent from absence
 - records explicit current intent
 
-Exact Reconcile behavior is defined in the companion Discussion 017 amendment.
+Exact wording, cadence, suppression, and lifecycle handling remain defined by the companion Discussion 017 amendment.
 
 ---
 
-## 9. Open Questions for Claude
+## 11. Review Resolution
 
-### Q1. Is the principle coherent?
+Claude confirmed that:
+
+- the temporal-visibility principle is coherent
+- recurrence correctly exempts Routine from a mechanical stored review-date requirement
+- system defaults preserve the low-friction principles of Discussions 013 and 014
+- `nextTemporalCheckpoint` should remain derived
+- `REVIEW_DUE` must stay separate from execution overdue
+- Backlog remains valid and still requires future reviewability
+
+Claude identified one important edge case:
 
 ```txt
-Every ACTIVE entity must have a derivable future temporal checkpoint.
+fixed review default later than an existing target date
+→ target arrives before the first review checkpoint
 ```
 
-Does this prevent invisible commitments without over-constraining valid long-term work?
+Accepted correction:
 
-### Q2. Are system-generated defaults the correct low-friction mechanism?
+```txt
+Goal.reviewDate = min(createdLocalDate + 90 days, targetDate?)
+Project.reviewDate = min(createdLocalDate + 30 days, targetDate?)
+Task.reviewDate = min(policyReviewDate, deadline?) when undated
+```
 
-Current proposal:
-
-- Goal review default: 90 days
-- Project review default when no target date: 30 days
-- Task review default when no planned date: derived from planning or Backlog policy
-
-Review whether these defaults should be product rules, configurable policy, or deferred to validation.
-
-### Q3. Should Goal always have `reviewDate`, even when `targetDate` exists?
-
-Current proposal: yes, because target and review answer different questions.
-
-### Q4. Should Project require `reviewDate` only when `targetDate` is absent?
-
-Current proposal: yes for MVP simplicity.
-
-### Q5. Should a Backlog Task always retain a review checkpoint?
-
-Current proposal: yes.
-
-### Q6. Are review-due items sufficiently separated from execution-overdue items?
-
-Review whether any review-due count should affect Reconcile severity, and if so, only through a separately bounded rule.
-
-### Q7. Should the amendment affect standalone entities exactly like owned entities?
-
-Current proposal: yes. Temporal visibility does not depend on ownership.
+No blocking or important unresolved issue remains in this amendment.
 
 ---
 
-## 10. Required Follow-Up if Accepted
+## 12. Required Follow-Up Amendments
 
-Acceptance requires explicit amendments to:
+Acceptance of this amendment requires explicit updates to:
 
 ### Discussion 014
 
-- add proposed Goal, Project, and Task checkpoint fields to `PlanningDraft`
-- define visible system defaults
-- prevent defaults from creating mandatory clarification
-- validate that active proposed entities have a checkpoint
+- add Goal, Project, and Task checkpoint fields to `PlanningDraft`
+- define visible deterministic defaults
+- avoid mandatory clarification solely for review dates
+- validate temporal visibility before approval
 
 ### Discussion 015
 
-- distinguish `plannedDate` from `reviewDate`
+- distinguish `plannedDate`, `reviewDate`, `targetDate`, and `deadline`
 - distinguish execution overdue from review due
-- define Task placement effects
+- define Task placement and Backlog effects
 - preserve Today as `plannedDate = current local date`
 
 ### Discussion 016
 
 - add review-checkpoint eligibility semantics
-- prevent review-due counts from inflating overdue severity
-- define presentation grouping for review checkpoints
+- prevent review-due counts from inflating execution severity
+- group and chunk simultaneous `REVIEW_DUE` items
+- keep review presentation separate from overdue backlog presentation
 
 ### Discussion 017
 
-- define Goal Continuation Check
-- define fixed neutral wording and cadence
+- finalize Goal Continuation Check
+- preserve fixed neutral wording and long per-Goal cadence
 - keep causal, emotional, motivational, and capacity questions forbidden
 
 ### Discussion 019
 
-- persistence, indexes, event history, default provenance, and derived checkpoint queries
+- persistence, indexes, provenance, event history, and derived checkpoint queries
 
 ### Discussion 020
 
@@ -410,11 +401,11 @@ Acceptance requires explicit amendments to:
 
 ### Discussion 021
 
-- test default generation, timezone boundaries, review-versus-overdue separation, and repeated-prompt suppression
+- test default generation, target/deadline minimum selection, timezone boundaries, review-versus-overdue separation, burst chunking, and repeated-prompt suppression
 
 ---
 
-## 11. Mind Map Impact — Record Only, Do Not Apply Yet
+## 13. Mind Map Impact — Record Only, Do Not Apply Yet
 
 ### Product Vision
 
@@ -422,14 +413,16 @@ Add:
 
 - active commitments must not become temporally invisible
 - Backlog is deliberate deferral, not permanent disappearance
-- review checkpoints must not be framed as execution failure
+- review checkpoints are not execution failure
+- system defaults preserve low-friction planning
 
 ### MVP Core Loop
 
 ```txt
-Create or approve active entity
+Create or approve ACTIVE entity
 → use explicit temporal field when provided
 → otherwise assign visible system review default
+→ cap default by earlier target date or deadline
 → derive nextTemporalCheckpoint
 → surface execution or review at the correct boundary
 ```
@@ -446,16 +439,17 @@ undated Task
 
 ### AI Responsibilities
 
-- AI does not invent checkpoint dates from user psychology
-- system defaults are deterministic product policy
-- AI may explain a visible default but does not need to ask for one
+- AI does not invent checkpoint dates from psychology or prose
+- defaults are deterministic product policy
+- AI may explain a default but does not need to ask for one
 
 ### AI Guardrails
 
-- no active entity with no derivable checkpoint
-- no mandatory clarification solely to obtain a review date
-- no conflation of review due with execution overdue
-- no hidden duplicate `nextTemporalCheckpoint` source of truth
+- no ACTIVE entity without a derivable checkpoint
+- no mandatory clarification solely for a review date
+- no conflation of review due and execution overdue
+- no duplicate editable `nextTemporalCheckpoint`
+- no default checkpoint later than an earlier target date or deadline
 
 ### Data Events
 
@@ -471,21 +465,39 @@ ENTITY_INTENT_REAFFIRMED
 
 ### Current Decisions
 
-Keep open until review:
+Record:
 
-- active entities require derivable temporal visibility
+- ACTIVE entities require derivable temporal visibility
 - system defaults preserve low-friction planning
-- nextTemporalCheckpoint is derived
+- target dates and deadlines cap generated review defaults
+- `nextTemporalCheckpoint` is derived
 - Backlog remains explicit placement
 - review due remains distinct from execution overdue
+- simultaneous review-due items require grouped and chunked presentation
 
 ---
 
-## 12. Closure Condition
+## 14. Affected Formal Documents
 
-This amendment remains open until:
+Accepted decisions should later update or create:
 
-1. Claude reviews the core invariant and defaults.
-2. Mahdi resolves the open questions.
-3. Discussions 014–017 receive explicit amendments.
-4. Mind Map Impact and Affected Formal Documents are finalized.
+- canonical temporal-visibility invariant specification
+- Goal, Project, and Task checkpoint field specification
+- deterministic review-default policy
+- Backlog reviewability policy
+- derived checkpoint query specification
+- execution-overdue versus review-due specification
+- Reconcile review-checkpoint presentation policy
+- Goal continuation decision specification
+- data and event specification in Discussion 019
+- runtime defaulting specification in Discussion 020
+- validation plan in Discussion 021
+
+Potential ADRs:
+
+- active-entity temporal visibility
+- deterministic review defaults without clarification friction
+- derived `nextTemporalCheckpoint`
+- separation of review due from execution overdue
+
+This amendment is closed. Follow-up discussions must implement the accepted invariant explicitly rather than silently redefining it.
