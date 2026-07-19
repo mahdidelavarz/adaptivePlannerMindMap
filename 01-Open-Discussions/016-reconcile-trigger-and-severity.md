@@ -2,9 +2,9 @@
 
 ## Status
 
-Open for GPT × Claude review.
+Accepted and closed after GPT × Claude review.
 
-This revision contains GPT's proposed product rules for Reconcile eligibility, presentation severity, skip behavior, and same-day retrigger control. It depends on the execution semantics accepted in Discussion 015 and must remain open until Claude reviews this exact version and Mahdi resolves any remaining product choices.
+This discussion defines when Reconcile becomes eligible, how strongly it is presented, how absence affects confidence, how Today remains accessible, and how same-day retrigger is controlled.
 
 Related accepted discussion:
 
@@ -14,287 +14,274 @@ Related accepted discussion:
 
 ## 1. Scope
 
-This discussion defines when Reconcile becomes eligible to appear, how prominently it should appear, and how often the product may present it.
-
-It determines:
-
-- the difference between Reconcile eligibility and presentation severity
-- which unresolved execution facts can trigger Reconcile
-- when Reconcile must not be shown
-- how `LIGHT`, `MEDIUM`, and `RECOVERY` differ
-- how absence affects context without being treated as failure
-- whether Reconcile blocks Today
-- skip and remind-later behavior
-- same-day presentation and retrigger limits
-- when severity is calculated
-- the minimum context needed for deterministic validation
-
-Core question:
+This discussion answers:
 
 ```txt
-When should the product invite the user to resolve past execution,
-and how much attention should that invitation demand?
+When should Reconcile appear?
+How prominent should it be?
+When must it not appear?
+Can the user skip it and enter Today?
+How often may it prompt in one local day?
+Which facts determine LIGHT, MEDIUM, or RECOVERY?
+How are blocking conflicts separated from severity?
+Which context must be retained for deterministic validation?
 ```
 
----
+Discussion 016 defines **trigger and presentation policy** only.
 
-## 2. Explicitly Out of Scope
+Discussion 017 defines:
 
-This discussion does not define:
-
-- semantic grouping of Reconcile items — Discussion 017
-- AI-generated recommendations or explanations — Discussion 017
-- exact Carry, Drop, Complete, correction, or bulk-action UX — Discussion 017
-- Adaptive Planning workload recommendations or pattern thresholds
-- database tables, indexes, transactions, or event persistence — Discussion 019
-- API and runtime implementation — Discussion 020
-- final validation test plan — Discussion 021
-- implementation sequencing — Discussion 022
-- exact visual styling, colors, animation, or responsive layout
-
-Discussion 016 answers **when and how strongly Reconcile appears**. Discussion 017 answers **what Reconcile shows and recommends after it is opened**.
+- grouping of Reconcile items
+- recommendations and explanations
+- resolution actions and bulk actions
+- detailed Reconcile interaction flow
 
 ---
 
-## 3. Accepted Inputs from Discussion 015
+## 2. Accepted Inputs from Discussion 015
 
-The following execution facts are already accepted and are not reopened here:
+The following are inherited and not reopened:
 
-- a past-due unresolved Task remains `ACTIVE`
-- overdue is a derived condition, not a Task status
+- an unresolved past-due Task remains `ACTIVE`
+- overdue is a derived condition
 - unresolved past Tasks become Reconcile-eligible
 - Carry is explicit and repeated Carry may become evidence
 - RoutineOccurrence never carries
-- past RoutineOccurrences may become `MISSED`
 - `MISSED` is a neutral historical fact, not debt or moral failure
+- raw `MISSED` counts are not automatically actionable backlog
 - historical corrections may become Reconcile evidence
 - parent lifecycle conflicts may require explicit resolution
-- Reconcile resolves past execution
+- Reconcile resolves unresolved past execution
 - Adaptive Planning proposes future plan changes
 - Adaptive Planning may consume reliable Reconcile outcomes
 - absence is not failure
 - missing interaction is not negative evidence
 - one weak period is not a stable behavioral pattern
 
-Reconcile trigger rules must preserve these distinctions.
+---
+
+## 3. Core Separation
+
+The product must keep three decisions separate:
+
+```txt
+1. Eligibility
+   Is there actionable unresolved execution to review?
+
+2. Severity
+   How prominently should Reconcile be presented?
+
+3. Blocking conflict
+   Is one specific lifecycle action blocked until a local conflict is resolved?
+```
+
+These are not interchangeable.
+
+```txt
+eligible = true
+≠ severity = RECOVERY
+
+blockingConflict = true
+≠ Today is blocked
+
+blockingConflict = true
+≠ global severity is automatically increased
+```
+
+Severity describes the amount and complexity of unresolved execution context. It does not diagnose discipline, motivation, capability, or personal worth.
+
+MVP uses deterministic rule bands rather than an opaque weighted score.
 
 ---
 
-## 4. Core Model: Eligibility Is Not Severity
-
-The product must separate two decisions:
-
-```txt
-1. Is there actionable unresolved execution to review?
-2. If yes, how prominently should Reconcile be presented?
-```
-
-### 4.1 Eligibility
-
-`eligible = true` means at least one execution fact may benefit from an explicit user decision or review.
-
-Eligibility alone does not require a dedicated flow, interruption, modal, or blocking screen.
-
-### 4.2 Presentation Severity
-
-Severity determines presentation weight:
-
-```txt
-LIGHT
-MEDIUM
-RECOVERY
-```
-
-Severity is not a diagnosis of the user's discipline, motivation, capacity, or personal worth. It describes only how much unresolved execution context the product needs to surface.
-
-### 4.3 No Universal Numeric Failure Score
-
-MVP severity should use deterministic rule bands rather than an opaque weighted score.
-
-Reasons:
-
-- rules are easier to validate
-- edge cases remain understandable
-- absence cannot accidentally dominate a hidden score
-- the UI can explain why Reconcile appeared
-- thresholds can later be calibrated without redefining the product contract
-
-Later implementation may derive an internal score, but user-visible severity must remain explainable through accepted rules.
-
----
-
-## 5. Reconcile Eligibility
+## 4. Reconcile Eligibility
 
 Reconcile becomes eligible when at least one **actionable unresolved execution fact** exists.
 
-### 5.1 Eligible Task Facts
+### 4.1 Eligible Task facts
 
-An active Task is eligible when one or more are true:
+A Task may make Reconcile eligible when:
 
-- its authoritative `plannedDate` is before the current local date
-- it has been carried repeatedly and may need a deliberate decision
-- it was dropped or historically corrected in a context that may require review
+- `status = ACTIVE` and `plannedDate < currentLocalDate`
+- the same Task has been Carried at least twice
+- it was dropped or historically corrected in a context that still requires review
 - it conflicts with an attempted parent lifecycle transition
 - its ownership became unresolved through an explicit lifecycle operation
 
-A single recently overdue Task is sufficient for eligibility but normally only produces `LIGHT` presentation.
+A single recently overdue Task is sufficient for eligibility, but normally results only in `LIGHT` presentation.
 
-### 5.2 Eligible Routine and Occurrence Facts
+### 4.2 Eligible Routine and occurrence facts
 
-Routine execution is eligible when one or more are true:
+Routine execution may make Reconcile eligible when:
 
-- recent occurrences form a repeated missed pattern across observed periods
+- a repeated missed pattern exists across observed periods
 - historical corrections materially change previously understood execution
-- recurrence has been repeatedly edited and may no longer fit
-- a parent lifecycle transition stops the Routine and user context may need review
-- missing execution facts remain genuinely unresolved rather than deterministically classifiable
+- recurrence was repeatedly edited and may no longer fit
+- a parent lifecycle transition stops the Routine and user context requires review
+- execution facts remain genuinely unresolved rather than deterministically classifiable
 
-A single ordinary `MISSED` occurrence is not automatically actionable and does not by itself require Reconcile.
+A single ordinary `MISSED` occurrence does not independently trigger Reconcile.
 
-### 5.3 Eligible Structural Conflicts
+### 4.3 Structural conflicts
 
-Reconcile may be eligible when:
+A structural conflict exists when an attempted lifecycle action cannot remain coherent without explicit child resolution.
 
-- a terminal Project or Goal action encounters active dependent work
-- ownership or lifecycle state cannot remain coherent without an explicit decision
-- a previously skipped resolution flow leaves a known structural conflict pending
+Examples:
 
-Such conflicts may block the specific lifecycle action, but they do not block access to Today.
+- completing a Project with active child Tasks
+- stopping a Goal while active dependent work remains
+- leaving active owned work under a terminal parent
 
-### 5.4 Non-Actionable Facts
+A structural conflict:
 
-The following do not independently make Reconcile eligible:
+- may open a local resolution path immediately
+- blocks only the affected lifecycle action
+- does not block Today
+- does not automatically set global Reconcile severity to `RECOVERY`
+
+### 4.4 Non-actionable facts
+
+The following do not independently create Reconcile eligibility:
 
 - user absence without actionable unresolved work
-- isolated `MISSED` RoutineOccurrences that require no decision
-- facts already resolved in the current local day
-- deterministic state cleanup completed without user choice
+- isolated `MISSED` occurrences requiring no decision
+- facts already resolved for the evaluated boundary
+- deterministic cleanup results
 - analytics-only signals
-- Adaptive Planning calibration signals without unresolved past execution
+- Adaptive Planning calibration signals without unresolved execution
 - future Tasks or future RoutineOccurrences
-- completed or dropped historical work that requires no correction
+- completed or dropped history requiring no correction
 
 ---
 
-## 6. Deterministic Cleanup Before Severity
+## 5. Deterministic Cleanup Before Severity
 
-Severity must be calculated only after deterministic execution cleanup.
+Severity is calculated only after deterministic execution cleanup.
 
 Required order:
 
 ```txt
 1. determine current local date and effective timezone
 2. derive or materialize required RoutineOccurrences
-3. convert past unresolved PENDING occurrences to MISSED where applicable
+3. convert eligible past PENDING occurrences to MISSED
 4. remove future projections and non-actionable historical facts
 5. identify actionable Reconcile-eligible facts
-6. deduplicate facts already handled in the current evaluation boundary
-7. calculate severity
+6. deduplicate facts already handled inside the evaluated boundary
+7. identify scoped blocking conflicts
+8. calculate global presentation severity from actionable backlog
 ```
 
-This prevents raw occurrence counts from inflating severity.
-
-Example:
+This prevents reconstructed occurrence history from inflating severity.
 
 ```txt
 30 reconstructed MISSED occurrences
-+ no user decision required
-≠ 30 Reconcile backlog items
++ no explicit user decision required
+≠ 30 actionable backlog items
 ```
-
-A summary of the pattern may still be useful, but each MISSED occurrence must not automatically become a separate recovery action.
 
 ---
 
-## 7. Severity Inputs
+## 6. Accepted Severity Inputs
 
-Severity may consider the following deterministic inputs.
+### 6.1 Primary backlog inputs
 
-### 7.1 Primary Inputs
-
+- `actionableBacklogCount`
 - `unresolvedTaskCount`
 - `oldestUnresolvedAgeDays`
 - `repeatedCarryTaskCount`
 - `maximumCarryCountForOneTask`
 - `deadlineRiskCount`
-- `blockingConflictCount`
 - `affectedProjectCount`
 - `affectedGoalCount`
 - `actionableCorrectionCount`
 - `newItemsSinceLastReconcile`
 
-### 7.2 Routine Summary Inputs
+### 6.2 Routine summary inputs
 
+- `actionableRoutinePatternCount`
 - `recentMissedPatternCount`
 - `observedOccurrenceCount`
 - `occurrenceCorrectionCount`
 - `recurrenceEditCount`
 
-Routine inputs must represent patterns or actionable context, not merely the total number of missed dates.
+Routine inputs must represent an actionable pattern or unresolved context, not raw missed-date volume.
 
-### 7.3 Absence Context
+### 6.3 Absence context
 
 - `absenceDays`
 - `activityObservedDuringPeriod`
-- `absenceConfidence`
+- `evidenceConfidence`
 
 Accepted rule:
 
 ```txt
 absenceDays modifies context and confidence
-absenceDays does not independently create failure severity
+absenceDays does not independently create eligibility
+absenceDays does not independently increase severity
 ```
 
-Long absence may justify a recovery-oriented entry experience only when actionable unresolved work also exists.
+### 6.4 Blocking-conflict context
+
+- `blockingConflict`
+- `blockingConflictCount`
+- `blockingConflictScope[]`
+
+Blocking conflict is recorded beside severity rather than folded into it.
+
+### 6.5 Actionable backlog definition
+
+```txt
+actionableBacklogCount
+= Reconcile-eligible facts that currently require an explicit user decision
+```
+
+It includes unresolved Tasks, repeated-Carry Tasks needing review, actionable corrections, and similar decision-bearing facts.
+
+It excludes raw `MISSED` occurrence history, future work, and already deterministic facts.
 
 ---
 
-## 8. Proposed Severity Bands
+## 7. Final Severity Bands
 
-These are MVP rule bands proposed for Claude review. Exact numeric values may be adjusted while preserving the semantic boundaries.
+Higher bands override lower bands when their backlog conditions are met.
 
-### 8.1 LIGHT
+### 7.1 LIGHT
 
-Use `LIGHT` when all of the following are true:
+Use `LIGHT` when unresolved work is small, recent, and understandable without a dedicated review session.
 
-- actionable unresolved work is small
-- backlog is recent
-- no blocking structural conflict exists
-- no meaningful deadline risk exists
-- the situation can be understood without a dedicated recovery session
-
-Proposed examples:
+Typical rule:
 
 ```txt
-1–2 unresolved Tasks
+1–2 actionable unresolved items
 oldest age <= 2 local days
-no Task carried more than once during the unresolved period
-no blocking conflict
-no urgent deadline risk
+no meaningful deadline risk
+no broad parent spread
+no Task carried twice or more requiring deliberate review
 ```
 
 Presentation:
 
-- small inline card, banner, or entry point
+- small inline prompt, banner, or entry point
 - fully optional
 - does not interrupt Today
-- may offer one quick resolution action
+- may offer a quick resolution action
 - may be dismissed for the current local day
 
-Example message meaning:
+Example meaning:
 
 > One task from yesterday still needs a decision.
 
-### 8.2 MEDIUM
+### 7.2 MEDIUM
 
-Use `MEDIUM` when unresolved work requires deliberate review but does not represent broad recovery.
+Use `MEDIUM` when deliberate review is useful but the situation does not justify broad recovery.
 
 Any of these may qualify:
 
 ```txt
-3–7 actionable unresolved Tasks
+3–7 actionable unresolved items
 oldest unresolved age between 3 and 7 local days
-repeated Carry on one or more Tasks
+1–2 actionable items older than 7 local days
+same Task carried at least twice
 more than one affected Project or Goal
 one or more meaningful deadline risks
 multiple related corrections or drops
@@ -303,53 +290,96 @@ multiple related corrections or drops
 Presentation:
 
 - prominent Reconcile card or page entry
-- recommended before normal planning changes
+- recommended before future planning changes
 - still skippable
 - Today remains accessible
-- skipped state may remain visible through a badge or reminder
+- skipped state remains discoverable through badge or reminder
 
-### 8.3 RECOVERY
-
-Use `RECOVERY` when the unresolved execution context is broad, stale, structurally conflicted, or difficult to resolve safely in one lightweight action.
-
-Any strong condition may qualify:
+Repeated Carry threshold:
 
 ```txt
-8+ actionable unresolved Tasks
-oldest unresolved age > 7 local days with active backlog
+first Carry on a Task
+→ normal rescheduling
+
+second Carry on the same Task
+→ repeated-Carry signal
+→ Reconcile eligible
+→ normally at least deliberate LIGHT or MEDIUM review depending on other context
+```
+
+The second Carry creates the signal. It does not automatically prove broad failure or force `RECOVERY`.
+
+### 7.3 RECOVERY
+
+Use `RECOVERY` when actionable unresolved execution is broad, stale, or spread across several contexts and is difficult to resolve safely through one lightweight action.
+
+Any strong backlog condition may qualify:
+
+```txt
+8+ actionable unresolved items
+oldest unresolved age > 7 local days
+AND actionableBacklogCount >= 3
 3+ affected parent contexts
-blocking structural conflict
-large backlog after meaningful absence
+large actionable backlog after meaningful absence
 several periods of unresolved Carry or Drop decisions
 ```
 
-Presentation:
-
-- dedicated recovery entry experience
-- chunked rather than overwhelming
-- explicit acknowledgement that the user may continue Today first
-- non-punitive language
-- no claim that absence or backlog proves low ability
-
-`RECOVERY` describes the product's need to help organize unresolved execution. It does not describe the user as failing.
-
-### 8.4 Severity Escalation Priority
-
-A higher band overrides a lower one.
+Important edge rule:
 
 ```txt
-blocking structural conflict → RECOVERY presentation context
-meaningful deadline risk → at least MEDIUM
-small recent backlog without risk → LIGHT
+1–2 old actionable items
+—even when older than 7 days—
+→ MEDIUM at most
 ```
 
-Claude should review whether structural conflict should always map to `RECOVERY` or instead use a separate blocking flag alongside severity.
+Age alone does not create Recovery. Recovery requires breadth as well as staleness, unless another independently broad backlog rule applies.
+
+Presentation:
+
+- dedicated, chunked recovery entry
+- explicitly allows continuing Today first
+- remains skippable
+- uses neutral, non-punitive language
+- does not claim absence or backlog proves low ability
+
+`RECOVERY` describes the product's need to organize unresolved execution. It does not describe the user as failing.
+
+---
+
+## 8. Blocking Conflict Policy
+
+Blocking conflicts are independent from severity.
+
+Conceptual model:
+
+```txt
+ReconcileContext
+- severity: LIGHT | MEDIUM | RECOVERY
+- blockingConflict: boolean
+- blockingConflictScope[]
+```
+
+Example:
+
+```txt
+severity = LIGHT
+blockingConflict = true
+blockingConflictScope = [PROJECT_COMPLETION]
+```
+
+Behavior:
+
+- the affected lifecycle action remains blocked
+- the product opens or offers a focused child-resolution path
+- Today remains accessible
+- unrelated Reconcile severity is unchanged
+- resolving the conflict does not imply the entire backlog is reconciled
 
 ---
 
 ## 9. Absence Rules
 
-### 9.1 Absence Alone Does Not Trigger Reconcile
+### 9.1 Absence alone
 
 ```txt
 absenceDays > 0
@@ -357,197 +387,176 @@ absenceDays > 0
 → no Reconcile
 ```
 
-The product may show a neutral welcome-back message, but that is not Reconcile.
+A neutral welcome-back message may exist outside Reconcile.
 
-### 9.2 Absence with Backlog
+### 9.2 Absence with backlog
 
 When absence and actionable backlog coexist:
 
-- absence explains uncertainty and stale context
 - backlog determines eligibility
-- severity reflects actionable work, age, risk, and structural spread
-- the product should ask for context rather than infer low capacity
+- actionable count, age, deadline risk, and spread determine severity
+- absence explains uncertainty and stale context
+- evidence confidence is reduced
+- the product asks for context rather than inferring low capacity
 
-### 9.3 Low-Confidence Period
+### 9.3 Adaptive Planning boundary
 
-A period with little or no user interaction must be marked conceptually as low-confidence evidence for Adaptive Planning.
-
-Reconcile may still resolve items from that period, but downstream adaptation must distinguish:
+Reconcile may resolve items from an absence period, but downstream adaptation must distinguish:
 
 ```txt
-explicit Carry / Drop / Complete decisions
+explicit Carry / Drop / Complete / correction decisions
 from
-unobserved absence and automatically reconstructed MISSED facts
+unobserved inactivity and automatically reconstructed facts
 ```
+
+Absence-contaminated periods must not independently drive aggressive workload reduction.
 
 ---
 
-## 10. Reconcile Must Not Block Today
+## 10. Today Access and Skip Behavior
 
-Accepted proposal:
-
-```txt
-Reconcile is non-blocking by default.
-```
-
-The user may enter Today even when severity is `RECOVERY`.
-
-Reasons:
-
-- current execution should not be held hostage by past backlog
-- forcing recovery first may increase avoidance
-- the user may have urgent current work
-- Reconcile should reduce friction, not become punishment
-
-Exception:
-
-A structural conflict may block the specific lifecycle action that created it.
-
-Example:
+### 10.1 Reconcile does not block Today
 
 ```txt
-Project completion with active child Tasks
-→ Project completion remains blocked until child resolution
-→ Today remains available
+Reconcile is non-blocking at every severity.
 ```
 
----
+The user may enter Today even during `RECOVERY`.
 
-## 11. Skip and Remind-Later Behavior
+Only a specific conflicting lifecycle action may be blocked.
 
-### 11.1 LIGHT
+### 10.2 LIGHT skip
 
 - may be dismissed for the current local day
-- no confirmation dialog required
+- no confirmation required
 - unresolved count remains discoverable
 
-### 11.2 MEDIUM
+### 10.3 MEDIUM skip
 
-- may be skipped through an explicit action
-- product may offer `Review later today` or `Remind me tomorrow`
-- Today opens immediately after skip
+- explicit skip action
+- may offer `Review later today` or `Remind me tomorrow`
+- Today opens immediately
 
-### 11.3 RECOVERY
+### 10.4 RECOVERY skip
 
 - remains skippable
-- skip action should explicitly acknowledge that unresolved work remains
-- user may choose a later review time or next-open reminder
-- no shame, warning language, or artificial urgency unless a real deadline exists
+- explicitly acknowledges unresolved work remains
+- may choose a later review time or next-open reminder
+- no artificial urgency unless a real deadline exists
 
-### 11.4 Skip Does Not Resolve Items
-
-Skipping presentation changes only presentation state.
+### 10.5 Skip is not resolution
 
 ```txt
-SKIPPED presentation
-≠ reconciled execution facts
+presentation skipped
+≠ execution facts reconciled
 ```
+
+Skipping changes presentation state only.
 
 ---
 
-## 12. Trigger Timing
+## 11. Trigger Timing
 
-Reconcile eligibility may be evaluated:
+Eligibility may be evaluated:
 
 - when the app opens
-- when Today is opened
+- when Today opens
 - after deterministic occurrence cleanup
 - after an execution action creates new unresolved context
-- before a parent lifecycle transition that requires child resolution
+- before a parent lifecycle transition requiring child resolution
 - when the user manually opens Reconcile
 
-The product should not run a full visible Reconcile presentation after every execution event.
-
-Recommended default:
+Default automatic behavior:
 
 ```txt
 passive evaluation on app or Today open
-→ present at most one primary prompt per local day
+→ at most one automatic primary Reconcile prompt per local day
 ```
+
+The product must not visibly reopen full Reconcile after every execution event.
 
 ---
 
-## 13. Same-Day Presentation and Retrigger
+## 12. Same-Day Presentation and Retrigger
 
-### 13.1 Primary Prompt Limit
+### 12.1 Primary prompt limit
 
-The product may automatically present at most one primary Reconcile prompt per user-local day.
+At most one automatic primary Reconcile prompt may be shown per user-local day.
 
-This applies whether the user:
+This applies after:
 
-- completed Reconcile
-- skipped it
-- dismissed a `LIGHT` prompt
-- opened Today directly
+- completion
+- skip
+- dismissal
+- entering Today directly
 
-### 13.2 Badge and Count Updates
+### 12.2 Updates after the prompt
 
-New unresolved items may update:
+New unresolved facts may update:
 
 - badge count
-- Reconcile page content
+- Reconcile page contents
 - non-interruptive status text
 
-They must not automatically reopen the primary prompt in the same local day.
+They do not automatically reopen the primary prompt.
 
-### 13.3 Same-Day Retrigger Exceptions
+### 12.3 Same-day retrigger exceptions
 
 A second interruptive presentation is allowed only when:
 
-- a new blocking structural conflict appears
-- the user explicitly asks to open Reconcile
-- a real deadline or safety-critical execution condition emerges
+- the user explicitly opens Reconcile
+- a new scoped blocking conflict appears
+- a real deadline risk or safety-critical execution condition emerges
 
-Normal new overdue work is not enough for same-day forced retrigger.
+Normal new overdue work is not enough for forced same-day retrigger.
 
-### 13.4 Next-Day Re-evaluation
+### 12.4 Next-day recalculation
 
 On the next local day:
 
-- eligibility is recalculated from current facts
-- prior skip does not permanently suppress Reconcile
-- severity may increase, decrease, or disappear
-- already resolved items must not be shown again
+- eligibility is recalculated
+- prior skip no longer suppresses presentation
+- severity may rise, fall, or disappear
+- resolved items do not return
 
 ---
 
-## 14. Reconcile Session Boundary
+## 13. Reconcile Session Boundary
 
-The product must distinguish the evaluated snapshot from later changes.
-
-Conceptual boundary:
+The product distinguishes:
 
 ```txt
-session evaluated facts
-+ session decisions
-+ facts created after evaluation
+facts evaluated at session start
++ decisions made in the session
++ facts created after that boundary
 ```
 
-New facts after completion become `newItemsSinceLastReconcile` and are eligible for a later session or manual review.
+Facts created after completion become `newItemsSinceLastReconcile`.
 
-The system must not claim the backlog is fully resolved if new facts appeared after the evaluated boundary.
+They are available for manual review or a later session, but do not invalidate the truth of the completed evaluated snapshot.
 
-Exact persistence and transaction semantics belong to Discussion 019.
+The product must not claim the entire current backlog is resolved when new facts appeared after the evaluated boundary.
 
 ---
 
-## 15. Context Required for Validation
+## 14. Required Validation Context
 
-The following conceptual context must be available when severity is calculated or a presentation decision is validated.
+The following conceptual context must be available:
 
 ```txt
 ReconcileContext
 - evaluatedLocalDate
 - effectiveTimezone
 - evaluatedAt
+- evaluatedBoundary
 - triggerReasons[]
 - severity
+- actionableBacklogCount
 - actionableUnresolvedTaskCount
 - oldestUnresolvedAgeDays
 - repeatedCarryTaskCount
 - maximumCarryCountForOneTask
 - deadlineRiskCount
-- blockingConflictCount
 - affectedProjectCount
 - affectedGoalCount
 - actionableRoutinePatternCount
@@ -555,15 +564,17 @@ ReconcileContext
 - absenceDays?
 - activityObservedDuringAbsence
 - evidenceConfidence
+- blockingConflict
+- blockingConflictCount
+- blockingConflictScope[]
 - lastPresentedLocalDate?
 - lastCompletedAt?
 - lastSkippedAt?
-- evaluatedBoundary
 - newItemsSinceLastReconcile
 - presentationState
 ```
 
-Conceptual `presentationState`:
+Conceptual presentation states:
 
 ```txt
 NOT_PRESENTED
@@ -574,388 +585,453 @@ STARTED
 COMPLETED
 ```
 
-These are product concepts for deterministic behavior. Exact fields and storage belong to Discussion 019.
+Exact storage belongs to Discussion 019.
 
 ---
 
-## 16. Direct Answers to Original Questions
+## 15. Final Answers to Original Questions
 
 ### 1. Is one unresolved Task from yesterday enough?
 
-Yes for eligibility. Normally it produces `LIGHT`, non-blocking presentation.
+Yes for eligibility. It normally produces `LIGHT` presentation.
 
 ### 2. Does absence create a separate entry path?
 
-Absence is separate context but not an independent Reconcile trigger. Absence plus actionable backlog may influence `RECOVERY` presentation.
+Absence is context, not an independent Reconcile trigger or severity source.
 
 ### 3. When must Reconcile not be shown?
 
-When no actionable unresolved execution exists, only deterministic or analytics-only facts exist, or all eligible facts were already handled for the relevant boundary.
+When no actionable unresolved execution exists, only deterministic or analytics-only facts exist, or all eligible facts were already handled for the evaluated boundary.
 
 ### 4. Can the user skip and enter Today?
 
-Yes. Reconcile is non-blocking by default at every severity.
+Yes, at every severity.
 
-### 5. How often may it trigger in one local day?
+### 5. How often can Reconcile trigger in one local day?
 
-At most one automatic primary presentation, except a new blocking conflict or explicit user request.
+At most one automatic primary prompt, except explicit user action, a new scoped blocking conflict, or a real deadline/safety-critical condition.
 
 ### 6. Which inputs determine severity?
 
-Actionable count, age, Carry repetition, deadline risk, structural conflicts, affected parents, actionable corrections, routine patterns, and absence context.
+Actionable backlog count, age, repeated Carry, deadline risk, affected parent spread, actionable corrections, actionable routine patterns, and backlog context after cleanup.
 
-### 7. What are the exact bands?
+Absence modifies confidence only.
 
-Proposed MVP rule bands are defined in Section 8 and remain open for Claude review.
+### 7. What are the exact MVP bands?
+
+- `LIGHT`: small and recent actionable backlog
+- `MEDIUM`: moderate, older, repeated, or risk-bearing backlog
+- `RECOVERY`: broad actionable backlog, or stale backlog with at least three actionable items
 
 ### 8. Severity before or after occurrence cleanup?
 
-After deterministic cleanup and removal of non-actionable facts.
+After deterministic cleanup.
 
 ### 9. Does Reconcile block Today?
 
-No. Only the specific conflicting lifecycle action may be blocked.
+No.
 
 ### 10. What if new overdue work appears after completion?
 
-Update counts and include it in the next session. Do not automatically reopen the primary prompt the same day.
+Update counts and defer automatic primary presentation until a later allowed boundary.
 
 ### 11. How is same-day retrigger prevented?
 
-Through local-date presentation state and an evaluated session boundary.
+Local-date presentation state plus the evaluated session boundary.
 
 ### 12. Which context fields are required?
 
-The conceptual fields in Section 15.
+The conceptual context in Section 14.
 
 ---
 
-## 17. Scenario Checks
+## 16. Scenario Checks
 
 ### Scenario A — One Task from Yesterday
 
+Expected:
+
+- eligible
+- `LIGHT`
+- optional inline entry
+- Today accessible
+- dismissal suppresses another automatic primary prompt that day
+
+### Scenario B — One Old Task
+
 ```txt
-1 active Task
-plannedDate = yesterday
+1 actionable Task
+age = 9 days
 no deadline risk
-no prior Carry
+no repeated Carry
 ```
 
 Expected:
 
-- Reconcile eligible
-- severity `LIGHT`
-- small optional entry point
-- Today remains accessible
-- dismissal suppresses another primary prompt that day
+- eligible
+- `MEDIUM`, not `RECOVERY`
+- no dedicated broad recovery flow
 
-### Scenario B — One-Month Absence, No Backlog
+### Scenario C — Three Old Tasks
+
+```txt
+3 actionable Tasks
+oldest age = 9 days
+```
+
+Expected:
+
+- eligible
+- `RECOVERY` may apply because staleness and breadth coexist
+- recovery remains skippable
+
+### Scenario D — One-Month Absence, No Backlog
 
 Expected:
 
 - no Reconcile
-- optional neutral welcome-back UX may appear elsewhere
+- optional neutral welcome-back elsewhere
 - no failure interpretation
 - no automatic workload reduction signal
 
-### Scenario C — One-Month Absence with Ten Old Tasks
+### Scenario E — One-Month Absence with Ten Old Tasks
 
 Expected:
 
-- Reconcile eligible
+- eligible
 - likely `RECOVERY`
-- severity comes from actionable backlog and age, not absence alone
-- recovery experience is chunked and skippable
-- evidence confidence for Adaptive Planning remains low until user decisions clarify the period
+- severity comes from actionable backlog and age
+- absence lowers evidence confidence
+- recovery is chunked and skippable
 
-### Scenario D — Many Reconstructed MISSED Occurrences
+### Scenario F — Many Reconstructed MISSED Occurrences
 
 ```txt
 20 reconstructed MISSED occurrences
-0 unresolved Tasks
-no actionable correction request
+0 actionable decisions
 ```
 
 Expected:
 
 - deterministic cleanup completes
 - no twenty-item Reconcile backlog
-- optionally show a summarized pattern only when it becomes actionable
-- absence is not interpreted as low capacity
+- summarized pattern may appear only if it becomes actionable
 
-### Scenario E — Repeated Carry
+### Scenario G — Repeated Carry
 
 ```txt
-Task carried three times
+same Task carried twice
 still ACTIVE
 ```
 
 Expected:
 
+- repeated-Carry signal exists
 - Reconcile eligible
-- at least `MEDIUM` if the repeated pattern requires deliberate review
-- user may still skip
-- explicit later decisions may become reliable Adaptive Planning evidence
+- deliberate review may be `LIGHT` or `MEDIUM` depending on surrounding backlog
+- no Recovery from Carry alone
 
-### Scenario F — New Task Becomes Overdue After Reconcile
-
-Expected:
-
-- badge/count updates
-- no second automatic primary prompt that local day
-- item appears in manual Reconcile or next-day evaluation
-
-### Scenario G — Project Completion Conflict
+### Scenario H — Project Completion Conflict
 
 Expected:
 
-- specific Project completion remains blocked
-- child resolution entry may open immediately
-- Today itself remains accessible
-- blocking conflict contributes strong severity context
+- Project completion remains blocked
+- `blockingConflict = true`
+- scope identifies Project completion
+- global severity is calculated independently
+- Today remains accessible
+
+### Scenario I — New Deadline Risk After Reconcile
+
+Expected:
+
+- badge/context updates
+- same-day interruptive retrigger is permitted because a real deadline risk emerged
+- unrelated ordinary overdue work would not qualify
 
 ---
 
-## 18. Open Product Questions for Claude
+## 17. Final Review Resolution
 
-### Q1. Are the proposed numeric bands coherent?
+Claude review found no blocking issue.
 
-Specifically review:
-
-- `LIGHT`: 1–2 Tasks and <= 2 days
-- `MEDIUM`: 3–7 Tasks or 3–7 days
-- `RECOVERY`: 8+ Tasks or > 7 days with active backlog
-
-The numbers are proposed MVP thresholds, not universal human-capacity judgments.
-
-### Q2. Should blocking structural conflict be a separate flag?
-
-Current proposal allows it to force `RECOVERY` context. Alternative:
+Accepted findings:
 
 ```txt
-severity = LIGHT | MEDIUM | RECOVERY
-blockingConflict = true | false
+F1 — Important
+Age alone could incorrectly create RECOVERY for one old Task.
+
+Resolution:
+RECOVERY-by-age requires actionableBacklogCount >= 3.
+One or two old actionable items remain MEDIUM at most.
+
+F2 — Important
+A local blocking lifecycle conflict could incorrectly force global RECOVERY.
+
+Resolution:
+blockingConflict is an independent scoped flag.
+It blocks only the affected lifecycle action and does not automatically alter global severity.
 ```
 
-This may be conceptually cleaner because blocking applies to a specific lifecycle action, not Today.
+Accepted direct answers:
 
-### Q3. Should repeated Carry immediately force MEDIUM?
+- repeated Carry begins on the second Carry of the same Task
+- `RECOVERY` remains skippable
+- Today remains accessible at every severity
+- real deadline risk may trigger a same-day exception
+- raw `MISSED` occurrence count is excluded from actionable backlog severity
 
-Current proposal: repeated Carry on one Task is enough for deliberate review, but Claude should assess whether two Carries or three Carries should be the deterministic threshold.
-
-### Q4. Should RECOVERY ever be non-skippable?
-
-Current proposal: no. Only the specific conflicting action may be blocked.
-
-### Q5. Is one primary prompt per local day sufficient?
-
-Review whether deadline-risk changes should be an additional retrigger exception beyond blocking conflicts and explicit user action.
-
-### Q6. Are raw MISSED occurrence counts correctly excluded?
-
-Current proposal: only actionable routine patterns contribute meaningfully to severity.
+No unresolved product question remains inside Discussion 016.
 
 ---
 
-## 19. Mind Map Impact — Record Only, Do Not Apply Yet
+## 18. Mind Map Impact — Apply After Consolidation
 
-After consolidation, record the following.
+The following changes must be applied precisely to the shared Mind Map after Discussion 021 consolidation.
 
-### Product Vision
+### 18.1 Product Vision
 
-Add:
-
-- Reconcile reduces the cost of returning after deviation
-- past backlog must not block present-day action
-- recovery language is neutral and non-punitive
-- absence is uncertainty, not proof of failure
-
-### MVP Core Loop
+Add a subsection named **Recovery Without Punishment** with these nodes:
 
 ```txt
-Open app / Today
+Reconcile reduces the cost of returning after deviation
+Past backlog must not block present-day action
+Absence is uncertainty, not failure
+Recovery severity describes product assistance, not user quality
+```
+
+Connect:
+
+```txt
+Adaptive Planner
+→ supports return after deviation
+→ preserves access to Today
+→ avoids shame-based recovery
+```
+
+### 18.2 MVP Core Loop
+
+Add this flow after normal execution evaluation:
+
+```txt
+Open App / Today
 → deterministic execution cleanup
 → collect actionable unresolved facts
-→ calculate Reconcile severity
+→ detect scoped blocking conflicts
+→ calculate LIGHT / MEDIUM / RECOVERY
 → optional Reconcile entry
 → Today remains accessible
 → accepted decisions update execution history
 ```
 
-### User Flow
+Add an explicit side branch:
+
+```txt
+No actionable unresolved facts
+→ no Reconcile
+```
+
+Add another branch:
+
+```txt
+Blocking lifecycle conflict
+→ block only affected action
+→ keep Today accessible
+```
+
+### 18.3 User Flow
 
 Add three entry patterns:
 
 ```txt
 LIGHT
-→ inline prompt
+→ small inline prompt
 → quick resolve or dismiss
 
 MEDIUM
-→ prominent Reconcile entry
-→ review now or later
+→ prominent entry
+→ review now / later / tomorrow
 
 RECOVERY
 → dedicated chunked recovery
-→ continue Today or resolve backlog
+→ continue Today first or review backlog
 ```
 
-Add same-day suppression:
+Add same-day suppression flow:
 
 ```txt
-primary prompt shown once
-→ later facts update badge only
+Primary prompt shown
+→ later facts update badge/content only
+→ no second automatic prompt
 → next local day recalculates
 ```
 
-### AI Responsibilities
+Add exceptions:
 
-- AI must not decide trigger eligibility before deterministic cleanup
-- AI may explain severity from explicit rule inputs
-- AI must not use absence alone as evidence of poor performance
-- AI recommendations remain deferred to Discussion 017
-- AI must distinguish observed decisions from unobserved inactivity
+```txt
+explicit user open
+or new blocking conflict
+or real deadline risk
+→ same-day retrigger allowed
+```
 
-### AI Guardrails
+### 18.4 AI Responsibilities
 
 Add:
 
-- no Reconcile from absence alone
-- no Reconcile from raw MISSED count alone
-- no hidden interpretation of backlog as low capability
-- no blocking Today because of Reconcile severity
-- no repeated automatic primary prompt in one local day
-- no automatic resolution when user skips
-- no opaque severity without explainable trigger reasons
+- AI does not decide eligibility before deterministic cleanup
+- AI may explain severity using accepted rule inputs
+- AI distinguishes actionable backlog from raw historical facts
+- AI treats absence as low-confidence context
+- AI does not infer poor capacity from non-use
+- AI recommendations after opening Reconcile remain defined by Discussion 017
+- Adaptive Planning may consume explicit Reconcile outcomes but must discount absence-contaminated periods
 
-### Data Events
+### 18.5 AI Guardrails
 
-Record candidates for Discussion 019:
+Add these exact guardrails:
+
+```txt
+No Reconcile from absence alone
+No Reconcile from raw MISSED count alone
+No hidden interpretation of backlog as low capability
+No blocking Today because of Reconcile severity
+No automatic primary prompt more than once per local day
+No automatic resolution when presentation is skipped
+No opaque severity without explainable trigger reasons
+No RECOVERY from one old item alone
+No global severity escalation from a scoped lifecycle conflict alone
+```
+
+### 18.6 Data Events
+
+Record the following event candidates for Discussion 019:
 
 ```txt
 RECONCILE_ELIGIBILITY_EVALUATED
+RECONCILE_SEVERITY_CALCULATED
+RECONCILE_BLOCKING_CONFLICT_DETECTED
 RECONCILE_PRESENTED
 RECONCILE_DISMISSED
 RECONCILE_SKIPPED
 RECONCILE_STARTED
 RECONCILE_COMPLETED
-RECONCILE_SEVERITY_CHANGED
 RECONCILE_NEW_ITEMS_DETECTED
-RECONCILE_BLOCKING_CONFLICT_DETECTED
+RECONCILE_SAME_DAY_RETRIGGERED
 ```
 
-Each evaluation event should later preserve the evaluated boundary and summarized reason inputs.
+Required conceptual payload groups:
 
-### Traction Metrics
+```txt
+Evaluation boundary
+Local date and timezone
+Trigger reasons
+Actionable backlog summary
+Age summary
+Carry summary
+Deadline risk summary
+Affected parent summary
+Absence and confidence context
+Severity
+Blocking conflict flag and scope
+Presentation state
+```
 
-Valid product metrics:
+Do not record raw reconstructed `MISSED` count as actionable backlog count.
 
-- percentage of eligible sessions where user starts Reconcile
+### 18.7 Traction Metrics
+
+Add product metrics:
+
+- eligible-session to Reconcile-start rate
 - completion rate by severity band
-- median actionable items resolved per session
-- percentage of users who continue Today after skipping
-- backlog age reduction after Reconcile
-- same-day repeated-prompt rate, expected near zero
+- median actionable items resolved per Reconcile session
+- backlog-age reduction after Reconcile
+- percentage continuing Today after skip
 - return-to-execution rate after `RECOVERY`
+- same-day repeated automatic prompt rate, expected near zero
+- percentage of scoped blocking conflicts resolved without abandoning Today
 
-Guardrail metrics:
+Add guardrail metrics:
 
 - abandonment after Reconcile presentation
 - excessive prompt frequency
-- percentage of Recovery sessions caused mainly by absence rather than actionable backlog
-- percentage of reconstructed MISSED facts incorrectly surfaced as individual actions
+- Recovery sessions caused by fewer than three old actionable items, expected zero
+- Recovery sessions caused only by blocking conflict, expected zero
+- Recovery sessions caused mainly by absence, expected zero
+- reconstructed MISSED facts incorrectly surfaced as individual actions
+- Today access failure while Reconcile is eligible, expected zero
 
-Do not use raw completion rate as proof that Reconcile is beneficial without retention and return-to-execution context.
+Do not treat Reconcile completion rate alone as proof of product value without retention and return-to-execution context.
 
-### Current Decisions
+### 18.8 Current Decisions
 
-Record:
+Add these accepted decisions:
 
-- eligibility and severity are separate
+- eligibility, severity, and blocking conflict are separate concepts
 - Reconcile requires actionable unresolved execution
-- one recent unresolved Task produces Light eligibility
-- severity is rule-based for MVP
-- severity is calculated after deterministic cleanup
+- one recent unresolved Task is enough for `LIGHT` eligibility
+- severity is deterministic and rule-based in MVP
+- deterministic cleanup precedes severity
+- raw `MISSED` count does not inflate actionable backlog
 - absence alone does not trigger Reconcile
-- Today remains accessible at every severity
-- automatic primary presentation is limited to once per local day
-- same-day new items update counts without forced reopening
-- skip changes presentation state only
+- absence does not independently increase severity
+- second Carry on the same Task creates repeated-Carry evidence
+- one or two old actionable items are `MEDIUM` at most
+- age-based `RECOVERY` requires at least three actionable items
+- scoped blocking conflict does not force global `RECOVERY`
+- Today remains accessible at all severities
+- `RECOVERY` remains skippable
+- one automatic primary prompt is allowed per local day
+- new deadline risk may allow same-day retrigger
+- skipping changes presentation state, not execution facts
 
-### Open Questions
+### 18.9 Open Questions
 
-Keep for Claude and later resolution:
+Remove these resolved questions from the Mind Map:
 
-- final numeric thresholds for each band
-- whether blocking conflict is separate from severity
-- exact repeated-Carry threshold
-- exact deadline-risk retrigger rule
-- whether any future exceptional case may block Today
+- whether absence alone triggers Recovery
+- whether every MISSED occurrence becomes a Reconcile item
+- whether Recovery blocks Today
+- whether blocking conflict always means Recovery
+- whether one old Task creates Recovery
+- whether repeated Carry begins after two or three Carry actions
 
-Remove questions about whether absence alone means Recovery or whether every MISSED occurrence becomes a Reconcile item.
+Keep or create only downstream questions:
+
+- Discussion 017: how eligible items are grouped
+- Discussion 017: what recommendations and explanations appear
+- Discussion 017: whether bulk resolution is supported
+- Discussion 019: exact persistence of evaluation boundary and presentation state
+- Discussion 020: runtime evaluation and same-day retrigger implementation
+- Discussion 021: validation scenarios and threshold calibration tests
 
 ---
 
-## 20. Affected Formal Documents — Record Only, Do Not Update Yet
+## 19. Affected Formal Documents — Record Only
 
-After consolidation, accepted decisions should update or create:
+After consolidation, update or create:
 
 - Reconcile eligibility specification
 - Reconcile severity and presentation policy
+- scoped blocking-conflict policy
 - Today/Reconcile coexistence specification
-- same-day prompt suppression specification
+- same-day prompt suppression and retrigger specification
 - Reconcile context and evaluation-boundary specification
 - Adaptive Planning evidence-quality guardrails
-- Reconcile grouping and recommendation dependency for Discussion 017
-- data and event specification in Discussion 019
-- runtime evaluation specification in Discussion 020
-- validation plan in Discussion 021
-- implementation plan in Discussion 022
+- Discussion 017 grouping and recommendation contract
+- Discussion 019 data and event specification
+- Discussion 020 runtime evaluation specification
+- Discussion 021 validation plan
+- Discussion 022 implementation plan
 
 Potential ADRs:
 
 - rule-based explainable Reconcile severity for MVP
-- non-blocking Reconcile and Today access
+- separation of eligibility, severity, and scoped blocking conflict
+- non-blocking Reconcile and permanent Today access
 - absence as confidence context rather than failure signal
-- once-per-local-day primary presentation policy
+- once-per-local-day automatic primary presentation
+- age-based Recovery requiring minimum actionable breadth
 
-No Mind Map or formal document is updated before consolidation.
-
----
-
-## 21. Structured Review Request for Claude
-
-Review this exact revision for product coherence and closure readiness.
-
-For every issue, provide:
-
-```txt
-1. Finding ID
-2. severity: blocking, important, or minor
-3. affected decision
-4. concrete failure scenario
-5. why it conflicts or is incomplete
-6. smallest coherent correction
-7. affected earlier or later discussion
-```
-
-Focus especially on:
-
-- contradictions with accepted Discussion 015
-- eligibility versus severity separation
-- whether one recent unresolved Task should produce Light
-- whether absence is prevented from dominating severity
-- whether deterministic cleanup happens at the correct boundary
-- whether raw MISSED counts are excluded correctly
-- whether severity bands are deterministic and explainable
-- whether numeric thresholds create bad edge cases
-- whether Recovery remaining skippable is coherent
-- whether blocking conflicts should be a separate flag
-- whether once-per-local-day presentation is sufficient
-- whether same-day new items are handled honestly
-- whether required context is enough for deterministic validation
-- whether Reconcile and Adaptive Planning remain cleanly separated
-
-Do not expand into semantic grouping, AI recommendations, database schemas, API payloads, visual styling, exact Adaptive Planning thresholds, analytics implementation, or implementation sequencing.
-
-This discussion remains open until Claude reviews this exact revision, Mahdi resolves accepted findings, and final Review Resolution, Mind Map Impact, and Affected Formal Documents are recorded.
+No formal document is directly updated by this discussion before consolidation.
