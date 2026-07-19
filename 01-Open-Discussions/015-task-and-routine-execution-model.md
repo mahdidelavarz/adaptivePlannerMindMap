@@ -4,7 +4,7 @@
 
 Open for GPT × Claude review.
 
-This version contains GPT's proposed execution decisions. It must remain open until Claude reviews this exact revision, Mahdi resolves product choices, accepted corrections are integrated, and final resolution, Mind Map Impact, and Affected Formal Documents are recorded.
+This revision records Mahdi's accepted execution decisions, separates Reconcile from Adaptive Planning, integrates Claude findings F1–F3, and keeps unresolved product choices explicit. It must remain open until Claude reviews this exact version and Mahdi accepts the final corrections.
 
 Related accepted discussions:
 
@@ -17,21 +17,19 @@ Related accepted discussions:
 
 This discussion defines how approved Tasks, Projects, Routines, RoutineOccurrences, and the Today view behave during normal execution.
 
-It answers:
+It determines:
 
-```txt
-How is Today assembled?
-When does a Task appear in Today?
-How are RoutineOccurrences created and resolved?
-What happens when scheduled work is not completed?
-How do Task, Project, Routine, and occurrence lifecycle transitions behave?
-How do Project completion and stopping affect child work?
-What may be corrected retroactively?
-How are local dates and timezone changes handled?
-Which unresolved execution facts become eligible for Reconcile?
-```
+- how Today is assembled
+- when Tasks become actionable today
+- how RoutineOccurrences are derived or materialized
+- how Task Carry, completion, dropping, and unresolved past work behave
+- how Routine stop and recurrence editing behave
+- how occurrence completion, missing, and historical correction behave
+- how Project and Goal terminal transitions affect active children
+- how local dates and timezones affect execution
+- which execution facts become eligible for Reconcile
 
-This discussion consumes the canonical concepts and ownership rules accepted in Discussion 012. It does not redefine them.
+This discussion defines execution semantics only. It does not design the full Reconcile flow or the Adaptive Planning algorithm.
 
 ---
 
@@ -41,21 +39,22 @@ This discussion does not define:
 
 - AI planning conversation — Discussion 013
 - PlanningDraft structure and approval — Discussion 014
-- Reconcile grouping intelligence, adaptation suggestions, or signal thresholds — Discussions 016–017
-- safety, privacy, and provider-failure behavior — Discussion 018
-- persistence tables, transactions, indexes, or event schema — Discussion 019
-- runtime/API/provider architecture — Discussion 020
-- final validation strategy — Discussion 021
-- implementation sequencing — Discussion 022
-- exact Today visual design, animations, color, spacing, or responsive components
+- Reconcile grouping, prioritization, or resolution suggestions — Discussions 016–017
+- Adaptive Planning scoring, workload adjustment, or pattern thresholds
+- safety and provider-failure behavior — Discussion 018
+- persistence tables, transactions, and event schema — Discussion 019
+- runtime, API, and provider architecture — Discussion 020
+- final validation plan — Discussion 021
+- implementation sequence — Discussion 022
+- exact Today visual design
 
-It defines product-level execution semantics that later technical and UX specifications must preserve.
+Later discussions may consume execution data defined here, but may not silently redefine these lifecycle semantics.
 
 ---
 
 ## 3. Accepted Dependencies from Discussion 012
 
-The canonical concepts are:
+Canonical concepts:
 
 ```txt
 Goal
@@ -65,7 +64,7 @@ Routine
 RoutineOccurrence
 ```
 
-Accepted ownership rules:
+Accepted ownership:
 
 ```txt
 Project → one Goal or standalone
@@ -92,214 +91,202 @@ Accepted invariants:
 - Project-owned Routines are specific to that Project
 - Project completion automatically stops active Project-owned Routines
 - historical RoutineOccurrences remain historical facts
-- Carry changes Task placement; it is not a Task status
+- Carry changes Task placement and is not a Task status
 - RoutineOccurrence is never Carried
 - execution facts do not prove Goal achievement
 
-The earlier skeleton statement that Task and Routine never link directly to Goal was incorrect and is removed because it contradicted accepted Discussion 012.
+---
+
+## 4. Separation of Execution, Reconcile, and Adaptive Planning
+
+These are related but distinct responsibilities.
+
+### 4.1 Execution
+
+Execution records what happened to canonical work:
+
+```txt
+Task completed, carried, dropped, or left unresolved
+RoutineOccurrence done or missed
+Project completed or stopped
+Routine stopped
+```
+
+### 4.2 Reconcile
+
+Reconcile resolves unresolved or inconsistent past execution facts.
+
+Examples:
+
+- a Task date passed while the Task remained active
+- a Task was carried repeatedly
+- several old Tasks require explicit decisions
+- missed or corrected RoutineOccurrences need review
+- a parent lifecycle action conflicts with active children
+
+Reconcile may update execution facts through explicit accepted actions. It does not independently design the next long-term or weekly plan.
+
+### 4.3 Adaptive Planning
+
+Adaptive Planning proposes future workload or schedule changes using reliable execution evidence.
+
+It may use results produced through Reconcile, such as repeated Carry or Drop decisions, but it must not treat all missing data as poor performance.
+
+Core guardrails:
+
+```txt
+absence is not failure
+missing data is not negative evidence
+one weak period is not a stable pattern
+major adaptation requires repeated reliable evidence or explicit user feedback
+```
+
+A long user absence must reduce confidence rather than independently justify a major workload reduction.
+
+The exact evidence model and pattern thresholds are outside Discussion 015.
 
 ---
 
-## 4. Core Execution Principles
+## 5. Today Execution View
 
-### 4.1 Today Is a Local-Date Execution View
+### 5.1 Today Is Derived
 
-Today is not a persisted Plan entity and does not own Tasks or Routines.
+Today is not a persisted Plan entity.
 
-It is a view assembled for one user-local calendar date from canonical execution facts.
+It is a local-date execution view assembled from canonical Tasks and RoutineOccurrences.
 
 ```txt
 Today(localDate)
-= active Tasks placed on localDate
+= active Tasks whose authoritative plannedDate is localDate
 + pending RoutineOccurrences scheduled for localDate
-+ unresolved earlier Tasks explicitly carried to localDate
-+ eligible execution feedback or Reconcile entry points
++ relevant entry points for unresolved past work
 ```
 
-Today must not silently invent work, duplicate entities, or convert missed Routine occurrences into new debt.
+Goal and Project may provide hierarchy and context but are not executable checklist items themselves.
 
-### 4.2 Task and Routine Execute Differently
+### 5.2 Eligible Task Ownership
 
-A Task is one piece of work.
+Today may contain:
+
+- standalone Tasks
+- Goal-owned Tasks
+- Project-owned Tasks
+
+Ownership does not change basic Today eligibility.
+
+### 5.3 Proposed Task Entry Rule
+
+Current proposal:
+
+> A Task becomes actionable in Today only when its authoritative `plannedDate` equals the current local date.
+
+Manual placement, Carry, AI-approved scheduling, or an accepted Reconcile action must all ultimately update the same authoritative `plannedDate`. They must not create a second hidden Today-membership mechanism.
+
+Consequences:
+
+- undated Task does not automatically appear every day
+- future Task does not appear early
+- completed or dropped Task is not executable in Today
+- carrying a Task to today changes its `plannedDate` to today
+
+Claude should review whether any valid Today-entry case requires separate date-level metadata rather than `plannedDate`.
+
+### 5.4 Overdue Work
+
+An overdue Task is:
 
 ```txt
-Task definition
-= the executable item itself
+Task.status = ACTIVE
+and Task.plannedDate < currentLocalDate
 ```
 
-A Routine is a recurring definition.
+`OVERDUE` is a derived condition, not a canonical status.
 
-```txt
-Routine definition
-→ scheduled RoutineOccurrence
-→ occurrence execution result
-```
+Current proposal:
 
-Completing one RoutineOccurrence does not complete or stop the Routine.
+- Today remains focused on work planned for today
+- unresolved earlier Tasks appear in a separate unresolved/Reconcile entry area
+- old Tasks do not silently remain inside the active Today checklist forever
 
-### 4.3 Local Date Is Authoritative for Daily Execution
+Claude should review whether this separation creates any discoverability or execution contradiction.
 
-Today membership is determined by user-local date, not by raw UTC date.
+### 5.5 Today Ordering
 
-UTC may be used for storage and event timestamps, but product meaning is based on the user's effective timezone and local calendar day.
+Discussion 012 forbids a generic persisted Task order.
 
-### 4.4 No Hidden Carry
+Today may use temporary date-level or view-level ordering, but this must not become a universal canonical Task hierarchy field.
 
-Unfinished Tasks do not silently move forward merely because midnight passed.
-
-A Task stays active but unresolved until the user or an accepted Reconcile action explicitly:
-
-```txt
-carry it to another date
-complete it
-drop it
-leave it unresolved for later review
-```
-
-RoutineOccurrences never carry.
-
-### 4.5 Historical Facts Are Preserved
-
-Past execution results must not be rewritten merely because a parent later completes, stops, or changes.
-
-Project and Routine lifecycle changes affect current and future execution eligibility, not historical occurrence facts.
-
----
-
-## 5. Today Assembly Rules
-
-### 5.1 Eligible Task Sources
-
-Today may contain active Tasks from any accepted ownership form:
-
-```txt
-standalone Task
-Goal-owned Task
-Project-owned Task
-```
-
-Ownership affects context and lifecycle consequences but not basic Today eligibility.
-
-### 5.2 When a Task Enters Today
-
-An active Task appears in Today when one of these conditions is true:
-
-1. its authoritative `plannedDate` equals the current local date;
-2. it was explicitly carried to the current local date;
-3. the user manually places an undated active Task into Today;
-4. an accepted Reconcile action assigns it to the current local date.
-
-An undated Task does not automatically appear every day.
-
-A future Task does not appear early merely because it belongs to an active Goal or Project.
-
-A completed or dropped Task never appears as executable work in Today, though it may remain visible through history or parent context.
-
-### 5.3 Task Ordering
-
-Discussion 012 forbids a generic persisted canonical Task order.
-
-Today may use a temporary presentation order based on product rules such as:
-
-- explicit time, if supported
-- user-local placement
-- manually chosen Today order
-- AI suggestion
-- stable creation fallback
-
-This ordering is view-level or date-level execution metadata, not a universal Task hierarchy field.
-
-Exact persistence belongs to Discussion 019.
-
-### 5.4 Eligible Routine Sources
-
-Today may contain RoutineOccurrences from:
-
-```txt
-standalone Routine
-Goal-owned Routine
-Project-owned Routine
-```
-
-The user executes the occurrence, not the Routine definition itself.
-
-### 5.5 Today Does Not Show Future Occurrences as Due
-
-Future RoutineOccurrences may appear in a calendar or preview, but Today shows only the occurrence for the current local date as actionable.
-
-Past unresolved occurrences belong to history or Reconcile, not to today's active checklist.
+Exact persistence is deferred to Discussion 019.
 
 ---
 
 ## 6. Task Execution Model
 
-### 6.1 Task Lifecycle
+### 6.1 Lifecycle
 
 ```txt
 ACTIVE → COMPLETED
 ACTIVE → DROPPED
 ```
 
-`ACTIVE` includes dated, undated, future, due-today, and unresolved-past Tasks.
+Dated, undated, future, due-today, and unresolved-past are conditions of an active Task, not lifecycle states.
 
-These are placement conditions, not additional canonical lifecycle states.
-
-### 6.2 Complete Task
+### 6.2 Complete
 
 Completing a Task:
 
-- changes Task lifecycle to `COMPLETED`
-- records the completion timestamp and effective local date
-- removes it from active Today execution
-- preserves its parent relationship and history
+- changes it to `COMPLETED`
+- records when completion was entered
+- records the effective local date the user says it was completed
+- removes it from active execution
+- preserves ownership and history
 - does not automatically complete its Project or achieve its Goal
 
-### 6.3 Drop Task
+### 6.3 Drop
 
-Dropping a Task means the user no longer intends to perform that action.
+Dropping a Task means the user no longer intends to perform it.
 
 It:
 
-- changes lifecycle to `DROPPED`
-- removes future and current execution placement
+- changes it to `DROPPED`
+- removes active placement
 - preserves history and parent relationship
-- may become a Reconcile signal for the parent
-- does not automatically stop sibling work
+- may become a Reconcile and Adaptive Planning signal
+- does not automatically affect siblings
 
-### 6.4 Carry Task
+### 6.4 Carry
 
 Carry is an explicit placement transition:
 
 ```txt
 Task remains ACTIVE
 old plannedDate → new plannedDate
-carry event recorded
+Carry event is recorded
 ```
 
 Rules:
 
 - only an active Task may be carried
-- the destination local date must be explicit
-- Carry does not create a duplicate Task
-- Carry preserves ownership and identity
-- repeated Carry may become a Reconcile signal
-- Carry history should remain available even though only the current planned date is authoritative
+- destination local date must be explicit
+- no duplicate Task is created
+- identity and ownership remain unchanged
+- current `plannedDate` is authoritative
+- Carry history remains available
+- no automatic midnight Carry exists
 
-### 6.5 Leave Task Unresolved
+### 6.5 Unresolved Past Task
 
-When a due date passes without completion, drop, or Carry:
+When a Task date passes without completion, Drop, or Carry:
 
-- the Task remains `ACTIVE`
-- its last planned date remains historical execution context
-- it does not silently receive today's date
-- it becomes eligible for Reconcile
-- it may be shown in an overdue/unresolved section when the user opens the product
+- Task remains `ACTIVE`
+- original planned date remains execution history
+- Task does not silently receive today as its date
+- Task becomes Reconcile-eligible
+- Task appears through unresolved-history UX rather than as ordinary current-day work
 
-`OVERDUE` is a derived condition, not a canonical Task status.
+### 6.6 Historical Task Correction
 
-### 6.6 Retroactive Task Completion
-
-The user may complete an active past-due Task retroactively.
+The user may correct historical execution facts.
 
 The product should distinguish:
 
@@ -308,345 +295,315 @@ recordedAt = when the correction was entered
 completedForLocalDate = when the user says the work occurred
 ```
 
-For MVP, retroactive completion should be allowed only within a bounded correction window proposed here as seven local calendar days.
+Accepted correction principle:
 
-This limit reduces accidental history rewriting while allowing ordinary correction after offline use or forgetfulness.
+- correction is not limited by a final fixed seven-day rule in this discussion
+- long absence must not make truthful history permanently uncorrectable
+- original events must not be silently erased
+- older or consequential correction may require stronger confirmation and audit history
 
-Claude should review whether seven days is the right product boundary or whether the window should remain deferred.
+Open question:
 
-### 6.7 Reopen Completed or Dropped Tasks
+> What product boundary, if any, limits historical Task correction?
 
-MVP proposal:
+Current proposal for Claude review:
 
-- completed Task may be corrected back to `ACTIVE` within the same bounded correction window
-- dropped Task may be restored to `ACTIVE` through an explicit action
-- restoration requires a new explicit planned date or returns the Task to an undated active state
-- reopening must not erase the original completion/drop event
+- allow correction beyond seven days
+- require confirmation for old or consequential edits
+- preserve an audit trail
+- defer exact retention and event implementation to Discussion 019
 
-This is correction, not silent history replacement.
+This boundary must not be confused with Adaptive Planning's weekly calibration window.
+
+### 6.7 Reopen Completed or Dropped Task
+
+Current proposal:
+
+- a completed or dropped Task may be explicitly restored to `ACTIVE` as a correction
+- restoration must preserve the original terminal event in history
+- restored Task requires a new explicit date or becomes undated
+- restoration is not silent history replacement
+
+Claude should review whether this correction exception conflicts with the one-way lifecycle language in Discussion 012 or whether it must instead create a new continuation Task.
 
 ---
 
 ## 7. Routine Execution Model
 
-### 7.1 Routine Lifecycle
+### 7.1 Lifecycle
 
 ```txt
 ACTIVE → STOPPED
 ```
 
-MVP does not introduce a canonical `PAUSED` status.
+MVP does not introduce `PAUSED`.
 
-A user who temporarily does not want future occurrences may stop the Routine and later explicitly reactivate it as a new active execution phase while preserving the same Routine identity and history.
+A stopped Routine does not transition back to `ACTIVE`.
 
-Alternative terminology such as Resume is a UX choice; the product-level effect must create a new effective recurrence phase rather than rewriting past expectations.
+### 7.2 Resume Semantics
 
-Claude should specifically review whether reactivation without a canonical PAUSED state is coherent or whether MVP should simply require creating a new Routine.
+Accepted correction from Claude F1:
 
-### 7.2 Stop Routine
+> Resuming a stopped Routine creates a new active Routine using the stopped Routine as editable source material. It does not reactivate the same entity.
+
+The previous Routine and its RoutineOccurrences remain unchanged.
+
+The UI may label the action `Resume`, but its product meaning is:
+
+```txt
+stopped Routine remains STOPPED
+→ create new ACTIVE continuation Routine
+```
+
+An optional conceptual `continues from` relationship may support history continuity, but its technical representation belongs to Discussion 019.
+
+This follows the same one-way lifecycle principle proposed for terminal Projects.
+
+### 7.3 Stop Routine
 
 Stopping a Routine:
 
-- prevents generation or eligibility of occurrences after the effective stop boundary
-- does not change historical occurrences
-- does not mark pending past occurrences Done
-- resolves same-day and known-future occurrences according to Section 9
+- prevents occurrence eligibility after the effective stop boundary
+- preserves historical occurrences
+- does not resolve past pending facts as Done
+- does not carry missed behavior forward
 
-### 7.3 Edit Routine Metadata
+### 7.4 Metadata and Recurrence Editing
 
-Editing title, description, preferred time, duration, or recurrence affects future execution only unless the user explicitly corrects historical data.
+Edits affect future execution only unless the user explicitly performs a historical correction.
 
-Past RoutineOccurrences keep the historical meaning necessary to interpret them.
+A recurrence edit requires an effective local date.
 
-### 7.4 Recurrence Edit Effective Date
-
-A recurrence edit requires an explicit effective local date.
-
-Default proposal:
+Current proposal:
 
 ```txt
-effectiveDate = next local date after the edit
+default effectiveDate = next local date after edit
 ```
 
-The user may choose the current local date only when today's occurrence is still `PENDING`.
+The user may apply the edit today only if today's occurrence remains `PENDING` and the consequence is explicitly shown.
 
 Rules:
 
-- past occurrences are never regenerated from the new rule
-- future occurrence eligibility is recomputed from the effective date
-- a DONE or MISSED occurrence for today is not replaced by changing recurrence
-- a same-day PENDING occurrence may be added or removed only through explicit confirmation when today's applicability changes
-
-### 7.5 Goal-Owned and Standalone Routine Independence
-
-Completing or stopping a Project does not affect Goal-owned or standalone Routines.
-
-A Routine should be Project-owned only when it is specific to that finite Project.
+- past occurrences are not regenerated
+- DONE or MISSED occurrence for today is not replaced
+- future eligibility is recomputed from the effective date
+- same-day applicability changes require explicit confirmation
 
 ---
 
-## 8. RoutineOccurrence Generation Model
+## 8. RoutineOccurrence Execution Model
 
-### 8.1 Canonical Meaning
+### 8.1 Meaning and Uniqueness
 
-A RoutineOccurrence represents one Routine scheduled on one user-local date.
-
-Conceptual uniqueness:
+A RoutineOccurrence represents one Routine scheduled for one user-local date.
 
 ```txt
 one Routine + one scheduled local date
 → at most one ordinary RoutineOccurrence
 ```
 
-If future product requirements allow multiple daily repetitions, that requires an explicit model extension and is not silently represented by duplicate occurrences.
+Multiple repetitions per day require a future explicit model extension.
 
-### 8.2 Proposed Generation Strategy
+### 8.2 Derivation and Materialization Semantics
 
-Product semantics should not depend on whether future occurrences are physically pre-created or lazily materialized.
+User-visible behavior must not depend on whether occurrences are pre-created or lazily materialized.
 
-The required behavior is:
+Required semantics:
 
-- each scheduled local date has a stable occurrence identity once it becomes execution-relevant
-- opening the app must materialize all due occurrence facts needed for Today and missed-history resolution
-- duplicate occurrences for the same Routine and scheduled local date are forbidden
-- technical generation horizon belongs to Discussion 019
+- current-date occurrence becomes execution-relevant when Today is assembled
+- missed dates since the last evaluated boundary can be reconstructed deterministically
+- duplicate occurrences are forbidden
+- future projections are not historical facts merely because they were technically pre-created
+- exact generation horizon belongs to Discussion 019
 
-Recommended MVP behavior:
+Current proposal:
 
 ```txt
-materialize current local date when Today is assembled
-materialize missing past dates since the last evaluated date in bounded batches
-optionally materialize a short future preview window
+materialize or derive current local date
+reconstruct missing past scheduled dates in bounded batches
+optionally derive a short future preview
 ```
 
-The system must derive the same user-visible result whether the app was opened every day or not.
+### 8.3 App Inactivity
 
-### 8.3 Opening After Several Days
+When the app was not opened for scheduled dates:
 
-When the app is opened after one or more scheduled dates were not evaluated:
+- scheduled dates are reconstructed from recurrence
+- unresolved past occurrences may become `MISSED` on next evaluation
+- they do not appear as Carry debt in today's checklist
+- user may later correct truthful historical execution
 
-1. determine the user's effective timezone history where available;
-2. enumerate scheduled local dates since the Routine's last evaluated boundary;
-3. create or derive missing occurrences idempotently;
-4. mark past unresolved scheduled occurrences `MISSED`;
-5. create or preserve the current-date occurrence as `PENDING` when applicable;
-6. do not carry past occurrences into Today;
-7. expose the execution pattern to Reconcile when relevant.
+Important distinction:
 
-This catch-up process must be bounded operationally, but may not silently erase recent missed facts.
+```txt
+MISSED occurrence fact
+≠ proof that the user had low capacity
+```
 
-Long inactivity compaction policy is deferred to Discussion 019, provided product truth remains honest.
+A long absence produces low-confidence Adaptive Planning evidence unless the user confirms what happened.
 
-### 8.4 Occurrence Lifecycle
+### 8.4 Lifecycle
 
 ```txt
 PENDING → DONE
 PENDING → MISSED
 ```
 
-MVP does not add `SKIPPED` as a canonical state.
-
-Reason:
+MVP does not add canonical `SKIPPED`.
 
 - `DONE` means the behavior occurred
-- `MISSED` means the scheduled behavior was not recorded as done by the resolution boundary
-- explanations such as intentional rest, illness, or not-applicable may be optional execution feedback, not another lifecycle state
+- `MISSED` means it was not recorded as Done by the resolution boundary
+- reasons such as illness, intentional rest, or not-applicable may be optional feedback rather than another state
 
-Claude should review whether merging intentional skip into MISSED creates misleading history.
+Accepted correction from Claude F3:
 
-### 8.5 When PENDING Becomes MISSED
+> `MISSED` is a neutral scheduled-execution fact, not a moral judgment, punishment, streak failure, or accumulated debt.
 
-A pending occurrence becomes `MISSED` after its scheduled local date ends and the next product evaluation occurs.
+The UX must not imply shame merely from `MISSED`.
 
-The system does not require a midnight background job for semantic correctness.
+### 8.5 Resolution Boundary
 
-```txt
-scheduled local day ended
-+ next evaluation occurs
-→ unresolved PENDING becomes MISSED
-```
+A pending occurrence becomes `MISSED` after its scheduled local date ends and the product next evaluates it.
 
-The recorded transition timestamp may be later than the scheduled date, but the missed fact belongs to the scheduled local date.
+A midnight background job is not required for semantic correctness.
 
-### 8.6 Complete Current Occurrence
+### 8.6 Historical Occurrence Correction
 
-Marking today's pending occurrence Done:
-
-- changes it to `DONE`
-- records completion timestamp
-- removes it from active Today work
-- leaves the Routine active
-- does not generate bonus credit or streak guarantees
-
-### 8.7 Retroactive Occurrence Correction
-
-The user may correct a recent past occurrence:
+The user may explicitly correct:
 
 ```txt
 MISSED → DONE
 DONE → MISSED
 ```
 
-Proposal:
+Accepted principles:
 
-- correction allowed within seven local calendar days
-- correction records who/what changed it and when
 - scheduled local date never changes
-- a corrected occurrence is never Carried
-- corrections may update Reconcile evidence
+- correction records when it was entered
+- original history is auditable
+- occurrence is never Carried
+- no final fixed seven-day limit is accepted here
 
-Claude should review the seven-day correction window together with Task correction rules.
+Open question:
 
-### 8.8 No Carry for RoutineOccurrence
+> Should historical occurrence correction remain unlimited with audit, require stronger confirmation after a threshold, or use another execution-policy boundary?
 
-A missed occurrence remains attached to its original local date.
+This is an execution-history question, not an Adaptive Planning calibration rule.
 
-If the user wants to perform the behavior today:
+### 8.7 No Carry
 
-- today's scheduled occurrence may be completed when one exists;
-- or the user may perform an ad-hoc action outside the Routine occurrence model;
-- the missed occurrence itself is not moved or duplicated.
+A missed occurrence remains attached to its original date.
 
-MVP does not create replacement debt occurrences.
+Performing the behavior today does not move or duplicate the missed occurrence.
 
 ---
 
 ## 9. Project Completion and Stop Cascades
 
-### 9.1 Project Completion Preconditions
+### 9.1 Active Child Tasks
 
-A Project may be marked `COMPLETED` only through explicit user action.
+No active Task may remain owned by a terminal Project.
 
-MVP proposal:
+Current proposal:
 
-- unresolved active child Tasks do not hard-block Project completion
-- before confirmation, the product must show all active child Tasks and require one resolution choice
-
-Valid choices:
+Before `COMPLETED` or `STOPPED` is finalized, show unresolved active child Tasks and require one explicit resolution:
 
 ```txt
-1. complete Project and drop all unresolved child Tasks
-2. complete Project and explicitly detach eligible Tasks to Goal or standalone
-3. cancel Project completion and resolve Tasks first
+1. terminal transition + drop unresolved Tasks
+2. terminal transition + explicitly detach/reparent eligible Tasks
+3. cancel transition and resolve Tasks first
 ```
 
-The system must not leave active Tasks attached to a completed Project.
+The system must not silently drop, preserve, or detach Tasks.
 
-Project-owned active Routines are automatically stopped and cannot be detached implicitly during completion.
+Claude should review whether this resolution interaction is sufficiently safe and whether completing a Project should offer marking selected Tasks completed as part of the same flow.
 
-A user who wants a Routine to survive must explicitly reclassify its ownership before completing the Project.
+### 9.2 Project-Owned Routines
 
-### 9.2 Project Stop Preconditions
-
-Stopping a Project means the finite effort ends without completion.
-
-Before confirmation, unresolved child Tasks must be handled explicitly:
-
-```txt
-1. stop Project and drop unresolved child Tasks
-2. stop Project and explicitly detach eligible Tasks
-3. cancel stop
-```
-
-All active Project-owned Routines stop automatically.
-
-### 9.3 Cascade Boundary
-
-The Project lifecycle transition and automatic Routine stops share one effective product operation.
+For either terminal Project transition:
 
 ```txt
 Project ACTIVE → COMPLETED | STOPPED
 → active Project-owned Routines → STOPPED
 ```
 
-The cascade must be atomic from the user's perspective. Technical transaction behavior belongs to Discussion 019.
+A Routine survives only if the user explicitly changes its ownership before the Project transition.
 
-### 9.4 Same-Day RoutineOccurrence Boundary
+### 9.3 Atomic Product Meaning
 
-When a Project is completed or stopped on local date D:
+The Project transition, Task resolution choices, and automatic Routine stop are one effective product operation.
 
-- occurrences dated before D remain historical
-- future occurrences after D are cancelled from execution eligibility
-- a same-day `DONE` or `MISSED` occurrence remains unchanged
-- a same-day `PENDING` occurrence requires explicit treatment
+Technical transaction behavior belongs to Discussion 019.
 
-Proposed same-day rule:
+### 9.4 Same-Day Occurrence
 
-```txt
-if scheduled time has passed or user has interacted with it:
-    keep occurrence PENDING until user resolves it or day ends
-else:
-    remove/cancel today's pending execution expectation
-```
+Current proposal:
 
-However, `CANCELLED` is not an accepted occurrence lifecycle state in Discussion 012.
+When a Project completes or stops on local date D:
 
-Therefore the cleaner MVP proposal is:
+- occurrences before D remain historical
+- dates after D are no longer eligible
+- existing same-day DONE or MISSED occurrence remains unchanged
+- existing same-day PENDING occurrence remains a scheduled fact for D
+- the user may still complete it that day
+- if unresolved after D, it becomes MISSED
 
-- if today's occurrence already exists, keep it as a historical scheduled fact;
-- if still PENDING when the day ends, it becomes MISSED;
-- stopping the Project prevents only dates after D;
-- UI explains that today's occurrence belonged to the Project before it stopped.
+The terminal Project transition stops future dates after D rather than rewriting today's existing expectation.
 
-Claude should review whether this is semantically honest or whether the stop operation needs an occurrence-level cancellation concept in a later revision.
+Claude previously considered this semantically coherent. It remains open for final confirmation.
 
-### 9.5 Known Future Occurrences
+### 9.5 Known Future Projections
 
 After a Project-owned Routine stops:
 
-- future occurrence records, if physically pre-created, must no longer appear as executable work
-- they may be deleted if they were merely technical projections with no user-visible interaction
-- they must not be rewritten when they already contain user interaction or historical meaning
+- future projections must not appear as executable work
+- purely technical, untouched future records may be removed
+- interacted or historical records must not be silently rewritten
 
-The product contract treats them as non-existent future expectations after the stop effective boundary.
+Exact storage behavior belongs to Discussion 019.
 
-Exact storage cleanup belongs to Discussion 019.
+### 9.6 Reopen and Immediate Undo
 
-### 9.6 Reopen Project
+Current proposal:
 
-MVP proposal:
+- completed or stopped Project is not later reopened as the same active entity
+- continuing the effort creates a new active phase or Project
+- history remains intact
 
-- completed or stopped Project is not directly reopened
-- the user may duplicate or restart it through an explicit new active phase later
-- historical completion/stop remains intact
+Open question:
 
-This avoids silently reversing cascaded Routine shutdown and resolved child Tasks.
+> Should an immediate short-lived Undo be allowed as rollback of an accidental terminal action?
 
-Claude should review whether first-version correction requires a bounded undo action immediately after transition.
+Immediate Undo, if accepted, is an action rollback rather than a later lifecycle transition.
 
 ---
 
-## 10. Goal Lifecycle Effects on Execution
+## 10. Goal Terminal Lifecycle Effects
 
 ### 10.1 Achieve Goal
 
 Achieving a Goal is explicit user confirmation of real-world outcome.
 
-Before confirmation, the product must show active direct child Tasks, active direct Routines, and active Projects.
+Before finalization, active direct Tasks, Routines, and Projects must be shown and resolved.
 
-Proposed rule:
+Current proposal:
 
-- achieving Goal does not silently complete Projects or Tasks
-- user must explicitly resolve active direct child work
-- active child Projects must be completed, stopped, or detached before Goal achievement is finalized
-- active direct Tasks must be completed, dropped, or detached
-- active direct Routines must be stopped or detached
-
-No active execution entity remains owned by an achieved Goal.
+- Projects must complete, stop, or detach
+- direct Tasks must complete, drop, or detach
+- direct Routines must stop or detach
+- nothing active remains owned by an achieved Goal
 
 ### 10.2 Abandon Goal
 
-Abandoning a Goal similarly requires explicit child resolution.
-
-Default cascade proposal:
+Default proposal:
 
 - direct Tasks are dropped unless explicitly detached
-- direct Routines are stopped unless explicitly detached
-- child Projects are stopped unless explicitly detached as standalone
+- direct Routines stop unless explicitly detached
+- child Projects stop unless explicitly detached
 
-This mirrors the child-obedience principle accepted for PlanningDraft review in Discussion 014.
+No active child remains under an abandoned Goal.
 
-Detailed Goal lifecycle UX may later receive its own specification, but execution consistency must not allow active children under inactive Goals.
+Claude should review whether Goal terminal cascades belong fully in 015 or require a separate lifecycle discussion while preserving this invariant.
 
 ---
 
@@ -654,383 +611,333 @@ Detailed Goal lifecycle UX may later receive its own specification, but executio
 
 ### 11.1 Effective Timezone
 
-Each execution fact uses the user's effective IANA timezone, not a fixed numeric UTC offset.
+Execution uses a user-selected IANA timezone.
 
 Examples:
 
 ```txt
-Europe/Berlin
 Asia/Tehran
+Europe/Berlin
 America/Toronto
 ```
 
-This allows daylight-saving transitions to resolve correctly.
+UTC timestamps may support storage, but daily product meaning is based on local date.
 
-### 11.2 Scheduled Local Date Stability
+### 11.2 Historical Stability
 
-Once a Task placement or RoutineOccurrence is associated with a scheduled local date, timezone changes must not silently rewrite its historical date.
+Timezone changes must not silently rewrite historical scheduled local dates.
 
-Store or preserve enough context to interpret:
+Enough context must exist to interpret:
 
 - scheduled local date
-- effective timezone used for that schedule
-- UTC event timestamps
+- timezone used for that schedule
+- UTC event timestamp
 
 Exact fields belong to Discussion 019.
 
-### 11.3 User Travels or Changes Timezone
+### 11.3 Travel and Timezone Changes
 
-Prospective behavior:
+Current proposal:
 
-- new Today views use the newly effective timezone
-- future Routine schedule evaluation uses the new timezone unless the Routine is explicitly anchored to another timezone
-- past occurrences retain original scheduled local dates and timezone context
-- existing current-day ambiguity must not create duplicate occurrences
+- future Today assembly uses the newly effective timezone
+- future recurrence evaluation uses the new timezone
+- past occurrences retain original local-date context
+- transition must not create duplicate occurrences
+- per-Routine fixed timezone is excluded from MVP
 
-MVP proposal excludes per-Routine fixed timezones unless a concrete use case requires them.
+### 11.4 DST
 
-### 11.4 Daylight-Saving Boundaries
+Date-based recurrence remains attached to intended local dates.
 
-Date-based recurrence remains attached to local calendar dates.
-
-If preferred time falls into a nonexistent or repeated local clock time, implementation must choose a deterministic valid instant while preserving the intended local date.
-
-Exact resolution strategy belongs to Discussions 019–020.
+Exact instant selection for nonexistent or repeated clock times is deferred to Discussions 019–020.
 
 ---
 
 ## 12. Reconcile Eligibility
 
-This discussion identifies execution facts eligible for Reconcile but does not define grouping or suggestions.
+Discussion 015 identifies eligibility only. Discussions 016–017 define grouping and actions.
 
-### 12.1 Task Signals
+### 12.1 Task Eligibility
 
-An active Task becomes Reconcile-eligible when:
+Task may become Reconcile-eligible when:
 
-- its planned local date passed unresolved
+- its planned date passed unresolved
 - it has been carried repeatedly
-- it was dropped while supporting an active parent
-- it was reopened or corrected
-- its parent is being completed, stopped, achieved, or abandoned with unresolved ownership
+- it was dropped while supporting active parent work
+- it was historically corrected or restored
+- a parent terminal action conflicts with it
 
-### 12.2 Routine Signals
+### 12.2 Routine and Occurrence Eligibility
 
-A Routine or its execution pattern becomes Reconcile-eligible when:
+Routine execution may become Reconcile-eligible when:
 
-- recent occurrences are repeatedly missed
-- occurrence corrections materially change the observed pattern
+- occurrences are repeatedly missed across observed periods
+- historical corrections materially change the pattern
 - recurrence is repeatedly edited
-- a parent lifecycle change stops it
-- the first calibration week ends
-- signal-based continuation detects possible overload or poor fit
+- parent lifecycle stops the Routine
 
-### 12.3 Project and Goal Signals
+A single missed occurrence does not necessarily require a large Reconcile or planning intervention.
 
-A Project or Goal becomes Reconcile-eligible when:
+### 12.3 Reconcile Output as Adaptive Input
 
-- child work is repeatedly unresolved, carried, dropped, or missed
-- the user attempts a lifecycle transition with active children
-- planned execution and actual execution meaningfully diverge
+Accepted boundary:
 
-Eligibility does not authorize automatic semantic changes. Reconcile proposals require later accepted rules.
+- Reconcile may produce explicit decisions such as Carry, Drop, correction, or acknowledgement
+- those decisions may become evidence for Adaptive Planning
+- Adaptive Planning must evaluate evidence quality and repetition
+- absence-contaminated periods reduce confidence
+- unresolved inactivity must not be interpreted as confirmed low capacity
 
----
-
-## 13. Direct Answers to Original Questions
-
-### 1. How is Today assembled?
-
-From active Tasks placed on the current local date and pending RoutineOccurrences scheduled for that date, across standalone, Goal-owned, and Project-owned work.
-
-### 2. When does a Task enter Today?
-
-When its authoritative planned date equals today, it is explicitly carried or placed into today, or an accepted Reconcile action assigns it there.
-
-### 3. When and how are RoutineOccurrences generated?
-
-They are idempotently materialized or derived for scheduled local dates. User-visible behavior must be identical whether generated lazily or ahead of time.
-
-### 4. What happens if the app is not opened?
-
-On next evaluation, missing scheduled dates are reconstructed; past unresolved occurrences become MISSED and are not carried.
-
-### 5. Which transitions exist?
-
-```txt
-Task: ACTIVE → COMPLETED | DROPPED
-Project: ACTIVE → COMPLETED | STOPPED
-Routine: ACTIVE → STOPPED
-Occurrence: PENDING → DONE | MISSED
-```
-
-Carry and correction are transitions/events, not extra lifecycle statuses.
-
-### 6. Done, Missed, or Skipped?
-
-MVP proposal uses DONE and MISSED only. Intentional explanation may be feedback metadata rather than SKIPPED status.
-
-### 7. Can an occurrence be Carried?
-
-No.
-
-### 8. How do stop and edit work for Routine?
-
-Stop ends future eligibility. Edits apply prospectively from an explicit effective local date. Canonical pause is excluded from MVP.
-
-### 9. Does recurrence editing affect future occurrences only?
-
-Yes. Default effective date is tomorrow; today may be selected only while today's occurrence is still pending and the consequence is explicit.
-
-### 10. Can users correct past execution?
-
-Yes, within a proposed bounded seven-day correction window, with audit history preserved.
-
-### 11. How are timezone boundaries handled?
-
-By IANA timezone and scheduled local-date semantics, while preserving historical timezone context.
-
-### 12. What becomes eligible for Reconcile?
-
-Unresolved past Tasks, repeated Carry, missed patterns, corrections, recurrence churn, calibration transitions, and parent lifecycle conflicts.
-
-### 13. When do Project Routines stop after Project completion?
-
-As part of the same effective product operation.
-
-### 14. Does Project STOPPED stop active child Routines?
-
-Yes.
-
-### 15. What happens to same-day occurrences?
-
-Existing same-day occurrences remain historical scheduled facts. The stop boundary prevents dates after the effective local date.
-
-### 16. What happens to known future occurrences?
-
-They lose execution eligibility and should not appear. Pure future projections may be removed technically.
-
-### 17. What happens to active child Tasks?
-
-They must be explicitly dropped, detached/reparented, or resolved before Project completion/stop is finalized. No active Task remains attached to an inactive Project.
-
-### 18. Can terminal entities be reopened?
-
-Proposal: bounded Task/occurrence correction is allowed; Project terminal states are not reopened in MVP except possible immediate undo to be reviewed.
-
-### 19. Must Project completion be blocked by active Tasks?
-
-It is blocked only until the user explicitly chooses how unresolved child Tasks are resolved. Tasks need not all be completed.
+The exact pattern model belongs outside Discussion 015.
 
 ---
 
-## 14. Scenario Checks
+## 13. Stabilized Decisions
 
-### Scenario A — Missed App Opens
+The following are currently accepted unless Claude finds a contradiction:
 
-```txt
-Routine: Practice English every weekday
-App last opened Monday
-App next opened Thursday
-```
-
-Expected:
-
-- Tuesday and Wednesday scheduled occurrences exist or are derived
-- both become MISSED if not recorded Done
-- Thursday occurrence is PENDING
-- Tuesday and Wednesday do not appear as debt in Thursday Today
-
-### Scenario B — Carry Task
-
-```txt
-Task: Submit application
-plannedDate: Tuesday
-```
-
-User carries to Thursday.
-
-Expected:
-
-- same Task remains ACTIVE
-- authoritative plannedDate becomes Thursday
-- Tuesday placement remains in Carry history
-- no duplicate Task is created
-
-### Scenario C — Complete Project with Active Work
-
-```txt
-Project: Build portfolio
-Task: Write case study — ACTIVE
-Routine: Work on portfolio weekdays — ACTIVE
-```
-
-Expected:
-
-- completion action shows unresolved Task
-- user drops or explicitly detaches the Task, or cancels completion
-- Project-owned Routine stops automatically
-- no active child remains attached after completion
-
-### Scenario D — Stop Project on Occurrence Date
-
-A Project-owned Routine has a pending occurrence today and the Project is stopped today.
-
-Expected proposal:
-
-- today's occurrence remains tied to today's historical schedule
-- it may still be completed today
-- if unresolved after today, it becomes MISSED
-- no occurrence is eligible after today
-
-### Scenario E — Recurrence Edit
-
-```txt
-Routine: Monday, Wednesday, Friday
-Edit on Wednesday to Tuesday, Thursday
-```
-
-Expected default:
-
-- past Monday remains unchanged
-- today's existing Wednesday occurrence remains unchanged unless user explicitly applies edit today while it is pending
-- new rule applies from Thursday by default
-- no historical regeneration
-
-### Scenario F — Travel Across Timezones
-
-User travels from Tehran to Berlin.
-
-Expected:
-
-- past occurrences retain Tehran local-date context
-- future Today assembly uses Berlin timezone
-- no duplicate occurrence is created for the transition date
-
-### Scenario G — Goal Abandonment
-
-Goal has active direct Task, Routine, and Project.
-
-Expected:
-
-- user sees all dependent active work
-- default cascade drops Task, stops Routine, and stops Project
-- explicit detachment may preserve eligible children
-- nothing remains actively owned by abandoned Goal
+- Today is a derived local-date execution view
+- Task and Routine execution remain distinct
+- authoritative Task placement is `plannedDate`
+- Task Carry is explicit and changes placement, not status
+- no hidden midnight Carry exists
+- overdue is derived, not a canonical Task status
+- unresolved past Tasks become Reconcile-eligible
+- Routine executes through RoutineOccurrence
+- RoutineOccurrence never carries
+- occurrence lifecycle is PENDING → DONE | MISSED
+- no canonical SKIPPED or PAUSED in MVP
+- MISSED is neutral and non-punitive
+- stopped Routine cannot reactivate as the same entity
+- Resume creates a new continuation Routine
+- recurrence edits apply prospectively from an explicit date
+- past occurrences are preserved
+- Project completion and stop both stop Project-owned Routines
+- terminal parent may not retain active dependent children
+- existing same-day occurrence remains a scheduled fact
+- future occurrence eligibility ends after the stop boundary
+- historical correction is not finalized as a fixed seven-day window
+- absence is not execution failure
+- Reconcile and Adaptive Planning are separate flows
+- Adaptive Planning may consume reliable Reconcile outcomes
 
 ---
 
-## 15. Included, Excluded, and Deferred
+## 14. Open Product Questions and Current Proposals
 
-### Included Now
+### Q1. Is `plannedDate = today` the only Task entry mechanism for Today?
 
-- Today membership semantics
-- Task execution and Carry
-- Routine lifecycle and prospective editing
-- RoutineOccurrence generation-independent behavior
-- missed-date catch-up
-- retroactive correction proposal
-- Project completion/stop cascades
-- active child resolution
-- Goal terminal lifecycle execution consistency
-- local-date and timezone semantics
-- Reconcile eligibility signals
+Current proposal: yes. All manual, AI, Carry, and Reconcile paths update the same field.
 
-### Explicitly Excluded
+### Q2. Where are overdue Tasks shown?
 
-- persisted Plan entity
-- automatic hidden Carry
-- RoutineOccurrence Carry
-- Task dependency graph
-- universal persisted Task order
-- automatic Goal achievement
-- silent child detachment or reparenting
-- silent history rewriting
-- mandatory streaks or debt accumulation
+Current proposal: separate unresolved/Reconcile area, not mixed indefinitely into today's normal checklist.
 
-### Deferred
+### Q3. How far ahead or behind are occurrences physically materialized?
 
-- exact Today UI
-- exact correction-window duration if Claude or Mahdi rejects seven days
-- whether intentional skip needs canonical `SKIPPED`
-- whether Project terminal actions support immediate undo
-- whether stopped Routine may reactivate with same identity or requires a new Routine
-- Reconcile grouping and action rules
-- persistence and event implementation
-- future occurrence materialization horizon
-- long-inactivity compaction
-- exact DST instant-resolution rules
+Product semantics are decided; exact horizon is deferred to Discussion 019.
+
+### Q4. What limits historical Task and occurrence correction?
+
+Current proposal: allow beyond seven days, require stronger confirmation and audit for older consequential changes, and defer the exact boundary.
+
+### Q5. May completed or dropped Tasks reactivate as the same entity?
+
+Current proposal: yes as explicit audited correction. Claude should check consistency with Discussion 012.
+
+### Q6. What exact options appear for active Tasks during Project completion or stop?
+
+Current proposal: drop, explicit detach/reparent, or cancel transition. Consider allowing explicit complete for selected Tasks.
+
+### Q7. Is the same-day occurrence rule final?
+
+Current proposal: keep existing same-day occurrence; stop only future dates after that local date.
+
+### Q8. Is immediate Undo allowed for Project terminal action?
+
+Current proposal: possibly yes as bounded rollback, while later reopen remains forbidden.
+
+### Q9. Should Goal terminal cascades remain in 015?
+
+Current proposal: retain execution invariant here; exact UX may receive a later specification.
+
+### Q10. Does MVP need `SKIPPED` or `PAUSED`?
+
+Current proposal: no.
 
 ---
 
-## 16. Mind Map Impact — Record Only, Do Not Apply Yet
+## 15. Scenario Checks
 
-After Discussion 021 consolidation, add or revise:
+### Scenario A — Task Date Passed
+
+```txt
+Task planned for Tuesday
+Tuesday ends without action
+```
+
+Expected:
+
+- Task remains ACTIVE
+- Tuesday remains its last planned date
+- Task becomes overdue and Reconcile-eligible
+- Task does not silently move to Wednesday
+- Task does not appear as ordinary Wednesday work unless carried or rescheduled
+
+### Scenario B — Repeated Carry
+
+Expected:
+
+- same Task identity remains
+- current plannedDate changes each time
+- Carry history is preserved
+- repeated Carry may become reliable evidence only when user interaction is known
+
+### Scenario C — Month-Long Absence
+
+Expected:
+
+- missing scheduled occurrences can be reconstructed
+- historical facts remain correctable
+- absence period is low-confidence Adaptive Planning evidence
+- system does not conclude that user capacity is extremely low merely from non-use
+
+### Scenario D — Resume Routine
+
+Expected:
+
+- old Routine remains STOPPED
+- old occurrence history remains attached to it
+- new active continuation Routine is created
+- new recurrence may be edited before confirmation
+
+### Scenario E — Complete Project with Active Work
+
+Expected:
+
+- unresolved Tasks are shown
+- user explicitly resolves or detaches them, or cancels completion
+- Project-owned Routines stop automatically
+- no active child remains under completed Project
+
+### Scenario F — Stop Project Today
+
+Expected:
+
+- existing occurrence today remains resolvable
+- if unresolved at day end, it becomes MISSED
+- no later occurrence remains executable
+
+### Scenario G — Historical Correction After Long Gap
+
+Expected:
+
+- user can state that an old Task or occurrence was actually Done
+- correction time and claimed execution date remain distinct
+- original history is auditable
+- fixed seven-day expiry does not make history permanently false
+
+---
+
+## 16. Claude Review Resolution So Far
+
+Claude's previous review produced:
+
+```txt
+F1 — Blocking: Routine reactivation contradicted one-way lifecycle
+F2 — Important: fixed seven-day correction window conflicted with long-gap recovery
+F3 — Minor: MISSED needed neutral, non-punitive semantics
+```
+
+Integrated resolutions:
+
+- F1 accepted: Resume creates a new continuation Routine
+- F2 accepted: seven days is not a final correction boundary
+- F3 accepted: MISSED is neutral and non-punitive
+
+Additional clarification from Mahdi:
+
+- Reconcile handles unresolved past execution
+- Adaptive Planning designs future workload
+- Adaptive Planning may consume reliable Reconcile outcomes
+- absence and missing interaction must not dominate adaptation
+- repeated patterns and explicit feedback are stronger than one isolated period
+
+---
+
+## 17. Mind Map Impact — Record Only, Do Not Apply Yet
+
+After Discussion 021 consolidation, record:
 
 ### User Flow
 
 ```txt
 Approved execution window
 → Today assembled by local date
-→ complete / carry / drop Task
-→ complete RoutineOccurrence
-→ unresolved facts become history and/or Reconcile signals
+→ Task complete / carry / drop
+→ RoutineOccurrence done / missed
+→ unresolved past execution becomes Reconcile-eligible
+→ reliable repeated outcomes may inform later Adaptive Planning
 ```
 
 ### Product Model Execution Notes
 
-- Today is a derived local-date view, not an entity
-- Task Carry changes placement, not status
-- overdue is derived, not a Task status
-- Routine executes through RoutineOccurrence
-- RoutineOccurrence never carries
-- past pending occurrence becomes Missed on next evaluation
-- Project completion/stop stops Project-owned Routines
-- inactive parent cannot retain active dependent children
-- historical execution facts remain preserved
+- Today is derived, not an entity
+- Carry changes Task date, not status
+- overdue is derived
+- Routine executes through occurrences
+- occurrence never carries
+- MISSED is neutral
+- stopped Routine resumes through a new continuation entity
+- terminal Project stops Project-owned Routines
+- terminal parent cannot retain active dependent children
+- historical facts remain correctable and auditable
 
-### AI and Adaptive Behavior Inputs
+### AI Guardrails
 
-- first week provides calibration evidence
-- unresolved Tasks and repeated Carry feed Reconcile
-- missed Routine patterns feed Reconcile
-- continuation remains signal-based after first explicit transition
+- absence is not failure
+- missing data is not negative evidence
+- one weak period is not a pattern
+- major adaptation requires repeated reliable evidence or explicit feedback
 
-No Mind Map change is applied yet.
+No Mind Map changes are applied yet.
 
 ---
 
-## 17. Affected Formal Documents — Record Only, Do Not Update Yet
+## 18. Affected Formal Documents — Record Only, Do Not Update Yet
 
 After consolidation, accepted decisions should update or create:
 
 - Today execution specification
 - Task lifecycle and Carry specification
-- Routine lifecycle and recurrence-edit specification
-- RoutineOccurrence generation and correction specification
-- Project and Goal cascade specification
+- Routine continuation and recurrence-edit specification
+- RoutineOccurrence execution and correction specification
+- Project and Goal terminal cascade specification
 - timezone and local-date specification
-- Reconcile input-signal specification for Discussions 016–017
+- Reconcile eligibility and execution-input specification
+- Adaptive Planning evidence-quality guardrails
 - data and event specification in Discussion 019
-- API/runtime specification in Discussion 020
+- runtime specification in Discussion 020
 - validation plan in Discussion 021
 - implementation plan in Discussion 022
 
 Potential ADRs:
 
-- Today as a derived local-date view rather than persisted Plan
-- lazy/idempotent occurrence materialization semantics
-- terminal parent cascade and child-resolution behavior
-- historical correction model
+- Today as a derived local-date view
+- occurrence derivation/materialization semantics
+- Routine continuation as a new entity rather than lifecycle reversal
+- terminal parent child-resolution behavior
+- auditable historical correction model
 
-No formal document is updated from this discussion alone before consolidation.
+No formal document is updated before consolidation.
 
 ---
 
-## 18. Structured Review Request for Claude
+## 19. Structured Review Request for Claude
 
 Review this exact revision according to `claude-review-standards.md`.
 
-For every issue, provide:
+For each remaining issue, provide:
 
 ```txt
 1. Finding ID
@@ -1042,31 +949,24 @@ For every issue, provide:
 7. affected earlier or later discussion
 ```
 
-Focus especially on:
+Focus on:
 
-- contradictions with accepted Discussion 012 or 014
-- whether Today membership can be determined consistently
-- whether overdue-as-derived rather than status is coherent
-- whether explicit Carry avoids silent rescheduling
-- whether lazy occurrence generation produces the same facts after app inactivity
-- whether DONE/MISSED without SKIPPED is truthful enough
-- whether seven-day retroactive correction is justified or arbitrary
-- whether recurrence edit effective-date behavior is complete
-- whether stopping or completing a Project handles same-day occurrences coherently
-- whether active child Task resolution creates destructive or confusing cascades
-- whether achieved/abandoned Goals may coherently retain no active owned work
-- whether Routine reactivation without PAUSED is coherent
-- whether any proposal silently redefines a core entity
-- whether any rule cannot be validated deterministically
+- contradictions with accepted Discussions 012 and 014
+- whether `plannedDate` alone can determine Task entry into Today
+- whether overdue work is separated from Today coherently
+- whether Task correction/restoration conflicts with one-way lifecycle language
+- whether Routine continuation as a new entity fully resolves F1
+- whether historical correction remains honest without a fixed calendar window
+- whether DONE/MISSED without SKIPPED remains truthful
+- whether MISSED semantics are sufficiently neutral
+- whether occurrence reconstruction after inactivity is deterministic
+- whether same-day Project-stop occurrence behavior is coherent
+- whether terminal parent child-resolution options are complete and non-destructive
+- whether Goal lifecycle effects are correctly scoped
+- whether Reconcile and Adaptive Planning responsibilities are cleanly separated
+- whether absence and low-confidence evidence are prevented from driving aggressive adaptation
+- any remaining rule that cannot be validated deterministically
 
-Do not expand into:
+Do not expand into database tables, API payloads, provider choice, exact Reconcile scoring, exact Adaptive Planning thresholds, visual styling, analytics, or implementation sequence.
 
-- database table design
-- API payloads
-- provider or prompt selection
-- exact Reconcile scoring thresholds
-- visual styling
-- analytics
-- implementation sequencing
-
-This discussion remains open until Claude reviews this exact version and accepted corrections, final resolution, Mind Map impact, and affected formal documents are recorded.
+This discussion remains open until Claude reviews this exact revision and accepted corrections and final resolution are recorded.
