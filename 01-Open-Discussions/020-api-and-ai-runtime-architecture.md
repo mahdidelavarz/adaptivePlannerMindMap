@@ -1,50 +1,89 @@
 # Discussion 020 — API and AI Runtime Architecture
 
 ## Status
-Open for GPT × Claude review.
 
-## Scope
-Define the technical runtime, API contracts, provider boundary, validation, and failure behavior for Planning AI and Reconcile AI.
+Split into three focused discussions.
+
+This file is the hub for the Discussion 020 runtime architecture program.
+
+## Program Goal
+
+Translate the accepted product, persistence, transaction, privacy, and observability contracts from Discussions 012–019 into a coherent runtime and API architecture without reopening product semantics.
+
+## Parts
+
+### [[01-Open-Discussions/020a-ai-runtime-boundaries-and-orchestration]]
+
+Defines:
+
+- application-layer AI ports
+- Spring AI and provider adapter boundaries
+- Planning AI and Reconcile AI orchestration
+- context builders and data minimization
+- synchronous versus streamed behavior
+- cancellation semantics
+- kill switches and degraded modes
+- provider fallback boundary
+- separation between AI output and canonical mutation
+
+### [[01-Open-Discussions/020b-api-and-frontend-state-contracts]]
+
+Defines:
+
+- API resources and endpoint families
+- PlanningDraft and ReconcileSession contracts
+- confirmation and command submission
+- expected versions and idempotency keys
+- conflict, retry, cancellation, and refresh behavior
+- frontend state machines
+- polling or streaming transport contracts
+
+### [[01-Open-Discussions/020c-structured-output-reliability-and-cost-controls]]
+
+Defines:
+
+- structured-output parsing and validation
+- deterministic repair allowlist
+- retry classification
+- timeouts, circuit breakers, and rate limits
+- prompt and model version registry
+- token and cost budgets
+- provider operational observability
+- fallback and rollout controls
+
+## Locked Inputs
+
+The Discussion 020 parts must preserve:
+
+- no AI authority over canonical mutation
+- complete structured PlanningDraft output only
+- no usable partial output in MVP
+- Reconcile AI receives structured facts only and no free-text context
+- explicit confirmation before consequential mutation
+- revalidate-before-commit
+- transaction and idempotency contracts from Discussion 019B
+- observability, retention, and access boundaries from Discussion 019C
+- fail closed for AI mutation and fail open for manual product access
+
+## Sequence
+
+```txt
+020A runtime boundaries and orchestration
+→ 020B API and frontend state contracts
+→ 020C structured output, reliability, and cost controls
+→ 021 validation plan and release gates
+→ 022 implementation sequence
+```
 
 ## Out of Scope
+
 - reopening accepted product behavior
+- physical database schema
 - metric thresholds
 - milestone sequencing
+- UI visual design
+- multi-region active-active architecture
 
-## Questions
-1. Which LLM provider and model class are used for the pilot?
-2. Is Spring AI used directly, wrapped by an internal port, or avoided?
-3. Which provider-specific concepts must remain outside the domain layer?
-4. Are planning and Reconcile requests synchronous, streamed, or hybrid?
-5. What endpoints and request/response contracts are required?
-6. How is structured output validated, repaired, retried, or rejected?
-7. What are timeout, retry, circuit-breaker, and rate-limit policies?
-8. What happens when AI is unavailable after the user has entered the flow?
-9. How are prompt templates versioned and tested?
-10. How are model and prompt versions attached to events?
-11. How are token use, latency, and cost controlled?
-12. What context is sent for planning versus Reconcile?
-13. How are bulk mutations applied transactionally after user approval?
-14. Which frontend loading, partial, error, retry, and cancellation states exist?
-15. Is a provider fallback required for the pilot?
+## Program Closure Conditions
 
-## Expected Decisions
-- runtime architecture
-- provider abstraction
-- API contracts
-- structured-output strategy
-- reliability policies
-- cost and observability controls
-- frontend state contract
-
-## Dependencies
-Requires accepted outputs from Discussions 013, 014, 017, 018, and 019.
-
-## Resolution Template
-- Provider/runtime:
-- Endpoints/contracts:
-- Validation/retry:
-- Failure fallback:
-- Cost/observability:
-- Mind map changes:
-- Specs/ADRs affected:
+Discussion 020 closes only after 020A, 020B, and 020C are accepted and their Mind Map impacts are recorded.
