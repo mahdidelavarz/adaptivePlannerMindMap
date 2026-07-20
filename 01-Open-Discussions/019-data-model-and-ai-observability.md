@@ -1,88 +1,156 @@
-# Discussion 019 — Data Model and AI Observability
+# Discussion 019 — Data Persistence and Observability Program
 
 ## Status
-Open for GPT × Claude review.
 
-## Scope
-Translate accepted product behavior into the minimum honest persistence model and event history required to evaluate AI and execution.
+Split into three focused discussions after dependency audit.
 
-This discussion receives conceptual entities and lifecycle rules from Discussions 012–018. It must not reopen whether Goal, Project, Task, Routine, or RoutineOccurrence exist; it decides how accepted concepts are represented safely.
+This file is now the program hub for persistence work. It does not define a fourth competing data model.
 
-## Out of Scope
-- provider/runtime choice
-- endpoint design
-- validation thresholds
-- implementation sequencing
-- redefining product ownership rules accepted in Discussion 012
+Child discussions:
 
-## Questions
-1. What are the final fields and invariants for Goal, Project, Task, Routine, and RoutineOccurrence?
-2. How are nullable ownership relationships represented while enforcing these rules?
-   - `Project → Goal?`
-   - `Task → Project?`
-   - `Routine → Project?`
-   - no `Task → Goal`
-   - no `Routine → Goal`
-3. Which database constraints ensure a Task or Routine belongs to at most one Project and prevent cross-Project Routine reuse?
-4. How is `source: manual | ai_assisted` represented?
-5. Does the PlanningDraft remain fully ephemeral until approval?
-6. Is any AI interaction or proposal entity required?
-7. How are accepted, edited, rejected, and ignored suggestions recorded?
-8. How are AI Reconcile groups and affected item IDs represented?
-9. Is a ReconcileSession entity necessary, or can events derive sessions safely?
-10. Which raw prompt/response data is forbidden, optional, or required to persist?
-11. What event taxonomy covers planning, execution, Project lifecycle, Routine shutdown, and Reconcile?
-12. What metadata is required for severity and descriptive analysis?
-13. Which database constraints enforce lifecycle correctness?
-14. What is the transaction boundary for `Project ACTIVE → COMPLETED` plus automatic stopping of all active child Routines?
-15. What is the transaction boundary for `Project ACTIVE → STOPPED` if Discussion 015 confirms the same Routine shutdown invariant?
-16. How are already-persisted future RoutineOccurrences handled when the owning Routine is stopped?
-17. How are concurrent operations handled when Project completion, Routine editing, occurrence completion, or Task updates happen at nearly the same time?
-18. What idempotency guarantees prevent duplicate cascade effects or duplicate AI-approved mutations?
-19. Should Project completion/stop and child Routine shutdown create one domain event, multiple events, or both?
-20. How is historical identity preserved when a similar Routine is later created under another Project?
-21. How are model and prompt versions recorded without coupling domain tables to a provider?
-22. Which derived summaries may be computed from execution data without being persisted as misleading Goal progress?
+- [[01-Open-Discussions/019a-canonical-data-model-and-invariants]]
+- [[01-Open-Discussions/019b-transactions-concurrency-and-idempotency]]
+- [[01-Open-Discussions/019c-events-ai-observability-and-retention]]
 
-## Accepted Inputs from Earlier Discussions
-The data model must preserve these semantic rules:
+---
+
+## 1. Why the Split Exists
+
+The original Discussion 019 combined three different decision layers:
 
 ```txt
-Goal may own zero or more Projects.
-Project may be standalone.
-Task and Routine may be standalone.
-Task and Routine never link directly to Goal.
-A Routine belongs to one Project or is standalone.
-A Project Routine is not moved or reused automatically.
-Project completion stops active child Routines.
-Historical RoutineOccurrences remain preserved.
-Goal achievement is user-confirmed, not inferred from execution totals.
-Plan is not a persisted domain entity.
+canonical persistence truth
+transaction and concurrency behavior
+observability and analytics history
 ```
 
-## Expected Decisions
-- ERD
-- field definitions
-- ownership constraints
-- lifecycle invariants
-- Project-to-Routine cascade persistence
-- event taxonomy
-- AI observability boundary
-- persistence, concurrency, transaction, and idempotency rules
-- derived-summary versus persisted-truth boundary
+These layers depend on one another but must not be designed as one undifferentiated schema.
 
-## Dependencies
-Requires accepted product behavior from Discussions 012–018.
+Accepted sequence:
 
-## Resolution Template
-- Models:
-- Relationships and constraints:
-- Lifecycle invariants:
-- Project cascade transaction:
-- Concurrency/idempotency:
-- Event taxonomy:
-- AI observability:
-- Session decisions:
-- Derived summaries:
-- Mind map changes:
-- Specs/ADRs affected:
+```txt
+019A canonical model and invariants
+→ 019B transactions, concurrency, and idempotency
+→ 019C events, AI observability, and retention
+```
+
+019B and 019C may be drafted in parallel only after 019A ownership, identity, lifecycle, and temporal fields are stable.
+
+---
+
+## 2. Resolved Contradiction from the Original Skeleton
+
+The original skeleton incorrectly listed:
+
+```txt
+no Task → Goal
+no Routine → Goal
+```
+
+That contradicts accepted Discussion 012.
+
+Authoritative ownership is:
+
+```txt
+Project
+→ Goal or standalone
+
+Task
+→ Goal or Project or standalone
+→ never Goal and Project simultaneously
+
+Routine
+→ Goal or Project or standalone
+→ never Goal and Project simultaneously
+```
+
+Direct Goal-owned Tasks and Routines are canonical and must be representable in persistence.
+
+---
+
+## 3. Program Boundaries
+
+### 019A owns
+
+- canonical tables and fields
+- relationships and foreign keys
+- lifecycle states
+- temporal checkpoint fields
+- placement and provenance
+- exclusive-parent constraints
+- identity preservation
+- canonical-versus-derived field boundary
+- minimum indexes required by accepted product behavior
+
+### 019B owns
+
+- transaction boundaries
+- parent lifecycle cascades
+- RoutineOccurrence shutdown behavior
+- optimistic concurrency
+- stale confirmation enforcement
+- idempotency
+- retry safety
+- duplicate cascade prevention
+- conflict handling
+
+### 019C owns
+
+- domain and audit events
+- PlanningDraft persistence decision
+- AI proposal and session records
+- rule-match observability
+- accepted, edited, rejected, and ignored suggestion history
+- model and prompt versioning
+- logging layers
+- raw prompt/response retention
+- analytics-safe summaries
+
+---
+
+## 4. Accepted Inputs
+
+This program consumes authoritative decisions from:
+
+- Discussion 012 and 012A
+- Discussions 013–014A
+- Discussions 015–016A
+- Discussion 017B
+- Discussion 018A final resolution
+- Discussion 018C final resolution
+
+It must not reopen:
+
+- which canonical entities exist
+- direct Goal ownership
+- absence of a persisted canonical Plan entity
+- Task/Routine exclusive-parent ownership
+- user-confirmed Goal achievement
+- Project-owned Routine shutdown semantics
+- review due versus execution overdue
+- AI proposal versus deterministic mutation authority
+- privacy and free-text boundaries
+
+---
+
+## 5. Shared Principles
+
+```txt
+canonical tables store product truth
+history stores decisions and transitions
+derived values remain derived unless a justified snapshot is required
+analytics must not masquerade as Goal progress
+AI is never the authorizing actor for canonical mutation
+```
+
+---
+
+## 6. Closure Order
+
+Discussion 019 is complete only when:
+
+1. 019A is accepted.
+2. 019B is accepted against the final 019A model.
+3. 019C is accepted against the final 019A and 019B contracts.
+4. Mind Map impacts are consolidated.
+5. Discussions 020–022 receive explicit implementation and validation dependencies.
