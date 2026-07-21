@@ -1,1335 +1,514 @@
-# Discussion 020C — Structured Output, Reliability, and Cost Controls
+# Discussion 020C — Final Structured Output, Reliability, and Cost Controls Resolution
 
 ## Status
 
-Open for GPT × Claude review.
+Accepted and closed.
 
-This document is Part C of Discussion 020.
-
-Companion discussions:
-
-- [[01-Open-Discussions/020-api-and-ai-runtime-architecture]]
-- [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
-- [[01-Open-Discussions/020b-final-api-and-frontend-state-contracts-resolution]]
+This document is the authoritative resolution for Discussion 020C.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
-- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
-- [[01-Open-Discussions/019c-amendment-ai-context-scope-observability]]
 - [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
 - [[01-Open-Discussions/020b-final-api-and-frontend-state-contracts-resolution]]
+- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
 
 ---
 
-## 1. Scope
+## 1. Governing Principle
 
-This discussion defines how AI operations are validated, repaired, rejected, retried, timed out, rate-limited, versioned, observed, and cost-controlled without weakening accepted product, privacy, confirmation, or transaction guarantees.
-
-It covers:
-
-- structured-output validation pipeline
-- deterministic repair allowlist
-- semantic-policy validation
-- retry classification and retry budgets
-- timeout layers
-- circuit breakers
-- concurrency and rate limits
-- provider fallback policy
-- prompt, schema, catalog, model, and context-builder version resolution
-- token and context budgets
-- truncation and omission behavior
-- per-operation cost ceilings
-- operational observability
-- kill switches
-- user-facing failure mapping
-- resilience test requirements
-
----
-
-## 2. Explicitly Out of Scope
-
-This discussion does not redefine:
-
-- endpoint naming or client resource shapes from 020B
-- canonical transactions or idempotent command execution from 019B
-- AI port boundaries from 020A
-- product behavior from Discussions 012–018
-- final production threshold values
-- cloud vendor, deployment topology, or secret-management provider
-- legal retention durations
-- multi-provider automatic fallback for the pilot
-
-Thresholds in this document are policy shapes and configuration requirements. Exact numeric values are finalized during implementation and rollout planning in Discussions 021 and 022.
-
----
-
-## 3. Governing Reliability Principle
-
-An AI result becomes product-usable only after every required deterministic gate succeeds.
+An AI result becomes usable only after every required validation gate passes under one pinned runtime configuration.
 
 ```txt
-provider response
+provider output
 → transport completion
-→ decode
-→ structural parse
+→ parse
 → schema validation
-→ deterministic normalization/repair
-→ schema validation again
-→ domain vocabulary validation
-→ product-policy validation
-→ reference and ownership validation
-→ consequence completeness validation
-→ persist operational result
-→ create reviewable proposal or bounded explanation
+→ deterministic repair allowlist
+→ semantic and temporal validation
+→ canonical reference validation
+→ in-draft graph validation
+→ policy validation
+→ context and budget validation
+→ usable proposal or explanation
 ```
 
-Failure at any required gate means:
+Invalid, partial, ambiguous, unsafe, or structurally inconsistent output never becomes a reviewable resource.
 
-```txt
-no reviewable partial result
-no confirmation resource
-no canonical mutation
-```
-
-Retries may attempt to produce a new candidate output. Retries never relax validation rules.
+No retry, repair, fallback, or client behavior may weaken this rule.
 
 ---
 
-## 4. Output Contract Families
+## 2. Output Families
 
-The runtime recognizes three distinct output families.
+Three output families remain separate:
 
-### 4.1 Planning Proposal Output
+- Planning proposal
+- Reconcile explanation over valid deterministic facts
+- Domain safety classification with a closed vocabulary
 
-Planning output is a complete structured proposal matching a versioned schema.
-
-It may contain:
-
-- proposed Goal, Project, Task, and Routine structures allowed by accepted product semantics
-- explicit ownership references
-- user-visible rationale fields where permitted
-- consequence-preview inputs
-- source references to user-provided constraints
-
-It may not contain:
-
-- executable commands
-- repository instructions
-- tool calls
-- hidden mutation directives
-- free-form reviewDate invention
-- partial entity sets presented as complete
-
-### 4.2 Reconcile Explanation Output
-
-Reconcile explanation output is bounded explanatory content generated only from deterministic facts, rule matches, and group records.
-
-It may not:
-
-- create new facts
-- change rule outcomes
-- infer raw user narrative
-- redefine recommendation eligibility
-- replace a failed deterministic Reconcile computation
-
-### 4.3 Safety Classification Output
-
-Safety classification uses a closed vocabulary defined by 020A.
-
-```txt
-classification
-reasonCodes[]
-policyVersion
-confidenceBand?
-```
-
-Unknown classifications, unknown reason codes, or free-form labels are invalid.
+Each family has independent schemas, budgets, retry rules, circuit breakers, and kill switches.
 
 ---
 
-## 5. Validation Pipeline
+## 3. Validation Pipeline
 
-### 5.1 Gate 1 — Transport Completion
+### Gate 1 — Transport Completion
 
-The provider call must finish according to the configured operation contract.
+Reject incomplete, interrupted, cancelled, timed-out, or oversized responses. Partial content is never accepted.
 
-Invalid conditions include:
+### Gate 2 — Syntax Parse
 
-- connection failure
-- incomplete body
-- provider stream termination before the final structured payload
-- timeout
-- cancellation
-- response exceeding configured byte limits
+The response must parse into the expected representation. Only explicitly allowlisted wrapper removal is permitted.
 
-No downstream parsing occurs on an incomplete response.
+### Gate 3 — Schema Validation
 
-### 5.2 Gate 2 — Content-Type and Envelope Validation
+Validate exact pinned schema version, required fields, enum values, types, ranges, unknown-field policy, and identifier uniqueness.
 
-The adapter verifies:
+### Gate 4 — Deterministic Repair
 
-- expected provider response envelope
-- expected content type or structured-output channel
-- one final candidate payload
-- no unexpected tool/function-call object
-- no multiple competing final outputs
+At most one repair pass may run. Every repair records rule ID, policy version, affected paths, and outcome.
 
-Any tool/function-call object is a final architecture violation, not a repairable model formatting issue.
+Repair may normalize syntax but may not invent semantic intent.
 
-### 5.3 Gate 3 — Structural Parse
+### Gate 5 — Semantic Validation
 
-The runtime parses the candidate into the declared output format.
+Validate accepted product semantics, ownership intent, parent invariants, recurrence rules, temporal provenance, warning requirements, and Planning/Reconcile boundaries.
 
-For JSON-based output:
+### Gate 6 — Temporal Validation
 
-- the full payload must parse
-- trailing commentary is rejected unless removed by an allowlisted purely syntactic repair
-- multiple top-level objects are rejected
-- duplicate keys are rejected
-- excessive nesting or collection size is rejected
+Validate local dates, timezone requirements, effective ranges, and contradictory date combinations. `reviewDate` is never freely generated by AI.
 
-### 5.4 Gate 4 — Versioned Schema Validation
+### Gate 7 — Canonical Reference Validation
 
-The parsed object is validated against the exact resolved schema version.
+For existing canonical entities, validate existence, ownership, type, lifecycle eligibility, request scope, and structural validity.
 
-Validation includes:
+### Gate 8 — In-Draft Temporary Reference Graph Validation
 
-- required fields
-- allowed enum values
-- field types
-- minimum and maximum collection sizes
-- string length limits
-- date and timezone formats
-- mutually exclusive fields
-- forbidden additional properties where declared
+Temporary references between proposed items must form one resolvable valid graph.
 
-The runtime never validates against “latest” after invocation. The operation is bound to the schema version resolved before provider invocation.
-
-### 5.5 Gate 5 — Deterministic Normalization and Repair
-
-Only the allowlisted repairs in Section 6 may run.
-
-After repair, the entire payload is schema-validated again.
-
-A repair operation must produce an auditable repair record containing:
+Required checks:
 
 ```txt
-repairCode
-repairVersion
-affectedPaths[]
-semanticChangeExpected: false
+- every referenced temporary ID exists in the same payload
+- every temporary ID is unique
+- referenced type is compatible with the field
+- no self-reference exists
+- no cycle exists
+- ownership invariants from Discussion 019A remain valid
+- no node receives multiple exclusive parents
 ```
 
-### 5.6 Gate 6 — Domain Vocabulary Validation
+The validator builds all temporary nodes and edges, resolves them, runs cycle detection, and validates the resulting hierarchy.
 
-The runtime verifies that values map to accepted domain concepts.
+Any failure rejects the whole output.
 
-Examples:
+The runtime must not guess a parent, remove an edge, change an entity type, or flatten hierarchy as a repair.
 
-- valid entity types
-- accepted lifecycle statuses
-- allowed ownership shapes
-- accepted temporal source values
-- valid recommendation and reason codes
-- known warning codes
-- valid safety classifications
+### Gate 9 — Policy Validation
 
-Provider-created unknown domain codes are rejected, not dynamically registered.
+Apply accepted safety, hostile-content, protection, deadline, automation, mutation-authority, and kill-switch rules.
 
-### 5.7 Gate 7 — Product-Policy Validation
+### Gate 10 — Context and Budget Integrity
 
-Policy validation enforces accepted decisions, including:
+Verify that the request used a complete allowed context scope and remained inside token, cost, and operation limits.
 
-- Task and Routine ownership XOR rules
-- no illegal child under terminal parent
-- one Routine occurrence per Routine per local day in MVP
-- reviewDate is user literal or deterministic default only
-- Reconcile explanation cannot create facts
-- protected or deadline-sensitive changes require accepted preview rules
-- partial proposal subsets are not reviewable
-- imported hostile content is not treated as instruction
-
-### 5.8 Gate 8 — Reference and Scope Validation
-
-Every referenced canonical ID must:
-
-- exist where existence is required
-- belong to the authenticated user/workspace
-- be within the context scope manifest
-- match the expected entity type
-- not grant access to an entity omitted from the approved context
-
-The model cannot expand its authority by returning an arbitrary ID.
-
-### 5.9 Gate 9 — Completeness and Consequence Validation
-
-Before a proposal becomes REVIEWABLE, the application verifies:
-
-- all required proposal sections are present
-- referenced consequences can be deterministically computed
-- selected entity IDs are explicit
-- expected versions can be bound later through confirmation
-- no hidden unsupported action remains
-- no warning acknowledgement is fabricated
-
-### 5.10 Gate 10 — Persistence Boundary
-
-A PlanningDraft revision is persisted only after all required gates succeed.
-
-Failed candidate outputs may produce operational metadata, but never a partially reviewable draft.
+An output generated from invalidly truncated context is rejected even when its structure is otherwise valid.
 
 ---
 
-## 6. Deterministic Repair Allowlist
+## 4. Deterministic Repair Allowlist
 
-Repair exists only to correct representation defects that do not alter meaning.
-
-### 6.1 Allowed Repairs
-
-Proposed MVP allowlist:
+Allowed MVP repairs may include:
 
 ```txt
-REMOVE_MARKDOWN_CODE_FENCE
-REMOVE_LEADING_OR_TRAILING_NON_PAYLOAD_WHITESPACE
-NORMALIZE_UNICODE_WHITESPACE
+REMOVE_SINGLE_JSON_CODE_FENCE
+TRIM_SURROUNDING_WHITESPACE
+REMOVE_UTF8_BOM
 NORMALIZE_KNOWN_ENUM_CASE
-NORMALIZE_ISO_DATE_FORMAT_WHEN_UNAMBIGUOUS
-REMOVE_TRAILING_JSON_COMMA
+NORMALIZE_YEAR_FIRST_DATE_SEPARATOR
+PAD_YEAR_FIRST_MONTH_OR_DAY
 ```
 
-Conditions:
+### 4.1 Enum Case Normalization
 
-- the repair must be deterministic
-- the repair must not choose between multiple meanings
-- the repaired value must still pass full validation
-- the original candidate must never be shown to the user
-- all repairs are recorded in AIOperation metadata
+Only exact case-folded equality is permitted.
 
-### 6.2 Forbidden Repairs
-
-The runtime must not:
-
-- invent missing required fields
-- infer missing dates
-- choose a parent entity
-- rewrite user intent
-- drop invalid proposal items and keep the rest
-- coerce unknown enum values to the nearest known value
-- merge duplicate entities semantically
-- replace unknown IDs
-- turn invalid recommendations into generic advice
-- ask a second model to “fix” content without a new full operation attempt
-
-### 6.3 Repair Result
+Allowed:
 
 ```txt
-repair succeeds + all gates pass
-→ candidate may continue
-
-repair fails or ambiguity exists
-→ candidate rejected
+active → ACTIVE
+Active → ACTIVE
 ```
+
+Forbidden:
+
+```txt
+ACTVE → ACTIVE
+ACT → ACTIVE
+enabled → ACTIVE
+```
+
+No fuzzy matching, edit distance, abbreviation expansion, synonym mapping, or semantic guessing is allowed.
+
+### 4.2 Date Normalization
+
+Only explicit year-first numeric formats are repairable.
+
+Allowed:
+
+```txt
+2026-7-2   → 2026-07-02
+2026/07/02 → 2026-07-02
+```
+
+Requirements:
+
+- four-digit year first
+- explicit month and day positions
+- calendar-valid result
+
+Rejected:
+
+```txt
+01/02/2026
+02-03-26
+July 2
+```
+
+Locale inference and heuristic disambiguation are not used in MVP.
+
+### 4.3 Forbidden Repairs
+
+The runtime must not invent fields, entities, IDs, dates, warnings, consequences, hierarchy edges, or user intent. It must not delete invalid items and accept the remainder.
 
 ---
 
-## 7. Failure Classification
+## 5. Failure Taxonomy
 
-Every failure maps to one stable internal class.
+Stable failure classes include transport, timeout, provider availability, parsing, schema, semantic, temporal, reference, draft-graph, policy, context, rate-limit, budget, circuit, cancellation, spend-cap, and kill-switch failures.
 
-```txt
-CLIENT_INPUT_INVALID
-CONTEXT_BUILD_FAILED
-SAFETY_ROUTING_BLOCKED
-PROVIDER_RATE_LIMITED
-PROVIDER_AUTH_FAILED
-PROVIDER_UNAVAILABLE
-PROVIDER_TIMEOUT
-PROVIDER_PROTOCOL_ERROR
-OUTPUT_PARSE_FAILED
-OUTPUT_SCHEMA_INVALID
-OUTPUT_POLICY_INVALID
-OUTPUT_REFERENCE_INVALID
-OUTPUT_INCOMPLETE
-OUTPUT_TOO_LARGE
-CANCELLED_BY_USER
-CANCELLED_BY_SYSTEM
-CIRCUIT_OPEN
-SYSTEM_RATE_LIMITED
-BUDGET_EXCEEDED
-KILL_SWITCH_DISABLED
-INTERNAL_VALIDATION_ERROR
-```
-
-Failure classes are operational facts. They do not expose provider-specific error text to clients.
+Failures are operational facts and never authorize mutation.
 
 ---
 
-## 8. Retry Policy
+## 6. Retry Policy
 
-### 8.1 General Rules
-
-- retry applies only to the AI generation or explanation attempt
-- retry does not create or authorize a mutation
-- retry reuses the same logical PlanningAttempt or Reconcile explanation request
-- each provider invocation receives a distinct attempt number and operation record
-- cancellation stops further retry scheduling
-- the retry budget is bounded per logical operation
-- all validation gates rerun for every candidate
-
-### 8.2 Retryable Failures
-
-Potentially retryable, subject to budget and current circuit state:
+One logical operation may contain at most two provider invocations:
 
 ```txt
-PROVIDER_RATE_LIMITED
-PROVIDER_UNAVAILABLE
-PROVIDER_TIMEOUT
-PROVIDER_PROTOCOL_ERROR
-OUTPUT_PARSE_FAILED
-OUTPUT_SCHEMA_INVALID
+initial invocation
++ at most one controlled retry
 ```
 
-`OUTPUT_PARSE_FAILED` and `OUTPUT_SCHEMA_INVALID` permit at most one corrective retry in the pilot.
+Hidden retries in SDKs, HTTP clients, Spring AI components, adapters, or infrastructure are forbidden.
 
-The corrective retry may include concise machine-generated validation feedback, such as:
+A retry may be allowed only for explicitly classified transient failures such as connection failure, provider timeout, bounded rate limiting, temporary provider unavailability, or incomplete transport.
 
-```txt
-schema path
-expected type
-received type
-missing required field names
-```
+Do not retry cancellation, authorization failure, kill switch, circuit open, local rate limit, budget rejection, provider hard spend cap, mandatory context overflow, invalid context scope, semantic/temporal/reference/graph/policy failure, deterministic Reconcile failure, or permanent protocol incompatibility.
 
-It must not include a request to reinterpret user intent.
+Retry preserves:
 
-### 8.3 Non-Retryable Failures
+- logical operation ID
+- clientAttemptId
+- user/workspace scope
+- normalized request
+- prompt, schema, context builder, model configuration, safety, and repair versions
 
-```txt
-CLIENT_INPUT_INVALID
-CONTEXT_BUILD_FAILED
-SAFETY_ROUTING_BLOCKED
-PROVIDER_AUTH_FAILED
-OUTPUT_POLICY_INVALID
-OUTPUT_REFERENCE_INVALID
-OUTPUT_INCOMPLETE caused by semantic omission
-OUTPUT_TOO_LARGE after budget enforcement
-CANCELLED_BY_USER
-KILL_SWITCH_DISABLED
-BUDGET_EXCEEDED
-```
-
-`INTERNAL_VALIDATION_ERROR` is not retried automatically because it may indicate a product defect.
-
-### 8.4 Retry Count Policy
-
-Pilot proposal:
-
-```txt
-maximum provider invocations per logical operation: 2
-```
-
-Meaning:
-
-- initial invocation
-- at most one retry
-
-No nested SDK retry may operate invisibly beyond this application-level budget.
-
-Provider SDK automatic retry must be disabled or configured so the total physical request count remains observable and within the same budget.
-
-### 8.5 Backoff
-
-Retry uses bounded exponential backoff with jitter for transient provider failures.
-
-Provider-supplied retry-after values may be respected only within the operation’s total deadline.
-
-A retry is skipped when insufficient total-deadline budget remains.
+Retry never changes provider/model, widens context, upgrades permissions, or accepts partial output.
 
 ---
 
-## 9. Timeout Model
+## 7. Timeout Policy
 
-Timeouts are layered and configured per operation class.
+Each output family configures:
 
 ```txt
 connectionTimeout
 responseStartTimeout
 providerInvocationTimeout
 logicalOperationDeadline
-clientPollingExpiry
+pollingResourceExpiry
 ```
 
-### 9.1 Connection Timeout
-
-Limits establishment of the provider connection.
-
-### 9.2 Response-Start Timeout
-
-Limits how long the runtime waits for the provider to begin producing a response or structured result.
-
-This is operational only. Partial provider output remains unusable.
-
-### 9.3 Provider Invocation Timeout
-
-Limits one physical provider call.
-
-When exceeded:
-
-- the adapter attempts provider cancellation where supported
-- the invocation is marked timed out
-- late results are discarded under 020A
-
-### 9.4 Logical Operation Deadline
-
-Covers all attempts, backoff, parsing, repair, and validation for one PlanningAttempt or explanation request.
-
-No retry may begin after this deadline.
-
-### 9.5 Polling Expiry
-
-The API resource may remain readable after the operation finishes or fails, but the client stops active polling according to 020B terminal states.
-
-Polling expiry is not the same as provider timeout.
+A response arriving after cancellation or logical deadline is discarded and recorded only operationally. It never creates a draft revision or attaches an explanation.
 
 ---
 
-## 10. Circuit Breaker Policy
+## 8. Circuit Breakers
 
-Circuit breakers operate by:
+Circuit breakers are separated by provider configuration, output family, and environment.
 
-```txt
-provider configuration key
-operation family
-```
+Provider availability failures may affect circuit health. Local schema, semantic, graph, policy, cancellation, rate-limit, and budget failures do not.
 
-Planning and Reconcile explanation may use separate circuits because their failure rates and degraded behavior differ.
+When a circuit is open:
 
-### 10.1 Circuit Inputs
-
-Count toward opening:
-
-- provider unavailability
-- provider timeout
-- provider protocol failures
-- sustained provider rate limiting
-
-Do not count:
-
-- client validation failures
-- policy rejection
-- user cancellation
-- domain-reference rejection
-- expected schema rejection caused by a bad prompt version, which should trigger a version kill switch instead
-
-### 10.2 Open-Circuit Behavior
-
-Planning:
-
-```txt
-no provider invocation
-→ PlanningAttempt terminal failure/degraded state
-→ preserve user input
-→ manual planning remains available
-```
-
-Reconcile explanation:
-
-```txt
-deterministic facts and rule matches remain available
-→ explanation absent
-→ facts-only degraded mode
-```
-
-Safety classification:
-
-```txt
-fail closed for AI generation eligibility
-→ route to deterministic safe handling
-```
-
-### 10.3 Half-Open Probes
-
-Only controlled system probes or a bounded subset of live requests may test recovery.
-
-A user retry must not force the circuit closed.
-
-### 10.4 Breaker State Observability
-
-State changes are operational events:
-
-```txt
-CIRCUIT_OPENED
-CIRCUIT_HALF_OPENED
-CIRCUIT_CLOSED
-```
-
-They must not include raw prompt content.
+- no provider invocation occurs
+- manual and deterministic flows remain available
+- Planning becomes unavailable/degraded
+- Reconcile may remain facts-only when deterministic computation succeeded
+- safety classification follows its accepted fail-closed policy
 
 ---
 
-## 11. Rate-Limit and Concurrency Policy
+## 9. Rate Limits
 
-The system applies independent limits at multiple layers.
+Rate limits may exist per user, workspace, operation family, provider configuration, and system concurrency.
 
-### 11.1 Per-User Limits
+`clientAttemptId` idempotency prevents duplicate work for the same request identity. Rate limits control distinct work. They are complementary.
 
-- Planning attempt creation rate
-- concurrent active PlanningAttempt count
-- Reconcile explanation request rate
-- safety-classification request rate
-
-### 11.2 Per-Workspace Limits
-
-Where workspaces exist, aggregate limits prevent one workspace from exhausting system capacity.
-
-### 11.3 System and Provider Limits
-
-- global concurrent provider calls
-- concurrent calls by operation family
-- provider configuration quota
-- queue or executor capacity
-
-### 11.4 Duplicate Suppression
-
-`clientAttemptId` idempotency from 020B prevents duplicate Planning invocation.
-
-Equivalent in-flight requests with different identities are not automatically merged in MVP because their user intent and lifecycle identities differ.
-
-### 11.5 Limit Result
-
-Rate-limited requests receive a stable failure/resource state with:
-
-```txt
-failureClass
-retryAllowed
-retryAfterSeconds?
-```
-
-The system never claims the provider was called when the request was rejected locally.
+Retries consume retry and cost budgets but are not treated as new user intent.
 
 ---
 
-## 12. Provider Fallback Policy
+## 10. Provider Fallback
 
-Automatic cross-provider fallback is disabled for the pilot.
+Automatic provider or model fallback is disabled for the pilot.
 
-Automatic fallback to another model under the same provider is also disabled.
-
-Reasons:
-
-- model behavior changes
-- schema adherence differs
-- safety characteristics differ
-- cost predictability weakens
-- comparison and audit become harder
-- retry plus fallback can multiply physical calls
-
-A provider or model change occurs only through an explicit runtime configuration rollout.
-
-An existing logical operation does not silently switch provider/model after failure.
+A failed operation ends under its original pinned configuration. A later explicit user retry is a new logical operation.
 
 ---
 
-## 13. Runtime Artifact Version Registry
+## 11. Runtime Artifact Versioning
 
-Every AI operation resolves immutable versions before invocation.
-
-Required logical artifacts:
+Every invocation pins immutable versions for:
 
 ```txt
-operationPolicyKey + operationPolicyVersion
-promptTemplateKey + promptTemplateVersion
-outputSchemaKey + outputSchemaVersion
-contextBuilderKey + contextBuilderVersion
-ruleCatalogVersion where applicable
-safetyPolicyVersion
-providerConfigurationKey + providerConfigurationVersion
-modelIdentifier
-repairPolicyVersion
+prompt template
+output schema
+context builder
+model configuration
+rule catalog where applicable
+safety policy
+repair policy
 ```
 
-### 13.1 Resolution Rule
-
-```txt
-logical operation starts
-→ resolve exact artifact versions
-→ persist version references on AIOperation
-→ invoke provider
-→ never switch versions inside the same logical operation
-```
-
-A retry normally uses the same resolved versions.
-
-A corrective schema retry may use a retry-variant prompt template only if that variant and version were resolved as part of the original operation policy.
-
-### 13.2 Immutable Registry Entries
-
-Published versions are immutable.
-
-Changes create new versions rather than modifying historical definitions.
-
-### 13.3 Activation and Rollback
-
-Logical configuration keys point to active versions.
-
-Activation changes affect only new logical operations.
-
-Rollback selects a prior known version for new operations; it does not alter historical records.
+Versions remain fixed throughout controlled retries and are recorded in operational observability.
 
 ---
 
-## 14. Token and Context Budgets
+## 12. Planning Context Budget
 
-Budgets are defined per operation family.
+### 12.1 Mandatory Atomic Floor
 
-```txt
-maximum input tokens
-maximum output tokens
-maximum canonical entities
-maximum proposal items
-maximum explanation groups
-maximum raw input characters
-maximum serialized context bytes
-```
-
-### 14.1 Planning Budget
-
-Planning context is assembled by explicit priority, not arbitrary string truncation.
-
-Proposed priority order:
+The following categories are mandatory and cannot be independently reduced:
 
 ```txt
-1. user’s current request and explicit constraints
-2. timezone and current local-date context
-3. directly referenced entities
-4. structural parents and required children
-5. conflicting deadlines and protection facts
-6. bounded relevant active entities
-7. optional lower-priority summaries
+1. explicit user request
+2. accepted user constraints
+3. timezone and current local date
+4. required structural parents and ownership context
+5. correctness-critical deadlines, conflicts, protections, and warnings
 ```
 
-### 14.2 Reconcile Budget
+They form one atomic correctness floor.
 
-Reconcile sends only deterministic structured facts, rule matches, and bounded groups.
-
-If deterministic results exceed explanation budget:
-
-- groups are selected by deterministic priority
-- omitted group counts are reported
-- facts remain available through the non-AI resource
-- the model is never told that the selected subset is complete
-
-### 14.3 Forbidden Truncation
-
-The runtime must not:
-
-- cut serialized JSON at a character boundary
-- remove random entities
-- omit required parent relationships
-- remove a warning or deadline fact while keeping the affected action
-- truncate user input without disclosure
-- silently change local-date context
-
-### 14.4 Budget Overflow
-
-When required context cannot fit coherently:
+If the mandatory floor exceeds the input budget:
 
 ```txt
-operation rejected or narrowed through explicit user choice
+fail before provider invocation
+→ no silent truncation
+→ no cheaper-model fallback
+→ ask the user to narrow scope where applicable
 ```
 
-The system does not generate from an incoherent partial context.
+### 12.2 Reducible Context
+
+Only these categories may be reduced using versioned deterministic rules:
+
+```txt
+6. secondary relevant entities
+7. optional summaries and lower-priority history
+```
+
+### 12.3 Coupled Correctness Context
+
+When an action or entity is retained, all required parents, deadlines, conflicts, protections, warnings, and consequence inputs for it must also be retained.
+
+The builder may not keep an action while dropping correctness-critical context merely to satisfy a token budget.
+
+### 12.4 Reconcile Context
+
+Reconcile AI receives only valid structured facts, rule matches, bounded group metadata, and approved vocabulary. It receives no free text.
+
+If deterministic Reconcile computation fails, AI explanation is ineligible and Reconcile becomes unavailable.
 
 ---
 
-## 15. Cost Controls
+## 13. Cost Controls
 
-### 15.1 Cost Estimate Before Invocation
+Before invocation, estimate input tokens, maximum output tokens, configured price/cost band, retry exposure, and operation-family budget.
 
-The runtime estimates cost using:
+Application controls enforce token limits, physical invocation count, rolling user/workspace limits, concurrency, and retry budget.
 
-- resolved model configuration
-- estimated input tokens
-- maximum output tokens
-- remaining retry budget
+### Mandatory Provider-Side Hard Spend Cap
 
-The estimate need not be billing-exact, but it must be conservative enough for policy enforcement.
+An independent provider-side hard spend cap is mandatory for the pilot and must hard-block invocation rather than merely alert.
 
-### 15.2 Per-Operation Ceiling
-
-Each operation family has a configured maximum estimated and actual cost.
-
-If estimated cost exceeds the ceiling before invocation:
+When reached:
 
 ```txt
-BUDGET_EXCEEDED
-→ no provider call
+no new provider invocation
+no retry
+no fallback
+AI generation disabled for affected configuration
+manual and deterministic flows remain available
+operational alert emitted
 ```
 
-### 15.3 Per-User and System Budgets
+Application budgets and provider-side enforcement are both required because either layer may fail independently.
 
-Optional pilot controls:
-
-- rolling daily user budget
-- workspace budget
-- global daily budget
-- emergency provider spend cap
-
-Budget exhaustion must not disable manual product operation.
-
-### 15.4 Retry Cost
-
-The maximum retry cost is included in the logical operation budget.
-
-The runtime must not spend the initial budget and then discover that the retry budget was imaginary.
-
-### 15.5 Actual Usage Reconciliation
-
-When the provider returns usage data, record:
-
-```txt
-inputTokens
-outputTokens
-cachedInputTokens?
-providerReportedCost?
-normalizedEstimatedCost
-```
-
-Missing provider usage metadata does not make the operation invalid, but it is recorded as incomplete observability.
+Spend-cap configuration and verification belong to rollout readiness in Discussion 022.
 
 ---
 
-## 16. Operational Observability
+## 14. Operational Observability
 
-AIOperation records the minimum metadata required by 019C and its amendment.
+Record bounded metadata including operation/invocation IDs, output family, provider configuration, runtime artifact versions, estimated and actual usage, latency segments, retry reason, validation gate, failure class, repair rules, circuit/rate-limit results, budget result, and spend-cap result.
 
-Required or proposed fields:
+Raw prompt and response content remain restricted and short-lived under Discussion 019C.
 
-```txt
-operationId
-logicalAttemptId
-operationFamily
-attemptNumber
-providerConfigurationKey
-providerConfigurationVersion
-modelIdentifier
-promptTemplateKey
-promptTemplateVersion
-outputSchemaKey
-outputSchemaVersion
-contextBuilderKey
-contextBuilderVersion
-contextScopeManifestId
-ruleCatalogVersion?
-safetyPolicyVersion
-repairPolicyVersion
-startedAt
-completedAt?
-latencyMs?
-inputTokenCount?
-outputTokenCount?
-estimatedCost?
-providerReportedCost?
-resultClass
-failureClass?
-repairCodes[]
-retryScheduled
-circuitStateAtStart
-rateLimitSource?
-rawContentRetentionReference?
-```
-
-Observability must not include:
-
-- unrestricted raw prompt text
-- unrestricted raw response text
-- full canonical entity snapshots
-- user crisis profiling
-- provider secret material
+Metrics may not reconstruct prohibited profiles or bypass restricted-event access rules.
 
 ---
 
-## 17. Kill Switches
+## 15. Kill Switches
 
-Kill switches exist at least for:
+Granular kill switches include Planning generation, Reconcile explanation, safety provider path, provider configuration, repair rules, retry, and global AI runtime.
 
-```txt
-all AI operations
-Planning generation
-Reconcile explanation
-Safety classification provider path
-specific provider configuration
-specific model identifier
-specific prompt template version
-specific output schema version
-specific operation policy version
-```
+Kill switches are checked before every physical invocation and retry. Every activation/deactivation is audited with actor, reason, scope, and timestamp.
 
-### 17.1 Behavior
-
-Kill switch evaluation occurs before every physical provider invocation, including retries.
-
-If disabled:
-
-```txt
-no provider call
-→ stable KILL_SWITCH_DISABLED result
-→ accepted degraded/manual behavior
-```
-
-### 17.2 Audit
-
-Every switch change records:
-
-- actor
-- previous state
-- new state
-- scope
-- reason code
-- timestamp
-- change ticket/reference where applicable
-
-### 17.3 Testing
-
-Automated tests verify:
-
-- disabled switch prevents provider invocation
-- in-flight operation does not schedule a retry after disablement
-- Planning falls back to manual path
-- Reconcile retains deterministic facts-only mode
-- no canonical mutation depends on switch recovery
+Automated tests must prove that switches block the matching provider call while preserving allowed manual and deterministic behavior.
 
 ---
 
-## 18. User-Facing Failure Mapping
+## 16. User-Facing Failure Mapping
 
-Clients receive stable product-facing categories rather than provider internals.
+Bounded client states include:
 
-```txt
-INPUT_NEEDS_CORRECTION
-AI_TEMPORARILY_UNAVAILABLE
-AI_REQUEST_TIMED_OUT
-AI_RESULT_COULD_NOT_BE_VALIDATED
-AI_REQUEST_LIMIT_REACHED
-AI_BUDGET_LIMIT_REACHED
-AI_FEATURE_DISABLED
-REQUEST_CANCELLED
-RECONCILE_EXPLANATION_UNAVAILABLE
-RECONCILE_UNAVAILABLE
-```
+- temporary AI unavailability with manual fallback
+- rate-limited with retry information where safe
+- budget/spend-cap unavailable without hidden retry
+- generated output rejected with user input preserved
+- context too large with scope-narrowing guidance
+- cancelled with late result discarded
+- Reconcile unavailable while Today/manual execution remains available
 
-Rules:
-
-- preserve user-authored input where allowed by 020B
-- explain whether retry is available
-- avoid claiming that retry will succeed
-- do not expose provider name unless product policy deliberately does so
-- do not expose raw safety classification details
-- always keep manual/deterministic paths visible where accepted
+Provider names, prompts, raw output, stack traces, and sensitive scope details are not exposed to ordinary clients.
 
 ---
 
-## 19. Failure Matrix
+## 17. Required Automated Tests
 
-```txt
-Failure                          Retry?   Planning Result                     Reconcile Result
-------------------------------------------------------------------------------------------------------------
-Client input invalid             No       input correction required          input correction required
-Context build failed             No       unavailable, manual remains         unavailable
-Provider unavailable             Once     temporary failure                   facts-only mode
-Provider timeout                 Once     timeout                             facts-only mode
-Provider rate limited            Once*    temporary/rate-limited              facts-only mode
-Parse/schema invalid             Once     validation failure if retry fails   explanation absent
-Policy/reference invalid         No       rejected candidate                  explanation absent
-User cancellation                No       cancelled                           explanation cancelled
-Circuit open                     No       AI unavailable                      facts-only mode
-Budget exceeded                  No       budget-limited                      facts-only mode
-Kill switch disabled             No       manual path                         facts-only mode
-Deterministic Reconcile failure  No       not applicable                      Reconcile unavailable
-```
+Required tests cover:
 
-`Once*` means only when retry-after and logical deadline permit it.
-
----
-
-## 20. Scenario Checks
-
-### Scenario A — Valid JSON with an Unknown Enum
-
-Expected:
-
-- schema/domain validation rejects it
-- nearest enum is not guessed
-- at most one corrective retry
-- no draft if retry fails
-
-### Scenario B — Provider Returns One Valid and One Invalid Proposal Item
-
-Expected:
-
-- entire candidate rejected
-- valid item is not exposed as a partial draft
-- no confirmation can be created
-
-### Scenario C — Markdown Fence Around Otherwise Valid JSON
-
-Expected:
-
-- allowlisted fence removal
-- full schema validation reruns
-- repair metadata recorded
-
-### Scenario D — Missing Required reviewDate
-
-Expected:
-
-- repair does not invent it
-- corrective retry may request schema compliance
-- deterministic product default is applied only by accepted application logic where allowed, not by repair pretending the model supplied it
-
-### Scenario E — Provider Timeout Then Late Success
-
-Expected:
-
-- timed-out invocation remains failed
-- late result discarded
-- retry uses a new physical operation record if budget allows
-
-### Scenario F — User Cancels During Backoff
-
-Expected:
-
-- scheduled retry removed
-- no later provider call
-- resource ends CANCELLED
-
-### Scenario G — Circuit Opens During Planning
-
-Expected:
-
-- new requests do not invoke provider
-- current user input preserved
-- manual planning remains available
-
-### Scenario H — Circuit Opens for Reconcile Explanation
-
-Expected:
-
-- deterministic Reconcile facts remain accessible
-- explanation is absent
-- no raw-data AI fallback
-
-### Scenario I — Required Context Exceeds Budget
-
-Expected:
-
-- no arbitrary truncation
-- request fails or asks user to narrow scope explicitly
-- omitted context is not silently represented as complete
-
-### Scenario J — Duplicate Client Attempt
-
-Expected:
-
-- 020B idempotency returns existing PlanningAttempt
-- no additional cost or provider invocation
-
-### Scenario K — SDK Performs Hidden Retries
-
-Expected:
-
-- integration test detects physical call count above policy
-- SDK retries disabled or brought under observable application budget
-
-### Scenario L — Kill Switch Enabled Between Attempts
-
-Expected:
-
-- next retry does not invoke provider
-- operation terminates with feature-disabled/degraded behavior
+- valid complete output reaching a reviewable resource
+- partial/invalid output rejection
+- canonical ownership checks
+- missing/duplicate/incompatible temporary references
+- self-reference and cycle rejection
+- exclusive-parent violations
+- exact enum case normalization
+- fuzzy enum rejection
+- year-first date normalization
+- ambiguous date rejection
+- mandatory context floor preservation
+- coupled warning/deadline/protection/parent preservation
+- mandatory-floor overflow before invocation
+- Reconcile no-free-text enforcement
+- maximum two physical invocations
+- hidden retry disabled
+- pinned versions through retry
+- late-result discard after cancellation
+- timeout-layer distinction
+- schema failures not opening provider circuits
+- operation-family circuit isolation
+- budget precheck
+- provider hard spend-cap enforcement for initial calls and retries
+- no provider/model fallback
+- audited kill-switch behavior
 
 ---
 
-## 21. Proposed Automated Tests
+## 18. Final Decisions
 
-Minimum categories:
+Accepted:
 
-- schema contract tests for every output version
-- property tests for repair idempotence and semantic neutrality
-- golden tests for prompt/schema compatibility
-- invalid enum and unknown-property tests
-- cross-user ID reference rejection tests
-- partial-output rejection tests
-- retry-budget tests
-- hidden SDK retry detection
-- timeout and late-result discard tests
-- cancellation during invocation and backoff tests
-- circuit-breaker transition tests
-- rate-limit isolation tests
-- token-budget prioritization tests
-- coherent-context overflow tests
-- cost-ceiling tests
-- kill-switch enforcement tests
-- observability redaction tests
-- version rollback tests
-
----
-
-## 22. Stabilized Proposals Pending Claude Review
-
-- every AI result passes a deterministic multi-stage validation pipeline.
-- repairs are syntactic, allowlisted, auditable, and semantically neutral.
-- partial proposal salvage is forbidden.
-- one retry maximum is proposed for the pilot.
-- provider SDK retries must fit inside the same observable retry budget.
-- automatic provider/model fallback is disabled.
-- timeout layers are distinct and bounded by one logical deadline.
-- circuit breakers degrade Planning to manual and Reconcile explanation to facts-only.
-- context reduction is priority-based and coherent, never arbitrary truncation.
-- exact runtime artifact versions are resolved before invocation and remain fixed for the logical operation.
-- token and cost budgets are enforced before provider invocation where possible.
-- kill switches are evaluated before every physical call.
-- operational metadata is retained without ordinary raw-content persistence.
+- strict complete-output validation
+- one deterministic repair pass from a narrow allowlist
+- exact case-fold enum repair only
+- year-first numeric date repair only
+- canonical reference validation
+- in-draft temporary-reference graph resolution and cycle detection
+- whole-output rejection on graph failure
+- at most one controlled provider retry
+- no hidden retry
+- independent timeout and circuit policies
+- no pilot fallback
+- immutable pinned runtime artifact versions
+- mandatory Planning context floor for categories 1–5
+- reduction only for categories 6–7
+- no uncoupled removal of correctness-critical context
+- application token/cost controls
+- mandatory provider-side hard spend cap
+- bounded observability
+- granular audited kill switches
 
 ---
 
-## 23. Open Questions for Claude
-
-### Q1. Is the ten-gate validation pipeline correctly ordered?
-
-Review whether repair should occur before initial schema validation or only after the first validation failure, and whether any correctness-critical gate is missing.
-
-### Q2. Is the repair allowlist too permissive?
-
-Pay special attention to trailing-comma removal, enum-case normalization, and unambiguous date normalization.
-
-### Q3. Should parse/schema failure receive one corrective retry?
-
-Review whether a retry with validation feedback is safe and worthwhile for the pilot.
-
-### Q4. Are any failures classified as retryable that should be final?
-
-Focus on provider protocol errors, rate limiting, output parse failure, and output schema invalidity.
-
-### Q5. Is two physical provider invocations per logical operation the right pilot maximum?
-
-Review cost, latency, and reliability tradeoffs.
-
-### Q6. How should hidden SDK retries be mechanically prevented or measured?
-
-Review configuration, HTTP instrumentation, and integration-test options.
-
-### Q7. Are timeout layers coherent without first-token streaming in the product API?
-
-Review whether `responseStartTimeout` is still useful for provider transport even though partial content is never exposed.
-
-### Q8. Are circuit breakers correctly separated by provider configuration and operation family?
-
-Review whether safety classification requires a separate circuit and fail-closed policy.
-
-### Q9. Should output schema failures influence the provider circuit breaker?
-
-Current proposal: no; they should influence prompt/schema-version health and kill switches instead.
-
-### Q10. Are rate limits sufficiently separated from idempotency?
-
-Review duplicate suppression, concurrent active attempt limits, and abusive distinct request identities.
-
-### Q11. Is disabling all automatic fallback correct for the pilot?
-
-Review whether any same-provider fallback is justified.
-
-### Q12. Is retry-version pinning correct?
-
-Current proposal: retries use the same versions, except a pre-resolved corrective prompt variant.
-
-### Q13. Is the context-priority policy safe?
-
-Review whether any required context category could be accidentally treated as optional.
-
-### Q14. When required context does not fit, should the operation fail or split into multiple proposals?
-
-Current proposal: fail or require explicit user narrowing; no automatic semantic splitting in MVP.
-
-### Q15. Are cost controls proportional for the pilot?
-
-Review pre-invocation estimates, rolling user budgets, and emergency system caps.
-
-### Q16. Which observability fields risk becoming sensitive content by proxy?
-
-Review manifests, reason codes, failure classes, token counts, and safety metadata.
-
-### Q17. Are kill switches granular enough and mechanically enforceable?
-
-Review prompt/schema/model/version switches and behavior for already-running operations.
-
-### Q18. Does any failure path weaken accepted manual fallback, facts-only Reconcile, cancellation, privacy, or confirmation guarantees?
-
-Review against Discussions 018C, 019C, 020A, and 020B.
-
----
-
-## 24. Mind Map Impact — Proposed, Do Not Apply Yet
-
-### Product Vision
-
-- AI assistance is bounded by deterministic validation and visible fallback.
-- provider instability never corrupts canonical user state.
-- cost controls do not remove manual product value.
+## 19. Mind Map Impact
 
 ### MVP Core Loop
 
 ```txt
-scoped context
-→ version-pinned AI invocation
-→ parse and schema validation
-→ deterministic repair if eligible
-→ policy/reference validation
-→ complete reviewable result
-→ explicit confirmation
+bounded context
+→ provider invocation
+→ complete output
+→ strict validation and graph checks
+→ reviewable resource
+→ confirmation
+→ deterministic mutation
 ```
-
-### User Flow
-
-Add:
-
-- temporary AI unavailable state
-- timeout state
-- request limit state
-- validation-failed state
-- preserved-input recovery
-- facts-only Reconcile explanation state
-- explicit scope-narrowing path when coherent context exceeds budget
-
-### AI Responsibilities
-
-- return one complete result matching the declared schema
-- remain inside known vocabulary
-- never rely on repair to invent missing semantics
-- explain only deterministic Reconcile facts
 
 ### AI Guardrails
 
-- no partial salvage
-- no hidden tool call
-- no semantic repair
-- no arbitrary context truncation
-- no silent provider/model fallback
-- no unbounded retry
-- no invocation after kill switch or budget rejection
-
-### Data Events / Operational Records
-
-Candidates:
-
-```txt
-AI_VALIDATION_FAILED
-AI_REPAIR_APPLIED
-AI_RETRY_SCHEDULED
-AI_RETRY_SKIPPED
-AI_BUDGET_REJECTED
-AI_RATE_LIMITED
-AI_TIMEOUT
-AI_CIRCUIT_OPENED
-AI_CIRCUIT_CLOSED
-AI_KILL_SWITCH_BLOCKED
-AI_CONTEXT_TOO_LARGE
-AI_USAGE_RECORDED
-```
-
-These remain operational unless 019C explicitly classifies a subset otherwise.
-
-### Traction and Guardrail Metrics
-
-- schema-valid-first-attempt rate
-- repair rate by repair code
-- retry success rate
-- total physical calls per logical operation
-- timeout rate
-- circuit-open duration
-- context-budget rejection rate
-- estimated-versus-actual token variance
-- cost per successful reviewable proposal
-- duplicate invocation rate, expected near zero
-- partial proposal exposure rate, expected zero
-- provider fallback rate, expected zero
-- tool-call output rate, expected zero
+- no partial proposal
+- no fuzzy semantic repair
+- no unresolved temporary reference
+- no cyclic proposal graph
+- no context truncation below correctness floor
+- no hidden retry
+- no automatic fallback
+- no provider call after hard cap or kill switch
 
 ### Current Decisions
 
-Proposed:
-
-- one retry maximum
-- no provider fallback
-- deterministic repair allowlist
-- version-pinned runtime artifacts
-- coherent context budgets
-- pre-invocation cost checks
-- operation-family circuit breakers
-- granular audited kill switches
+- strict structured-output pipeline
+- maximum two physical invocations
+- mandatory context floor
+- mandatory provider-side spend cap
+- no provider fallback in pilot
 
 ### Open Questions
 
-- exact pilot timeout values
-- exact rate-limit thresholds
-- exact token and cost ceilings
-- whether one corrective schema retry is worth the latency
-- which repair rules remain enabled after empirical testing
+None remain inside Discussion 020C.
+
+Numeric thresholds and rollout-specific settings belong to Discussions 021 and 022.
 
 ---
 
-## 25. Affected Formal Documents — Record Only
+## 20. Affected Specifications and ADRs
 
-After closure, update or create:
+Create or update:
 
-- structured-output schema contracts
-- AI validation pipeline specification
-- deterministic repair ADR
-- retry and timeout policy
-- circuit-breaker and rate-limit ADR
-- runtime artifact registry specification
-- token/context budget policy
-- AI cost-control policy
+- structured-output validation specification
+- temporary-reference graph validation specification
+- deterministic repair policy
+- retry and timeout ADR
+- circuit-breaker and rate-limit specification
+- runtime artifact version registry specification
+- Planning context budget specification
+- cost-budget and provider spend-cap runbook
 - kill-switch runbook
-- provider integration test plan
-- rollout and alert thresholds in Discussion 022
-
----
-
-## 26. Structured Review Request for Claude
-
-Review this proposal for correctness, resilience, privacy, cost proportionality, and compatibility with accepted Discussions 018C, 019C, 020A, and 020B.
-
-For every finding, provide:
-
-```txt
-1. Finding ID
-2. severity: blocking, important, or minor
-3. affected section
-4. concrete failure or abuse scenario
-5. why the proposal is unsafe, contradictory, incomplete, or unnecessarily complex
-6. smallest coherent correction
-7. affected earlier or later discussion
-```
-
-Focus especially on:
-
-- validation gate ordering
-- semantic neutrality of repairs
-- retry amplification and hidden SDK retries
-- schema retry safety
-- timeout and late-response behavior
-- circuit-breaker inputs
-- rate-limit versus idempotency boundaries
-- context-budget omission risks
-- provider fallback policy
-- version pinning
-- cost estimation and budget enforcement
-- observability privacy
-- kill-switch enforcement
-- degraded-mode consistency
-
-Do not expand into endpoint naming, provider SDK code, final numeric thresholds, UI styling, cloud deployment topology, or canonical transaction semantics.
-
-This discussion remains open until Claude reviews the proposal and Mahdi resolves accepted findings.
+- reliability/adversarial test plan in Discussion 021
+- rollout readiness checklist in Discussion 022
