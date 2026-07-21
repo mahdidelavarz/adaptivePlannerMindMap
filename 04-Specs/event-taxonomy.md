@@ -1,5 +1,8 @@
 # Event Taxonomy
 
+> [!WARNING]
+> This is a legacy Phase 1 artifact and is not authoritative for the current AI-native MVP. Current event and observability semantics are owned by [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]. Reuse or removal of this file must be decided by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
+
 ## Purpose
 
 Define the minimum event schema needed to understand behavior without pretending the system magically knows the user.
@@ -71,9 +74,7 @@ No exact time-blocking in Phase 1.
 No routines in Phase 1.
 No deadline-vs-do-date split in Phase 1.
 
-This is still waiting for Claude confirmation in:
-
-- [[01-Open-Discussions/002-ai-planning-reconcile-and-scheduling]]
+This scheduling model was part of the superseded legacy MVP and does not survive as current authority; see [[01-Closed-Discussions/001-008-legacy-surviving-decisions]].
 
 ## Event Flow
 

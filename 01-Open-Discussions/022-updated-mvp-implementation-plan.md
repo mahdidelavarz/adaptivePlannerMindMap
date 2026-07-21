@@ -2,18 +2,20 @@
 
 ## Status
 
-Open for GPT × Claude review.
+Open for baseline construction, Mind Map migration, and final resolution.
+
+Legacy reconciliation and Discussion cleanup are complete. Discussions 001–008 have one consolidated surviving-decisions record, no Discussion 009 exists, and Discussions 010–021 are represented only by their authoritative files in `01-Closed-Discussions`.
 
 ## Purpose
 
 Discussion 022 is the final planning discussion before implementation planning becomes authoritative.
 
-Its purpose is not merely to order engineering milestones. It must first reconcile the legacy non-AI MVP decisions, establish one authoritative AI-native MVP baseline, migrate all accepted decisions into the shared Mind Map, verify that the Mind Map and accepted discussion set agree, and only then derive the implementation sequence.
+Its purpose is not merely to order engineering milestones. It starts from the completed legacy reconciliation and closed Discussion 010–021 set, then establishes one authoritative AI-native MVP baseline, migrates all accepted decisions into the repository Mind Map, verifies that the Mind Map and accepted discussion set agree, and only then makes the implementation sequence authoritative.
 
 ```txt
-legacy decisions
-→ decision-level audit
-→ supersession and amendment resolution
+legacy reconciliation — complete
+→ accepted-decision inventory
+→ conflict and dependency resolution
 → final MVP baseline
 → Mind Map migration
 → consistency verification
@@ -29,15 +31,16 @@ An implementation roadmap built before these steps would be based on a stale pro
 
 1. Discussion 022 may not silently change accepted product behavior from Discussions 010–021.
 2. Any required behavior change must reopen or amend the source discussion explicitly.
-3. Legacy Discussions 001–009 are not automatically valid and are not automatically obsolete.
-4. Legacy review must occur at decision level, not only document level.
-5. A legacy document may contain retained, amended, superseded, and unresolved decisions simultaneously.
-6. The shared Mind Map is not authoritative until every accepted change from Discussions 010–021 is applied and verified.
-7. Writing `Mind Map Impact` inside a Markdown discussion does not count as applying the change to the Mind Map.
-8. No implementation milestone becomes authoritative before the final MVP baseline and Mind Map migration are approved.
-9. Events, observability, safety, privacy, idempotency, and validation are cross-cutting requirements from the first vertical slice, not end-stage cleanup.
-10. Pilot readiness and public release readiness are different gates.
-11. Schedule estimates are downstream of scope, dependencies, ownership, and team capacity; Discussion 022 defines sequence and gates, not decorative calendar optimism.
+3. Discussions 001–008 have been audited at decision level; only [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] may contribute legacy decisions to the current baseline.
+4. The original 001–008 files are non-normative Git history and have been removed from the active workspace.
+5. No Discussion 009 exists in the current workspace or repository history; it is not a missing dependency or an audit input.
+6. Discussions 010–021 are closed. Their clean files in `01-Closed-Discussions` are the authoritative product, domain, runtime, safety, and validation inputs.
+7. The shared Mind Map is not authoritative until every accepted change from Discussions 010–021 is applied and verified.
+8. Writing `Mind Map Impact` inside a Markdown discussion does not count as applying the change to the Mind Map.
+9. No implementation milestone becomes authoritative before the final MVP baseline and Mind Map migration are approved.
+10. Events, observability, safety, privacy, idempotency, and validation are cross-cutting requirements from the first vertical slice, not end-stage cleanup.
+11. Pilot readiness and public release readiness are different gates.
+12. Schedule estimates are downstream of scope, dependencies, ownership, and team capacity; Discussion 022 defines sequence and gates, not decorative calendar optimism.
 
 ---
 
@@ -45,11 +48,11 @@ An implementation roadmap built before these steps would be based on a stale pro
 
 When sources disagree, use this precedence order:
 
-1. accepted final resolutions and explicit amendments,
-2. accepted source discussions without a separate final resolution,
-3. verified current Mind Map nodes linked to accepted discussions,
-4. legacy discussions not yet audited,
-5. old implementation plans, sketches, and historical notes.
+1. authoritative closed Discussions 010–021 and the explicit ownership boundaries inside them,
+2. [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] for its narrowly retained compatibility decisions only,
+3. verified nodes in [[00-Canvas/Planner-Mindmap.canvas]] after the migration ledger is fully applied,
+4. formal specifications and ADRs explicitly reconciled and adopted by Discussion 022,
+5. old specifications, implementation plans, sketches, deleted discussion sources, and Git history as non-normative evidence only.
 
 The current Mind Map may not override an accepted resolution merely because the map is easier to see.
 
@@ -57,17 +60,21 @@ Each final baseline decision must identify exactly one authoritative source.
 
 ---
 
-## 3. Workstream A — Legacy Discussion Audit
+## 3. Workstream A — Legacy Reconciliation — Completed
 
-### 3.1 Audit Scope
+### 3.1 Applied Scope
 
-Audit Discussions 001–009.
+Discussions 001–008 were compared at decision level against Discussions 010–021. The authoritative result is:
 
-Discussions 001–008 were primarily created for the previous non-AI MVP. Discussion 009 must also be audited rather than excluded by assumption, because it may contain transitional decisions or dependencies spanning both product versions.
+- [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]
 
-### 3.2 Decision-Level Status Vocabulary
+The eight source files were removed after verification. Git history preserves provenance without leaving obsolete discussions in the active source set.
 
-Each material decision receives exactly one status:
+No Discussion 009 file exists in either the current workspace or repository history. It is therefore excluded because there is no source to audit, not because its content was assumed obsolete.
+
+### 3.2 Applied Status Vocabulary
+
+The legacy comparison used these statuses:
 
 - `RETAINED`
 - `AMENDED`
@@ -102,53 +109,32 @@ No later decision clearly resolves whether the legacy rule remains valid.
 
 The content may explain product evolution but must not guide implementation.
 
-### 3.3 Required Legacy Audit Record
+### 3.3 Applied Audit Record
 
-For every material legacy decision, record:
+The consolidated file records:
 
-```txt
-legacyDiscussionId
-legacyDecisionId
-summary
-originalScope
-status
-retainedMeaning
-supersededMeaning
-replacementSource
-affectedMindMapNodes
-implementationImpact
-openConflict
-reviewOwner
-```
+- a source-by-source disposition for Discussions 001–008,
+- the categories that do not survive,
+- the exact research, technical, authentication, API, development, and pilot-operation decisions that do survive,
+- the current owner or destination of every retained category,
+- confirmation that no `REQUIRES_REVIEW` item remains.
 
-### 3.4 Document-Level Summary
+Detailed obsolete prose is intentionally left in Git history rather than duplicated into a historical matrix.
 
-After decision-level classification, each legacy discussion receives a document summary:
+### 3.4 Supersession Safety Rules
 
-```txt
-fully retained
-retained with amendments
-partially superseded
-fully superseded
-requires additional resolution
-```
+- No deleted 001–008 source may be cited directly as current authority.
+- A legacy decision survives only when it appears in the consolidated surviving-decisions file.
+- Absence from later discussions is not proof that an old decision survives.
+- Legacy data-model, flow, event, API, and implementation language must not be reintroduced through an old formal artifact.
+- Reusable technical implementation does not reactivate the behavior it originally supported.
+- The retained authentication spec remains applicable only through the explicit boundary established by the consolidated file.
 
-This summary does not replace decision-level records.
+### 3.5 Output A — Completed
 
-### 3.5 Supersession Safety Rules
+[[01-Closed-Discussions/001-008-legacy-surviving-decisions]] is the completed **Legacy Reconciliation and Supersession Record**.
 
-- No legacy decision is superseded merely because it does not mention AI.
-- No legacy decision remains valid merely because no later document repeats it.
-- Absence of conflict is not proof of continued relevance.
-- Product terminology changes must be traced explicitly.
-- Data model, lifecycle, ownership, temporal, safety, and deletion semantics require explicit comparison against Discussions 010–021.
-- A legacy implementation shortcut may be discarded even when the product behavior it supported is retained.
-
-### 3.6 Required Output A
-
-Produce a **Legacy Decision Audit and Supersession Matrix** covering Discussions 001–009.
-
-The matrix must make it impossible for an implementer to mistake historical behavior for current behavior.
+It is intentionally a surviving-decisions record rather than a second archive of obsolete material. Together with the legacy warnings added to affected formal artifacts, it makes the active authority boundary explicit while Git preserves historical provenance.
 
 ---
 
@@ -156,7 +142,9 @@ The matrix must make it impossible for an implementer to mistake historical beha
 
 ### 4.1 Inventory Scope
 
-Inventory Discussions 010–021 and all associated final resolutions or amendments.
+Inventory the authoritative closed files for Discussions 010–021. Their current family-level index begins in [[01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update]], but the inventory must read every authoritative file directly.
+
+Superseded proposals, split hubs, review briefs, and separately folded amendments have been removed. The inventory must use the clean paths in `01-Closed-Discussions` and must not reconstruct authority from deleted filenames.
 
 For each accepted discussion, extract:
 
@@ -274,6 +262,8 @@ The shared Mind Map must become a verified projection of accepted product decisi
 
 Discussions 010–021 contain written `Mind Map Impact` sections, but those changes have not yet been applied to the actual map.
 
+The migration target is [[00-Canvas/Planner-Mindmap.canvas]]. It still contains legacy 001/002 file nodes and other pre-consolidation concepts; those nodes are migration work, not current authority.
+
 Therefore, the current map must be treated as stale until migration is complete.
 
 ### 6.3 Migration Record
@@ -284,8 +274,9 @@ Every map change must use this record:
 migrationItemId
 sourceDiscussion
 sourceDecision
+mapFile
 mapSection
-targetNode
+targetNodeId
 changeType
 oldContent
 newContent
@@ -293,8 +284,12 @@ linkedDependencies
 owner
 reviewer
 status
+mapVersionBefore
+mapVersionAfter
 evidenceLink
 ```
+
+`targetNodeId` is mandatory for updates, moves, deletions, relations, and references. A created node records its assigned ID immediately after application. `mapVersionBefore` and `mapVersionAfter` must be repository commit IDs or reproducible content hashes so visual changes cannot be claimed without file-level evidence.
 
 Allowed `changeType` values:
 
@@ -336,7 +331,7 @@ At minimum, verify these categories:
 
 ### 6.6 Historical Node Policy
 
-Old nodes may be preserved for history only when clearly marked:
+Old nodes should be removed from the active map when Git history is sufficient. A historical node may remain only when it is necessary to explain a current boundary and is clearly marked:
 
 ```txt
 SUPERSEDED — DO NOT IMPLEMENT
@@ -352,13 +347,13 @@ Mind Map migration passes only when:
 - every migration record has been applied or explicitly rejected with reason,
 - every changed node links back to an authoritative discussion,
 - no unresolved contradiction remains hidden inside an active node,
-- legacy nodes are retained, amended, or visibly superseded,
+- legacy nodes are removed, amended, or exceptionally retained with an explicit superseded marker,
 - designer, frontend, backend, and product reviewers can identify the same MVP baseline from the map,
 - a decision-to-node traceability check passes.
 
 ### 6.8 Required Output D
 
-Produce and execute a **Mind Map Migration Ledger**. The ledger alone is not completion; the actual FigJam board must be changed and reviewed.
+Produce and execute a **Mind Map Migration Ledger**. The ledger alone is not completion; [[00-Canvas/Planner-Mindmap.canvas]] must be changed, versioned, and reviewed.
 
 ---
 
@@ -397,7 +392,8 @@ Material disagreement means verification fails.
 
 After approval, capture:
 
-- board version or dated snapshot,
+- repository commit ID or reproducible content hash for the Canvas file,
+- dated visual snapshot when useful for human review,
 - migration ledger version,
 - authoritative discussion index,
 - unresolved-question list,
@@ -447,7 +443,7 @@ This slice must include auth/ownership, versioning, failure handling, and basic 
 
 Deliverables:
 
-- legacy audit,
+- verified legacy reconciliation input — completed,
 - accepted decision inventory,
 - final MVP baseline,
 - migrated and verified Mind Map,
@@ -902,12 +898,12 @@ Passing implementation milestones does not automatically pass release readiness.
 
 Discussion 022 must produce or require:
 
-1. Legacy Decision Audit and Supersession Matrix
+1. Legacy Reconciliation and Supersession Record — completed in [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]
 2. Accepted Decision Inventory
 3. Authoritative Discussion Index
 4. Final MVP Baseline Matrix
 5. Mind Map Migration Ledger
-6. Updated and verified FigJam Mind Map
+6. Updated and verified [[00-Canvas/Planner-Mindmap.canvas|repository Mind Map]]
 7. Implementation Reuse and Supersession Matrix
 8. Dependency Graph
 9. Milestone and Exit Gate Plan
@@ -926,7 +922,7 @@ Discussion 022 must produce or require:
 Discussion 022 closes only after this order is completed:
 
 ```txt
-A. audit Discussions 001–009
+A. reconcile Discussions 001–008; confirm Discussion 009 absence — COMPLETE
 B. inventory Discussions 010–021
 C. resolve conflicts and produce final MVP baseline
 D. create migration ledger
@@ -938,40 +934,37 @@ I. approve pilot-readiness checklist
 J. publish final Discussion 022 resolution
 ```
 
-No step may be marked complete solely because a future action was documented.
+No remaining step may be marked complete solely because a future action was documented. Step A is complete because its consolidated record exists, its source dispositions are explicit, and the obsolete source files have been removed.
 
 ---
 
-## 17. Questions for Claude Review
+## 17. Remaining Execution Review Questions
 
-1. Is decision-level auditing of Discussions 001–009 sufficient, or does any legacy topic require a dedicated reopening before baseline approval?
-2. Is Discussion 009 correctly included in the legacy audit scope?
-3. Does the source-of-truth hierarchy safely resolve disagreement between final resolutions, open discussions, and the stale Mind Map?
-4. Are the legacy status categories mutually clear and implementation-safe?
-5. What failure scenario could allow a partially superseded legacy decision to remain active accidentally?
-6. Does the Accepted Decision Inventory capture all ways Discussions 010–021 may conflict or depend on missing artifacts?
-7. Is the final MVP baseline definition sufficient to prevent implementation from omitting part of `Plan → Execute → Adapt`?
-8. Which listed scope cuts are incorrectly classified as safe, conditional, or thesis-breaking?
-9. Is the Mind Map Migration Ledger sufficient for traceability, or does it need node IDs, board version IDs, or immutable snapshots as mandatory fields?
-10. Does the migration completeness gate prove that decisions were actually applied rather than merely listed?
-11. Is the cross-role walkthrough an adequate consistency check, and what concrete mismatch should fail it?
-12. Is M0 correctly treated as a real blocking milestone rather than documentation overhead?
-13. Is the M1–M9 sequence genuinely vertical, or does it still hide layer-first implementation?
-14. Should Routine precede PlanningDraft, or would another order reduce rework without weakening the complete loop?
-15. Is deterministic mock AI introduced at the correct milestone and with sufficient fidelity?
-16. Are events, observability, privacy, safety, and idempotency introduced early enough in every slice?
-17. Are contract freeze levels and change procedures sufficient for parallel frontend/backend/design work?
-18. Does the reuse matrix safely separate reusable code from superseded behavior?
-19. Are pilot readiness and release readiness separated strongly enough?
-20. Which mandatory tests or operational drills are still missing before real-user exposure?
-21. Could Discussion 022 close while any accepted Mind Map Impact item remains unapplied? The intended answer is no; identify loopholes.
-22. Which dependencies on Discussions 019–021 are not represented clearly enough in the milestones?
-23. Does the crisis safety gate appear at the correct points in implementation and pilot readiness?
-24. Is any new product behavior accidentally introduced by this plan rather than traced to Discussions 010–021?
+The legacy-scope, Discussion 009, source-hierarchy, and historical-retention questions are resolved by the completed Workstream A record. The remaining review must answer:
+
+1. Does the Accepted Decision Inventory capture every conflict, dependency, and missing artifact across Discussions 010–021?
+2. Is the final MVP baseline sufficient to prevent implementation from omitting part of `Plan → Execute → Adapt`?
+3. Which listed scope cuts are incorrectly classified as safe, conditional, or thesis-breaking?
+4. Do mandatory Canvas node IDs and before/after file versions make the migration ledger sufficiently traceable?
+5. Does the migration completeness gate prove that decisions were applied to the actual Canvas rather than merely listed?
+6. Is the cross-role walkthrough adequate, and which concrete mismatch must fail it?
+7. Is M0 correctly treated as a blocking milestone rather than documentation overhead?
+8. Is the M1–M9 sequence genuinely vertical, or does it still hide layer-first implementation?
+9. Should Routine precede PlanningDraft, or would another order reduce rework without weakening the complete loop?
+10. Is deterministic mock AI introduced at the correct milestone and with sufficient fidelity?
+11. Are events, observability, privacy, safety, and idempotency introduced early enough in every slice?
+12. Are contract freeze levels and change procedures sufficient for parallel frontend, backend, and design work?
+13. Does the reuse matrix safely separate reusable implementation from superseded behavior?
+14. Are pilot readiness and release readiness separated strongly enough?
+15. Which mandatory tests or operational drills are still missing before real-user exposure?
+16. Could Discussion 022 close while any accepted `Mind Map Impact` item remains unapplied? The required answer is no; identify any loophole.
+17. Which dependencies on Discussions 019–021 are not represented clearly enough in the milestones?
+18. Does the crisis safety gate appear at the correct points in implementation and pilot readiness?
+19. Is any new product behavior introduced by this plan without an authoritative source in Discussions 010–021?
 
 ---
 
-## 18. Expected Claude Finding Format
+## 18. Review Finding Format
 
 ```txt
 Finding ID
@@ -983,11 +976,11 @@ Smallest coherent correction
 Affected source discussions or Mind Map sections
 ```
 
-Claude should prioritize:
+Reviewers should prioritize:
 
-- hidden contradictions between legacy and accepted decisions,
-- incomplete supersession rules,
-- migration steps that can be marked complete without changing FigJam,
+- hidden conflicts among accepted decisions or stale formal artifacts,
+- accidental reactivation of legacy behavior through reusable code or specifications,
+- migration steps that can be marked complete without changing the repository Canvas,
 - milestone sequencing that creates avoidable rework,
 - missing cross-cutting safety or observability work,
 - scope cuts that make the product thesis dishonest,
@@ -999,8 +992,8 @@ Claude should prioritize:
 
 The final resolution must contain:
 
-- accepted audit procedure,
-- accepted supersession matrix,
+- completed legacy reconciliation and supersession record,
+- confirmation that no legacy `REQUIRES_REVIEW` item remains,
 - accepted authoritative source index,
 - accepted final MVP baseline,
 - completed Mind Map migration evidence,

@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted implementation baseline for Phase 1.
+Legacy implementation candidate — not authoritative until classified by Discussion 022.
+
+Only the React/TypeScript/Vite, Java/Spring Boot, PostgreSQL, versioned REST, and Docker/Nginx baseline survives through [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]. Exact packages, versions, repository shape, and other old Phase 1 choices require reuse review under [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Purpose
 

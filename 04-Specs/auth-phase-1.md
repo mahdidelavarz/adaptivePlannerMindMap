@@ -2,13 +2,13 @@
 
 ## Status
 
-Accepted for Phase 1.
+Retained authentication and session specification for the current MVP, limited by the legacy reconciliation boundary below.
 
-Formalized from [[01-Open-Discussions/006-phase-1-auth-implementation-decisions]] after Claude review and Mahdi approval.
+Retained through [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] after the legacy source discussion was removed. Product-model language outside the retained authentication and session contract is not current authority.
 
 ## Purpose
 
-Define the minimum authentication and session model required for the closed 10–20 tester Phase 1 validation.
+Define the retained authentication and session model. Old cohort-size, product-flow, or implementation-sequence assumptions outside this contract are non-authoritative.
 
 This spec owns:
 

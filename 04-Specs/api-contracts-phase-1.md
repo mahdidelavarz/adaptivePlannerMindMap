@@ -2,9 +2,9 @@
 
 ## Status
 
-Accepted for Phase 1.
+Legacy Phase 1 artifact — only explicitly retained global, authentication, and current-user conventions remain applicable.
 
-Formalized from [[01-Open-Discussions/007-phase-1-api-contracts]] after Claude review and Mahdi approval.
+The retained subset is defined in [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]. Current Planning, Reconcile, confirmation, command, concurrency, and idempotency APIs are owned by [[01-Closed-Discussions/020b-api-and-frontend-state-contracts]]. Reuse or removal of this artifact must be decided by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Purpose
 

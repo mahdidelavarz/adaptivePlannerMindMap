@@ -1,7 +1,9 @@
 # ADR-001 — Reconcile-on-open is the MVP Core Loop
 
 ## Status
-Locked for MVP draft
+Superseded legacy ADR — do not implement as the current MVP contract.
+
+The old Done/Carry/Drop-only flow and its product-model assumptions do not survive [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]. Current Reconcile semantics are owned by Discussions 016–018A, and current sequencing is owned by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Context
 

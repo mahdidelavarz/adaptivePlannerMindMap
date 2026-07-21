@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted for Phase 1.
+Partially retained legacy ADR.
+
+Only the technical baseline explicitly listed in [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] remains current. Old PWA, event-storage, runtime-AI deferral, and sequencing decisions in this ADR are non-authoritative until classified by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Purpose
 

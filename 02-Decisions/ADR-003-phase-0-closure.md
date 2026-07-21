@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted.
+Superseded — this legacy closure no longer authorizes implementation.
+
+The AI-native project baseline remains blocked on M0 and the final resolution of [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Decision
 
@@ -25,7 +27,7 @@ Phase 0 is closed through these source documents:
 
 ## Consequences
 
-Implementation may begin with Milestone 1 from [[05-Implementation/phase-1-plan]].
+Implementation must not begin from the legacy Milestone 1 in [[05-Implementation/phase-1-plan]]. The current milestone sequence becomes authoritative only after Discussion 022 completes its baseline and Mind Map gates.
 
 The accepted Phase 1 boundaries are no longer reopened informally during coding.
 

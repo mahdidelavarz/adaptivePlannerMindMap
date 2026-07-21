@@ -2,9 +2,9 @@
 
 ## Status
 
-Accepted for Phase 1.
+Legacy Phase 1 implementation plan — non-authoritative for the current AI-native MVP.
 
-Formalized from [[01-Open-Discussions/008-phase-1-implementation-plan]] after Claude review and Mahdi approval.
+Only the development and pilot-operation rules explicitly retained in [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] survive. Current baseline reconciliation, reuse classification, milestones, and rollout gates are owned by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Purpose
 

@@ -2,9 +2,9 @@
 
 ## Status
 
-Accepted for Phase 1.
+Legacy Phase 1 artifact — non-authoritative for the current AI-native MVP.
 
-Formalized from [[01-Open-Discussions/005-phase-1-data-model]] after Claude review and Mahdi's decision to retain `RECONCILE_STARTED`.
+The source Discussion 005 is fully superseded according to [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]. Current canonical data, transaction, and event contracts are owned by Discussions 019A–019C. Reuse or removal of this artifact must be decided by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
 
 ## Purpose
 

@@ -13,16 +13,22 @@ This file is the only retained output from Discussions 001–008. It is intentio
 
 If an old decision is absent from this file, it must not be treated as current merely because it exists in an old discussion or Phase 1 spec.
 
-## Source Discussions
+## Source Discussions and Audit Disposition
 
-- [[01-Open-Discussions/001-current-mindmap-review]]
-- [[01-Open-Discussions/002-ai-planning-reconcile-and-scheduling]]
-- [[01-Open-Discussions/003-phase-1-implementation-sequence]]
-- [[01-Open-Discussions/004-technical-foundation-sequencing]]
-- [[01-Open-Discussions/005-phase-1-data-model]]
-- [[01-Open-Discussions/006-phase-1-auth-implementation-decisions]]
-- [[01-Open-Discussions/007-phase-1-api-contracts]]
-- [[01-Open-Discussions/008-phase-1-implementation-plan]]
+The source files were removed from the active workspace after this comparison because Git history is sufficient for provenance and they must not be mistaken for current authority.
+
+| Source | Disposition | Surviving material |
+|---|---|---|
+| `001-current-mindmap-review.md` | `PARTIALLY_SUPERSEDED` | research evidence and claim hygiene only |
+| `002-ai-planning-reconcile-and-scheduling.md` | `PARTIALLY_SUPERSEDED` | evidence/source hygiene only; product, scheduling, confidence, and validation proposals are superseded |
+| `003-phase-1-implementation-sequence.md` | `FULLY_SUPERSEDED` | none |
+| `004-technical-foundation-sequencing.md` | `PARTIALLY_SUPERSEDED` | the bounded technical baseline listed in Section 3 |
+| `005-phase-1-data-model.md` | `FULLY_SUPERSEDED` | none |
+| `006-phase-1-auth-implementation-decisions.md` | `PARTIALLY_SUPERSEDED` | the authentication and session contract listed in Section 4 |
+| `007-phase-1-api-contracts.md` | `PARTIALLY_SUPERSEDED` | only the global, authentication, and current-user conventions listed in Section 5 |
+| `008-phase-1-implementation-plan.md` | `PARTIALLY_SUPERSEDED` | only the development and pilot-operation rules listed in Section 6 |
+
+No `REQUIRES_REVIEW` item remains from Discussions 001–008. No Discussion 009 file exists in the current workspace or repository history, so there is no ninth legacy discussion to audit.
 
 ---
 
