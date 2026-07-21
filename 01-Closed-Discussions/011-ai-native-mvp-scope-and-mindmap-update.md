@@ -127,9 +127,9 @@ The product-decision review from 012 through 021 is substantively complete:
 021 → closed by final 021 resolution
 ```
 
-Some historical source files remain physically located under `01-Open-Discussions` and may retain `Open` or `Split` labels. Folder location alone does not determine authority. They should be cleaned up family by family without moving a historical proposal as though it were a final decision.
+All historical proposals, split hubs, and redundant closure files from Discussions 001–021 have been removed from `01-Open-Discussions`. Only Discussion 022 remains open.
 
-Discussion 022 is intentionally still open. Its work begins after the decision chain and consists of applying, verifying, and sequencing the accepted baseline.
+Discussion 022 is intentionally still open. Legacy reconciliation, the accepted decision inventory, and the final MVP baseline are complete; Mind Map migration, formal-document reconciliation, verification, and implementation readiness remain.
 
 ---
 
@@ -139,8 +139,8 @@ The accepted discussions do not silently rewrite the Mind Map, ADRs, or formal s
 
 Discussion 022 must:
 
-1. reconcile legacy decisions against the accepted AI-native chain,
-2. define one authoritative baseline,
+1. use the completed [[01-Closed-Discussions/001-008-legacy-surviving-decisions|legacy reconciliation]],
+2. use the completed [[02-Decisions/accepted-decision-inventory-001-021|decision inventory]] and [[04-Specs/ai-native-mvp-baseline|MVP baseline]],
 3. migrate that baseline into the shared Mind Map,
 4. update or supersede affected ADRs and specifications,
 5. verify consistency between the map, final discussions, and formal documents,

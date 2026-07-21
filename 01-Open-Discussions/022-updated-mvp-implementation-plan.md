@@ -4,7 +4,7 @@
 
 Open for baseline construction, Mind Map migration, and final resolution.
 
-Legacy reconciliation and Discussion cleanup are complete. Discussions 001–008 have one consolidated surviving-decisions record, no Discussion 009 exists, and Discussions 010–021 are represented only by their authoritative files in `01-Closed-Discussions`.
+Workstreams A–C are complete. Discussions 001–008 have one consolidated surviving-decisions record, no Discussion 009 exists, Discussions 010–021 have a verified decision inventory, and the final AI-native MVP baseline is explicit. Workstreams D–I remain open.
 
 ## Purpose
 
@@ -138,7 +138,7 @@ It is intentionally a surviving-decisions record rather than a second archive of
 
 ---
 
-## 4. Workstream B — Accepted Decision Inventory
+## 4. Workstream B — Accepted Decision Inventory — Completed
 
 ### 4.1 Inventory Scope
 
@@ -179,11 +179,15 @@ The inventory must detect:
 
 ### 4.3 Required Output B
 
-Produce an **Accepted Decision Inventory** for Discussions 010–021 with links to authoritative files and every extracted Mind Map change.
+Completed output:
+
+- [[02-Decisions/accepted-decision-inventory-001-021]]
+
+The inventory includes stable decision IDs, the authoritative discussion index, ownership boundaries, consolidated terms and flows, event/guardrail/metric requirements, formal-document handoffs, and conflict resolution. It found no blocking semantic conflict or unresolved product decision.
 
 ---
 
-## 5. Workstream C — Final MVP Baseline
+## 5. Workstream C — Final MVP Baseline — Completed
 
 The final MVP baseline is the smallest complete product scope that honestly implements:
 
@@ -248,7 +252,11 @@ The following cuts are presumed thesis-breaking unless a source discussion is re
 
 ### 5.4 Required Output C
 
-Produce a **Final MVP Baseline Matrix** mapping every retained capability to its source discussion, map section, implementation milestone, and pilot gate.
+Completed output:
+
+- [[04-Specs/ai-native-mvp-baseline]]
+
+The matrix maps every retained capability to its status, source discussion, Mind Map section, implementation milestone, and pilot gate. It also records explicit `POST_PILOT`, `REMOVED`, and `UNRESOLVED` configuration registers.
 
 ---
 
@@ -355,6 +363,12 @@ Mind Map migration passes only when:
 
 Produce and execute a **Mind Map Migration Ledger**. The ledger alone is not completion; [[00-Canvas/Planner-Mindmap.canvas]] must be changed, versioned, and reviewed.
 
+Ledger preparation is complete:
+
+- [[00-Canvas/Planner-Mindmap-Migration-Ledger]]
+
+The ledger is validated against the current Canvas hash and is ready for review. Canvas application, post-migration hashing, cross-role walkthrough, and verification remain pending, so Workstream D is not yet complete.
+
 ---
 
 ## 7. Workstream E — Mind Map Verification
@@ -444,8 +458,8 @@ This slice must include auth/ownership, versioning, failure handling, and basic 
 Deliverables:
 
 - verified legacy reconciliation input — completed,
-- accepted decision inventory,
-- final MVP baseline,
+- [[02-Decisions/accepted-decision-inventory-001-021|accepted decision inventory]] — completed,
+- [[04-Specs/ai-native-mvp-baseline|final MVP baseline]] — completed,
 - migrated and verified Mind Map,
 - authoritative discussion index.
 
@@ -899,10 +913,10 @@ Passing implementation milestones does not automatically pass release readiness.
 Discussion 022 must produce or require:
 
 1. Legacy Reconciliation and Supersession Record — completed in [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]
-2. Accepted Decision Inventory
-3. Authoritative Discussion Index
-4. Final MVP Baseline Matrix
-5. Mind Map Migration Ledger
+2. [[02-Decisions/accepted-decision-inventory-001-021|Accepted Decision Inventory]] — completed
+3. Authoritative Discussion Index — completed inside the Accepted Decision Inventory
+4. [[04-Specs/ai-native-mvp-baseline|Final MVP Baseline Matrix]] — completed
+5. [[00-Canvas/Planner-Mindmap-Migration-Ledger|Mind Map Migration Ledger]] — prepared and structurally validated; application pending
 6. Updated and verified [[00-Canvas/Planner-Mindmap.canvas|repository Mind Map]]
 7. Implementation Reuse and Supersession Matrix
 8. Dependency Graph
@@ -923,9 +937,9 @@ Discussion 022 closes only after this order is completed:
 
 ```txt
 A. reconcile Discussions 001–008; confirm Discussion 009 absence — COMPLETE
-B. inventory Discussions 010–021
-C. resolve conflicts and produce final MVP baseline
-D. create migration ledger
+B. inventory Discussions 010–021 — COMPLETE
+C. resolve conflicts and produce final MVP baseline — COMPLETE
+D. create migration ledger — PREPARED; approval and application pending
 E. update actual Mind Map
 F. verify map consistency across roles
 G. classify reusable and superseded implementation work

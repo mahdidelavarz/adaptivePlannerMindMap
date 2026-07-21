@@ -1,5 +1,11 @@
 # MVP Scope Boundary
 
+## Status
+
+Superseded legacy scope — do not use for current implementation or pilot planning.
+
+The authoritative current scope is [[04-Specs/ai-native-mvp-baseline]], with decision traceability in [[02-Decisions/accepted-decision-inventory-001-021]]. This file remains only as a candidate for removal during Discussion 022 formal-document reconciliation.
+
 ## Purpose
 
 Define what the first product must prove and what must stay out of scope.
