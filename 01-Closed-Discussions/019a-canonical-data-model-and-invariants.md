@@ -1,26 +1,22 @@
-# Discussion 019A — Final Canonical Data Model Resolution
+# Discussion 019A — Canonical Data Model and Invariants
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
-
-- [[01-Open-Discussions/019a-canonical-data-model-and-invariants]]
-
-Where wording differs, this final resolution is authoritative.
+This document is the authoritative Discussion 019A resolution for canonical entities, ownership, lifecycle states, temporal fields, provenance, and persistence invariants.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
-- [[01-Open-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/017b-final-reconcile-intelligence-resolution]]
-- [[01-Open-Discussions/018a-final-action-permission-trust-and-reversibility-resolution]]
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
+- [[01-Closed-Discussions/018-action-permissions-trust-and-reversibility]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
 
 ---
 
@@ -38,7 +34,7 @@ RoutineOccurrence
 
 No persisted `Plan` entity exists.
 
-A PlanningDraft may be persisted temporarily for recovery and approval workflows, but it is not canonical product truth and must inherit the privacy and retention boundary from Discussion 018C.
+A PlanningDraft may be persisted temporarily for recovery and approval workflows, but it is not canonical product truth and must inherit the privacy and retention boundary from Discussion 018A.
 
 ---
 
@@ -402,7 +398,7 @@ Additional accepted decisions:
 - one current Task protection flag for MVP.
 - derived Carry count.
 - duplicated RoutineOccurrence `userId` with transactional enforcement.
-- temporary PlanningDraft persistence under Discussion 018C privacy rules.
+- temporary PlanningDraft persistence under Discussion 018A privacy rules.
 - generic terminal timestamp rather than status-specific timestamp proliferation.
 - no soft delete for canonical lifecycle rows in MVP.
 
@@ -508,11 +504,11 @@ Create or update later:
 - Routine recurrence and occurrence identity specification
 - Task Drop and Restore persistence specification
 - active temporal-query contract
-- schema migration plan in Discussion 022
+- schema migration plan in [[01-Open-Discussions/022-updated-mvp-implementation-plan]]
 
-Required amendment:
+Applied amendment:
 
-- Discussion 015 must explicitly adopt one Routine occurrence per local day and explicit local-date effectiveness boundaries.
+- [[01-Closed-Discussions/015b-routine-local-date-and-daily-occurrence-amendment]] adopts one Routine occurrence per local day and explicit local-date effectiveness boundaries.
 
 ---
 
@@ -521,3 +517,11 @@ Required amendment:
 Discussion 019A is closed.
 
 Discussion 019B must use this model as authoritative and may not silently redefine ownership, lifecycle states, temporal fields, or occurrence identity.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث مدل دادهٔ مرجع MVP را نهایی می‌کند. موجودیت‌های اصلی شامل Goal، Project، Task، Routine و RoutineOccurrence هستند و موجودیت مستقلی به نام Plan در داده‌های مرجع وجود ندارد. مالکیت، وضعیت‌های چرخهٔ عمر، تاریخ‌های برنامه‌ریزی و بازبینی، منشأ تاریخ‌ها، نسخه‌گذاری برای کنترل هم‌زمانی و قواعد ایجاد رخدادهای روزانه به‌صورت صریح تعریف شده‌اند.
+
+داده‌های تولیدشده با کمک AI فقط پس از تأیید کاربر می‌توانند به حقیقت مرجع محصول تبدیل شوند. مقادیر تحلیلی و محاسبه‌شده، پیش‌نویس‌های موقت و اطلاعات عملیاتی AI بخشی از وضعیت مرجع دامنه نیستند. هر Routine در MVP حداکثر یک رخداد برای هر تاریخ محلی دارد و تاریخ محلی با timestamp یک مفهوم واحد محسوب نمی‌شود.

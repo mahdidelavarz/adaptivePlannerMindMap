@@ -8,12 +8,12 @@ This amendment reopens and resolves one narrow part of Discussion 012: temporal 
 
 Related discussions:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/016-reconcile-trigger-and-severity]]
-- [[01-Open-Discussions/017-ai-reconcile-intelligence-and-actions]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/016-reconcile-trigger-and-severity]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
 
 ---
 
@@ -501,3 +501,13 @@ Potential ADRs:
 - separation of review due from execution overdue
 
 This amendment is closed. Follow-up discussions must implement the accepted invariant explicitly rather than silently redefining it.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۲A amendment زمانی مدل ۰۱۲ است و invariant اصلی آن می‌گوید هیچ موجودیت `ACTIVE` نباید از نظر زمانی نامرئی شود. Goal باید `reviewDate` داشته باشد؛ Project باید `targetDate` یا `reviewDate` داشته باشد؛ Task باید `plannedDate` یا `reviewDate` داشته باشد؛ و Routine فعال باید از recurrence خود occurrence بعدی را تولید کند.
+
+در نبود تاریخ تعیین‌شده توسط کاربر، سیستم default قابل‌مشاهده و قابل‌ویرایش می‌سازد: برای Goal در حالت عادی ۹۰ روز و برای Project در حالت عادی ۳۰ روز. این default نباید از target یا deadline زودتر عبور کند. گرفتن این تاریخ‌ها نباید سؤال اجباری جدیدی به مکالمهٔ Planning اضافه کند.
+
+`nextTemporalCheckpoint` یک مقدار derived است، نه source of truth قابل‌ویرایش. Backlog همچنان placement معتبر است، اما Task موجود در Backlog باید زمان بازبینی آینده داشته باشد. `REVIEW_DUE` نیز با `EXECUTION_OVERDUE` متفاوت است و نباید به‌عنوان شکست اجرا یا بدهی کاری نمایش داده شود.

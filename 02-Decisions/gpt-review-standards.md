@@ -282,7 +282,7 @@ A new GPT conversation continuing this project should begin with:
 Read these files first:
 1. 02-Decisions/gpt-review-standards.md
 2. 02-Decisions/claude-review-standards.md
-3. 01-Open-Discussions/011-ai-native-mvp-scope-and-mindmap-update.md
+3. 01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update.md
 4. the current discussion
 5. all accepted discussions that the current discussion depends on
 

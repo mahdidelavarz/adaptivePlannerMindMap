@@ -1,31 +1,27 @@
-# Discussion 018A — Final Action Permissions, Trust, and Reversibility Resolution
+# Discussion 018 — Final Action Permissions, Trust, and Reversibility Resolution
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
+This document is the authoritative final resolution for AI action permissions, trust, confirmation, and reversibility. The earlier Part A draft was removed after consolidation.
 
-- [[01-Open-Discussions/018-ai-guardrails-trust-and-failure-handling]]
+Final companion safety and failure resolution:
 
-The earlier Part A document remains historical review material. Where language differs, this final resolution is authoritative.
-
-Companion discussion:
-
-- [[01-Open-Discussions/018b-ai-failure-privacy-domain-and-hostile-input-handling]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
-- [[01-Open-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/016-reconcile-trigger-and-severity]]
-- [[01-Open-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
-- [[01-Open-Discussions/017b-final-reconcile-intelligence-resolution]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/016-reconcile-trigger-and-severity]]
+- [[01-Closed-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
 
 ---
 
@@ -466,7 +462,7 @@ No blocking finding remained.
 
 ---
 
-## 14. Mind Map Impact
+## 14. Mind Map Impact — Handoff to Discussion 022
 
 ### Product Vision
 
@@ -558,7 +554,7 @@ CONFIRMATION_INVALIDATED
 
 ---
 
-## 15. Affected Later Specifications
+## 15. Affected Later Specifications — Handoff to Discussion 022
 
 Discussion 019 must define:
 
@@ -596,6 +592,14 @@ Discussion 022 must sequence:
 
 ## 16. Closure
 
-Discussion 018A is accepted and closed.
+Discussion 018 is accepted and closed.
 
-Discussion 018B remains open for GPT × Claude review.
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۸ مرز اختیار AI، اعتماد، confirmation و reversibility را نهایی می‌کند. خروجی read-only، explanation و proposal به‌خودی‌خود mutation نیستند. هر تغییری در canonical state به preview مشخص، مجموعهٔ دقیق entityها، نمایش پیامدها، تأیید صریح کاربر و revalidation بلافاصله پیش از commit نیاز دارد. سکوت، متن تولیدشده یا تأیید یک proposal قدیمی مجوز محسوب نمی‌شود.
+
+transitionهای قطعی و غیرهوشمند مانند materialization occurrence، تعیین Missed و محاسبهٔ eligibility می‌توانند تحت ruleهای پذیرفته‌شده اجرا شوند. AI می‌تواند facts و actionهای مجاز را توضیح دهد، اما actionهای lifecycle، bulk replan، Drop، تغییر recurrence و تغییر hierarchy confirmation-required هستند. حذف دائمی تاریخچه، تغییر پنهانی state، تصمیم‌گیری روان‌شناختی و mutation از proposal منقضی یا stale ممنوع است.
+
+Bulk action فقط روی selected set قابل‌مشاهده و پس از بررسی protection، deadline risk و structural conflict مجاز است. Drop تاریخچه را حفظ می‌کند و Task می‌تواند با همان identity و audit trail Restore شود. Routine متوقف‌شده دوباره فعال نمی‌شود و Resume یک continuation Routine جدید می‌سازد. ۰۱۸A companion نهایی failure/privacy/safety است و بحث ۰۲۲ مسئول انتقال این قواعد به Mind Map و اسناد رسمی است.

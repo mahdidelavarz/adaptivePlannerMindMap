@@ -6,12 +6,20 @@ Accepted and closed after GPT × Claude review.
 
 The original review found four coherence gaps. A later standards-based review identified one blocking safety gap. All five findings are now resolved, and Claude has confirmed the corrected direction.
 
+Final companion authorities:
+
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/021-validation-plan-and-decision-gates]]
+
+Discussion 013 owns Planning entry, conversation, clarification, fallback, and the minimum `SAFETY_FALLBACK` invariant. Discussion 018A owns the detailed failure, privacy, domain, hostile-input, and crisis policy. Discussion 021 owns the mandatory pre-pilot Crisis Safety Readiness gate. These later records complete this discussion without changing its accepted flow semantics.
+
 Related discussions:
 
-- [[01-Open-Discussions/010-ai-first-planning-and-reconcile-roadmap]]
-- [[01-Open-Discussions/011-ai-native-mvp-scope-and-mindmap-update]]
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/018-ai-safety-privacy-and-failure-policy]]
+- [[01-Closed-Discussions/010-ai-first-planning-and-reconcile-roadmap]]
+- [[01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/021-validation-plan-and-decision-gates]]
 
 ---
 
@@ -44,7 +52,8 @@ How may the user leave, restart, recover, or hit a safety boundary?
 - final AI JSON contract — Discussion 014
 - Today and execution mechanics — Discussion 015
 - Reconcile — Discussions 016–017
-- detailed safety detection, localization, and resource-selection policy — Discussion 018
+- detailed safety detection, localization, resource-selection, and hostile-input policy — Discussion 018A
+- crisis release evidence and sign-off — Discussion 021
 - persistence and analytics — Discussion 019
 - provider/runtime architecture — Discussion 020
 - implementation sequencing — Discussion 022
@@ -258,7 +267,7 @@ In this state:
 - the response directs the user toward immediate human help and appropriate crisis resources
 - the user may later begin a new, unrelated planning flow from `EMPTY`
 
-Discussion 018 must define detection, localization, resource selection, false-positive handling, and technical enforcement without weakening these invariants.
+Discussion 018A defines detection, localization, resource selection, false-positive handling, and technical enforcement without weakening these invariants. Discussion 021 makes their tested readiness a mandatory pre-pilot release gate.
 
 ---
 
@@ -570,12 +579,12 @@ After reading the written review standards, Claude corrected its earlier review 
 ```txt
 SAFETY-01 — Blocking
 Mental-health-crisis input was included in the domain boundary while its
-protective mechanism was deferred to Discussion 018.
+protective mechanism was initially deferred and is now completed by Discussion 018A plus the Discussion 021 release gate.
 
 Resolved:
 A distinct SAFETY_FALLBACK state stops conversational planning, prevents
 draft and entity generation, and displays a fixed pre-written safety response.
-Discussion 018 must define detailed enforcement without weakening this rule.
+Discussion 018A defines detailed enforcement without weakening this rule, and Discussion 021 requires release evidence before pilot rollout.
 ```
 
 GPT accepts this correction. The earlier claim that no blocking issue existed was premature and has been replaced by the resolution above.
@@ -586,7 +595,7 @@ Claude has confirmed Discussions 012 and 013 after the corrected direction. No u
 
 ## 14. Mind Map Impact
 
-Record for consolidation after Discussion 021. Do not apply yet.
+Record for consolidation by Discussion 022. Do not apply from this file alone.
 
 ### User flow
 
@@ -652,7 +661,7 @@ No Mind Map change is applied yet.
 
 ## 15. Affected Formal Documents
 
-Record for consolidation after Discussion 021. Do not update yet.
+Record for consolidation by Discussion 022. Do not update from this file alone.
 
 Accepted decisions must later update or create:
 
@@ -661,7 +670,8 @@ Accepted decisions must later update or create:
 - AI responsibility and guardrail specification
 - draft review specification with Discussion 014
 - execution entry dependencies in Discussion 015
-- safety, crisis fallback, privacy, and failure specification in Discussion 018
+- safety, crisis fallback, privacy, and failure specification in Discussion 018A
+- mandatory crisis-readiness release gate in Discussion 021
 - analytics event specification in Discussion 019
 - runtime/API and provider-failure specification in Discussion 020
 - implementation plan in Discussion 022
@@ -673,3 +683,13 @@ Potential ADRs:
 - crisis safety override and fixed fallback invariant
 
 No Mind Map or formal document is modified by closing this discussion alone.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۳ جریان ورود و مکالمهٔ AI Planning را تعریف می‌کند. کاربر می‌تواند با Goal، Project، Task، Routine یا یک نیت آزاد شروع کند و Goal اجباری نیست. ورود می‌تواند global، از داخل Goal/Project یا از مسیر manual creation باشد. draft فعال قبلی نیز نباید بدون انتخاب صریح کاربر جایگزین شود.
+
+Clarification فقط زمانی انجام می‌شود که پاسخ واقعاً ساختار یا امکان اجرای draft را تغییر دهد و در حالت عادی حداکثر سه نوبت دارد. کاربر می‌تواند `Draft now` را انتخاب کند، اما AI اجازه ندارد deadline، recurrence، ownership یا ظرفیت کاربر را بدون مبنا اختراع کند. مکالمه فقط proposal می‌سازد و هیچ موجودیت canonical پیش از review و approval صریح ایجاد نمی‌شود.
+
+خطا، retry، manual fallback، cancel و restart حالت‌های رسمی flow هستند. محتوای بحران یا خودآسیبی مستقیماً به `SAFETY_FALLBACK` می‌رود، مکالمهٔ برنامه‌ریزی را متوقف می‌کند و هیچ draft یا entity تولید نمی‌شود. جزئیات safety در ۰۱۸C و آمادگی اجباری پیش از پایلوت در release gate بحث ۰۲۱ تعریف شده‌اند.

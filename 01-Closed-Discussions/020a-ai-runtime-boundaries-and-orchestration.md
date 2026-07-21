@@ -1,20 +1,21 @@
-# Discussion 020A — Final AI Runtime Boundaries and Orchestration Resolution
+# Discussion 020A — AI Runtime Boundaries and Orchestration
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
-
-- [[01-Open-Discussions/020a-ai-runtime-boundaries-and-orchestration]]
+This document is the authoritative Discussion 020A resolution for AI runtime boundaries and orchestration.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
-- [[01-Open-Discussions/019a-final-canonical-data-model-resolution]]
-- [[01-Open-Discussions/019b-final-transactions-concurrency-and-idempotency-resolution]]
-- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
-- [[01-Open-Discussions/019c-amendment-ai-context-scope-observability]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
+- [[01-Closed-Discussions/018-action-permissions-trust-and-reversibility]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/019a-canonical-data-model-and-invariants]]
+- [[01-Closed-Discussions/019b-transactions-concurrency-and-idempotency]]
+- [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]
 
 Where wording differs, this final resolution is authoritative for AI runtime boundaries and orchestration.
 
@@ -173,7 +174,7 @@ Prompt renderer packages must not depend on repository or data-access packages.
 
 ### 5.1 Planning
 
-Planning may receive only operation-relevant context accepted by Discussion 018C, including:
+Planning may receive only operation-relevant context accepted by Discussion 018A, including:
 
 - current user request
 - user-approved constraints
@@ -210,9 +211,9 @@ Classifier input must not automatically inherit the wider Planning context.
 
 ## 6. Context Scope Observability
 
-Discussion 020A explicitly requires the accepted amendment:
+Discussion 020A uses the context-scope observability contract incorporated into:
 
-- [[01-Open-Discussions/019c-amendment-ai-context-scope-observability]]
+- [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]
 
 Every AI operation records:
 
@@ -410,7 +411,7 @@ Automatic cross-provider fallback is disabled for the pilot.
 
 No automatic same-provider secondary-model fallback is required for the pilot.
 
-Failure routes to retry/manual/degraded behavior under Discussions 018C and 020C.
+Failure routes to retry/manual/degraded behavior under Discussions 018A and 020C.
 
 ---
 
@@ -451,7 +452,7 @@ A failed, cancelled, partial, malformed, or rejected generation attempt may exis
 Claude findings resolved:
 
 - `F1`: added `DomainSafetyClassificationPort` with closed output vocabulary
-- `F2`: created an explicit Discussion 019C amendment for context builder version and Context Scope Manifest
+- `F2`: added context builder version and Context Scope Manifest requirements to the authoritative Discussion 019C resolution
 - `F3`: no-tool policy is enforced with architecture and configuration tests
 - `F4`: all late results after cancellation are discarded in MVP
 - `F5`: prompt renderers receive immutable DTOs and cannot access repositories
@@ -601,7 +602,7 @@ AI_TOOL_REGISTRATION_BLOCKED
 
 ## 19. Affected Later Discussions
 
-### Discussion 020B
+### [[01-Closed-Discussions/020b-api-and-frontend-state-contracts|Discussion 020B]]
 
 Must define API and frontend states for:
 
@@ -611,7 +612,7 @@ Must define API and frontend states for:
 - deterministic Reconcile unavailable
 - deterministic result plus optional explanation attachment
 
-### Discussion 020C
+### [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls|Discussion 020C]]
 
 Must define:
 
@@ -622,7 +623,7 @@ Must define:
 - build/deployment checks for forbidden tool registration
 - context scope manifest consistency tests
 
-### Discussion 021
+### [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]]
 
 Must test:
 
@@ -634,7 +635,7 @@ Must test:
 - deterministic Reconcile failure
 - context scope observability correctness
 
-### Discussion 022
+### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 Must sequence:
 
@@ -648,9 +649,17 @@ Must sequence:
 
 Discussion 020A is closed at the runtime-boundary and orchestration level.
 
-Open implementation and contract work continues in:
+Its API/frontend and reliability/cost companion contracts are accepted in:
 
-- [[01-Open-Discussions/020b-api-and-frontend-state-contracts]]
-- [[01-Open-Discussions/020c-structured-output-reliability-and-cost-controls]]
+- [[01-Closed-Discussions/020b-api-and-frontend-state-contracts]]
+- [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]
 
 No unresolved product-semantic or runtime-boundary question remains in 020A.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث مرز نهایی اجرای AI را مشخص می‌کند. AI فقط می‌تواند طبقه‌بندی، پیشنهاد یا توضیح تولید کند؛ مجوز، اعتبارسنجی، تأیید کاربر و تغییر وضعیت مرجع همیشه در لایه‌های قطعی application و domain انجام می‌شوند. قابلیت‌های Planning، توضیح Reconcile و طبقه‌بندی ایمنی از طریق portهای جدا و provider-neutral اجرا می‌شوند و Spring AI یا هر framework مشابهی اجازهٔ نفوذ به دامنه را ندارد.
+
+در MVP هیچ ابزار، function calling، دسترسی repository یا مسیر مخفی برای mutation در اختیار مدل قرار نمی‌گیرد. context builderها محدود، نسخه‌دار و قابل مشاهده‌اند؛ Reconcile فقط دادهٔ ساخت‌یافته دریافت می‌کند. لغو درخواست، نتیجهٔ دیررس، kill switch، degraded mode و شکست provider نیز قراردادهای صریح دارند و در تمام حالت‌ها مسیر دستی محصول قابل استفاده باقی می‌ماند.

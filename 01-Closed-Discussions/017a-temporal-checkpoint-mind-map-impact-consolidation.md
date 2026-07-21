@@ -1,18 +1,18 @@
-# Discussion 017C — Temporal Checkpoint Mind Map Impact Consolidation
+# Discussion 017A — Temporal Checkpoint Mind Map Impact Consolidation
 
 ## Status
 
-Accepted as the authoritative Mind Map impact record for the temporal-checkpoint amendment chain.
+Accepted and closed as the authoritative Mind Map impact record for the temporal-checkpoint amendment chain.
 
 This document consolidates the Mind Map changes required by:
 
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
-- [[01-Open-Discussions/017b-final-reconcile-intelligence-resolution]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
 
-It records changes for later FigJam consolidation. It does not modify the Mind Map by itself.
+It records changes for Discussion 022 FigJam consolidation. It does not modify the Mind Map by itself.
 
 ---
 
@@ -330,6 +330,16 @@ Potential ADRs:
 
 ## 11. Consolidation Rule
 
-When the FigJam Mind Map is updated, use this document together with the final Mind Map Impact in Discussion 017B.
+When the FigJam Mind Map is updated, use this document together with the final resolution and Mind Map Impact in Discussion 017.
 
-Where older Discussion 014, 015, 016, or 017 Mind Map notes conflict with these accepted amendments, this consolidation and Discussion 017B are authoritative.
+Where older Discussion 014, 015, 016, or 017 Mind Map notes conflict with these accepted amendments, this consolidation and Discussion 017 are authoritative.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۷A سند تصمیم محصولی جدید نیست؛ اثرات پذیرفته‌شدهٔ زنجیرهٔ temporal checkpoint را برای انتقال به Mind Map تجمیع می‌کند. invariant اصلی این است که هر entity فعال باید checkpoint آیندهٔ قابل‌استخراج داشته باشد و Backlog نباید به معنای فراموش‌شدن دائمی کار باشد.
+
+در Planning، defaultهای زمانی باید deterministic، قابل‌مشاهده، قابل‌ویرایش و دارای provenance باشند. Today فقط execution را نمایش می‌دهد و review-only item وارد آن نمی‌شود. در Reconcile نیز execution decisions و commitment reviews دو lane جدا هستند و `REVIEW_DUE` نباید با `EXECUTION_OVERDUE` یا failure اشتباه شود.
+
+AI فقط ruleها و evidence عملیاتی پذیرفته‌شده را توضیح می‌دهد و حق پرسش دربارهٔ انگیزه، احساس، ظرفیت یا علت انجام‌نشدن کار را ندارد. Goal continuation با wording ثابت و گزینه‌های محدود انجام می‌شود. این فایل مرجع migration نقشه است، اما خود Mind Map را تغییر نمی‌دهد؛ اعمال نهایی آن بر عهدهٔ بحث ۰۲۲ است.

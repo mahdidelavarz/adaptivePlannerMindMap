@@ -1,4 +1,4 @@
-# Discussion 021 — Final Validation Plan and Decision Gates Resolution
+# Discussion 021 — Validation Plan and Decision Gates
 
 ## Status
 
@@ -8,13 +8,12 @@ This document is the authoritative resolution for Discussion 021.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/013-final-product-safety-and-planning-boundaries-resolution]]
-- [[01-Open-Discussions/018b-final-crisis-and-high-risk-safety-resolution]]
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
-- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
-- [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
-- [[01-Open-Discussions/020b-final-api-and-frontend-state-contracts-resolution]]
-- [[01-Open-Discussions/020c-structured-output-reliability-and-cost-controls]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]
+- [[01-Closed-Discussions/020a-ai-runtime-boundaries-and-orchestration]]
+- [[01-Closed-Discussions/020b-api-and-frontend-state-contracts]]
+- [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]
 
 ---
 
@@ -607,7 +606,7 @@ Add:
 
 None remain inside Discussion 021.
 
-Numeric pilot thresholds and rollout execution details must be instantiated in the signed pilot analysis plan and Discussion 022 readiness artifacts without weakening this resolution.
+Numeric pilot thresholds and rollout execution details must be instantiated in the signed pilot analysis plan and [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] readiness artifacts without weakening this resolution.
 
 ---
 
@@ -628,7 +627,7 @@ Create or update:
 - crisis observability audit checklist,
 - crisis release sign-off record,
 - pilot analysis template,
-- Discussion 022 rollout readiness checklist.
+- [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] rollout readiness checklist.
 
 ---
 
@@ -637,3 +636,15 @@ Create or update:
 Discussion 021 is closed.
 
 Pilot rollout is forbidden until the Crisis Safety Readiness gate and all other applicable hard gates pass under the locked analysis and release plan.
+
+Implementation sequencing, numeric threshold instantiation, evidence collection, and rollout readiness remain governed by [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] and may not weaken these gates.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث برنامهٔ نهایی اعتبارسنجی MVP و قواعد تصمیم‌گیری برای pilot را مشخص می‌کند. دو فرضیهٔ اصلی، مفیدبودن Planning مبتنی بر AI و مفیدبودن Reconcile مبتنی بر AI هستند؛ اما معیارهای بهره‌وری یا پذیرش هرگز نمی‌توانند شکست در ایمنی، حریم خصوصی، قابلیت اطمینان یا درک مرز اعتماد را جبران کنند. واحد تحلیل، numerator، denominator، نسخهٔ تعریف معیار و thresholdها باید پیش از مشاهدهٔ نتیجه قفل شوند.
+
+Crisis Safety Readiness یک hard gate سراسری است. هرگونه نشت پیشنهاد، توضیح، confirmation یا mutation در مسیر بحران، شکست classifier، نبود منابع واقعی و محلی‌شده یا نبود تأیید انسانی، کل pilot را متوقف می‌کند. معیارهایی مانند Decision Compression فقط توصیفی‌اند؛ پشیمانی باید توسط کاربر نسبت داده شود؛ و پاسخ پرسش‌نامهٔ اعتماد باید با رفتار واقعی مقایسه شود.
+
+نتیجهٔ pilot می‌تواند ادامه، محدودسازی، بازطراحی یا توقف هرکدام از قابلیت‌های Planning و Reconcile باشد. اجرای thresholdهای عددی، جمع‌آوری شواهد و readiness عملیاتی در بحث ۰۲۲ انجام می‌شود، بدون آنکه hard gateهای این سند تضعیف شوند.

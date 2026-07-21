@@ -4,12 +4,18 @@
 
 Accepted and closed after GPT × Claude review.
 
+Required companion amendment:
+
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+
+This document owns the base `PlanningDraft` hierarchy, limits, review semantics, approval boundary, and seven-day detailed execution horizon. Discussion 014A adds the accepted temporal-checkpoint fields, defaults, provenance, and validation rules. They form one decision family and must be read together. Where temporal wording differs, Discussion 014A is authoritative.
+
 Mahdi approved the final product decisions. Claude's final review found no blocking or important issue. Its final minor documentation finding was resolved by adding `BLOCKED_BY_ANCESTOR` to the canonical review-state enum.
 
 Related accepted discussions:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
 
 ---
 
@@ -525,7 +531,7 @@ Mahdi accepted the resulting contract and closed Discussion 014.
 
 ---
 
-## 13. Mind Map Impact — Record Only, Do Not Apply Yet
+## 13. Mind Map Impact — Handoff to Discussion 022
 
 After consolidation, record or revise:
 
@@ -566,7 +572,7 @@ No Mind Map change is applied yet.
 
 ---
 
-## 14. Affected Formal Documents — Record Only, Do Not Update Yet
+## 14. Affected Formal Documents — Handoff to Discussion 022
 
 After consolidation, accepted decisions should update or create:
 
@@ -590,3 +596,13 @@ Potential ADRs:
 - seven-day detailed planning and adaptive continuation
 
 No formal document is updated before consolidation.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۴ قرارداد محصولی `PlanningDraft` را تعریف می‌کند. draft موقت است و می‌تواند برای یک نیت منسجم، Goal، Project، Task و Routine پیشنهاد دهد؛ اما تا پیش از تأیید کاربر هیچ‌کدام به canonical state تبدیل نمی‌شوند. ساخت hierarchy مصنوعی صرفاً برای مرتب دیده‌شدن مجاز نیست.
+
+هر draft حداکثر یک Goal دارد و برنامه‌ریزی اجرایی دقیق آن به هفت روز محلی محدود است، هرچند Goal، Project و Routine می‌توانند عمر طولانی‌تری داشته باشند. محدودیت‌های MVP شامل حداکثر ۵ Project، ۱۵ Task، ۵ Routine و ۲۰ proposal در یک draft است.
+
+کاربر باید hierarchy، assumptionها، warningها و placement هفتهٔ اول را ببیند و بتواند آیتم‌ها را ویرایش، حذف، رد یا انتخاب کند. validation و repair فقط می‌توانند خطاهای ساختاری و قابل‌اثبات را اصلاح کنند و اجازهٔ تغییر پنهانی intent، entity type، ownership، date یا recurrence را ندارند. قواعد temporal این قرارداد در ۰۱۴A تکمیل شده‌اند.

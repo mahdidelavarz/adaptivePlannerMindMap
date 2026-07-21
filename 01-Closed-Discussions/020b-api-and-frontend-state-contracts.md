@@ -1,4 +1,4 @@
-# Discussion 020B — Final API and Frontend State Contracts Resolution
+# Discussion 020B — API and Frontend State Contracts
 
 ## Status
 
@@ -6,19 +6,16 @@ Accepted and closed.
 
 This resolution is authoritative for API resource boundaries, frontend state semantics, confirmation flow, polling, conflict refresh, cancellation, and client-side recovery behavior.
 
-Companion documents:
-
-- [[01-Open-Discussions/020-api-and-ai-runtime-architecture]]
-- [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
-- [[01-Open-Discussions/020b-api-and-frontend-state-contracts]]
-- [[01-Open-Discussions/020c-structured-output-reliability-and-cost-controls]]
-
 Accepted dependencies:
 
-- [[01-Open-Discussions/019a-final-canonical-data-model-resolution]]
-- [[01-Open-Discussions/019b-final-transactions-concurrency-and-idempotency-resolution]]
-- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
-- [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
+- [[01-Closed-Discussions/019a-canonical-data-model-and-invariants]]
+- [[01-Closed-Discussions/019b-transactions-concurrency-and-idempotency]]
+- [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]
+- [[01-Closed-Discussions/020a-ai-runtime-boundaries-and-orchestration]]
+
+Companion authoritative resolution:
+
+- [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]
 
 ---
 
@@ -619,11 +616,11 @@ Record or link:
 
 ## 19. Affected Later Discussions
 
-Discussion 020C must define reliability thresholds and validation behavior without changing these API semantics.
+[[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls|Discussion 020C]] defines reliability thresholds and validation behavior without changing these API semantics.
 
-Discussion 021 must include contract, concurrency, reconnect, cancellation, warning-staleness, and duplicate-invocation tests.
+[[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]] must include contract, concurrency, reconnect, cancellation, warning-staleness, and duplicate-invocation tests.
 
-Discussion 022 must sequence deployment of new resource contracts and client migration safely.
+[[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] must sequence deployment of new resource contracts and client migration safely.
 
 ---
 
@@ -631,4 +628,12 @@ Discussion 022 must sequence deployment of new resource contracts and client mig
 
 Discussion 020B is accepted and closed.
 
-The review-stage proposal remains as historical context, but this resolution is authoritative.
+No review-stage proposal is required as a separate governing or historical document.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث قرارداد نهایی API و stateهای frontend را تعریف می‌کند. PlanningAttempt، PlanningDraft، ReconcileSession و ActionConfirmation منابع جدا با هویت و چرخهٔ عمر روشن هستند. کاربر می‌تواند درخواست، بازبینی، ویرایش، تأیید، لغو و refresh انجام دهد، اما client هیچ‌گاه مرجع مجوز، consequence، نسخهٔ معتبر یا mutation دامنه نیست.
+
+خروجی ناقص AI قابل بازبینی نیست، تأیید قدیمی به‌طور خودکار rebase نمی‌شود و نتیجهٔ دیررس پس از لغو کنار گذاشته می‌شود. polling قرارداد MVP است؛ commandها از expected version و idempotency استفاده می‌کنند؛ عملیات گروهی همه یا هیچ هستند؛ و وضعیت‌های accepted، conflicted، failed و applied به‌صورت صریح از یکدیگر جدا می‌شوند.

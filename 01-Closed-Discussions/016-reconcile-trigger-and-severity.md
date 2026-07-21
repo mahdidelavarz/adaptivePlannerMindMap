@@ -4,11 +4,19 @@
 
 Accepted and closed after GPT × Claude review.
 
+Required companion amendment:
+
+- [[01-Closed-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
+
+This document owns the base Reconcile eligibility, execution-backlog severity, blocking-conflict, Today-access, prompt-suppression, and retrigger policy. Discussion 016A adds the accepted `REVIEW_DUE` eligibility and distinct commitment-review presentation lane. They form one decision family and must be read together. Where review-checkpoint wording differs, Discussion 016A is authoritative.
+
+Discussion 017 owns final grouping, explanation, recommendation, and action semantics. Discussions 019–021 own persistence/events, API/runtime realization, and immutable pilot severity segmentation. Discussion 022 owns Mind Map and formal-document application.
+
 This discussion defines when Reconcile becomes eligible, how strongly it is presented, how absence affects confidence, how Today remains accessible, and how same-day retrigger is controlled.
 
 Related accepted discussion:
 
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
 
 ---
 
@@ -785,9 +793,9 @@ No unresolved product question remains inside Discussion 016.
 
 ---
 
-## 18. Mind Map Impact — Apply After Consolidation
+## 18. Mind Map Impact — Handoff to Discussion 022
 
-The following changes must be applied precisely to the shared Mind Map after Discussion 021 consolidation.
+The following changes must be applied precisely to the shared Mind Map through Discussion 022 consolidation.
 
 ### 18.1 Product Vision
 
@@ -1008,7 +1016,7 @@ Keep or create only downstream questions:
 
 ---
 
-## 19. Affected Formal Documents — Record Only
+## 19. Affected Formal Documents — Handoff to Discussion 022
 
 After consolidation, update or create:
 
@@ -1034,4 +1042,14 @@ Potential ADRs:
 - once-per-local-day automatic primary presentation
 - age-based Recovery requiring minimum actionable breadth
 
-No formal document is directly updated by this discussion before consolidation.
+Discussion 022 owns the consolidation pass and formal-document updates. Closing this discussion alone does not apply those changes.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۶ مشخص می‌کند Reconcile چه زمانی eligible می‌شود و با چه شدت و نحوه‌ای نمایش داده می‌شود. `eligibility`، `severity` و `blocking conflict` سه مفهوم جدا هستند. پیش از محاسبهٔ شدت، سیستم باید occurrenceهای لازم را به‌صورت deterministic ارزیابی، داده‌های غیرقابل‌اقدام را حذف و فقط backlog نیازمند تصمیم کاربر را محاسبه کند.
+
+شدت‌های MVP شامل `LIGHT`، `MEDIUM` و `RECOVERY` هستند. یک Task جدید و حل‌نشده معمولاً Light است؛ work قدیمی یا repeated Carry می‌تواند Medium شود؛ و Recovery برای backlog گسترده یا backlog قدیمی با حداقل سه آیتم actionable است. یک یا دو Task قدیمی، absence، تعداد خام occurrenceهای Missed یا یک conflict محدود به‌تنهایی Recovery ایجاد نمی‌کنند.
+
+Reconcile در هیچ شدتی Today را مسدود نمی‌کند و کاربر می‌تواند آن را skip کند. prompt اصلی به‌طور خودکار حداکثر یک بار در هر local day نمایش داده می‌شود؛ فقط خطر واقعی deadline یا conflict جدید و فوری می‌تواند exception محدود ایجاد کند. قواعد `REVIEW_DUE` و commitment-review lane در ۰۱۶A تکمیل شده‌اند.

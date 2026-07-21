@@ -4,12 +4,21 @@
 
 Accepted and closed after GPT × Claude review.
 
+Required companion amendments:
+
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/015b-routine-local-date-and-daily-occurrence-amendment]]
+
+This document owns the base Task, Routine, RoutineOccurrence, Today, Carry, correction, and parent-terminal execution model. Discussion 015A owns the accepted temporal-checkpoint, Backlog, review-due, and date-meaning amendments. Discussion 015B owns the more specific MVP RoutineOccurrence identity and Routine effective-local-date rules. The three documents form one decision family and must be read together.
+
+Later implementation authority is divided as follows: Discussion 019A owns canonical persistence and invariants, Discussion 019B owns transaction and concurrency behavior, and Discussion 019C owns event and retention details. Those resolutions refine implementation without replacing this execution model.
+
 Claude confirmed that no blocking issue remains after the final corrections. Mahdi accepted the execution model below.
 
 Related accepted discussions:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
 
 ---
 
@@ -1137,7 +1146,7 @@ Retain or create these later-discussion questions:
 
 ---
 
-## 18. Affected Formal Documents — Record Only, Do Not Update Yet
+## 18. Affected Formal Documents — Handoff to Discussion 022
 
 After consolidation, accepted decisions must update or create:
 
@@ -1167,4 +1176,14 @@ Potential ADRs:
 - auditable historical correction without fixed seven-day expiry
 - separation of Reconcile recovery and Adaptive Planning adaptation
 
-No formal document is updated before the consolidation pass.
+Discussion 022 owns the consolidation pass and formal-document updates. Closing this discussion alone does not apply those changes.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۵ مدل اجرای روزانه را تعریف می‌کند. Today یک view مشتق‌شده از تاریخ محلی است و شامل Taskهای فعال با `plannedDate = today` و `RoutineOccurrence`های pending همان روز می‌شود. Today یک Plan ذخیره‌شده نیست و overdue نیز status جداگانهٔ Task محسوب نمی‌شود.
+
+Carry یک تغییر صریح `plannedDate` با حفظ هویت Task است و نباید خودکار انجام شود. Task می‌تواند Complete یا Drop شود و correction تاریخی و Restore فقط با حفظ audit trail انجام می‌شوند. Routine از طریق occurrence اجرا می‌شود؛ occurrence فقط `PENDING → DONE | MISSED` دارد، هرگز Carry نمی‌شود و missed occurrence به بدهی امروز تبدیل نمی‌گردد.
+
+توقف Routine تاریخچه را حفظ می‌کند و Resume با یک Routine ادامه‌دهندهٔ جدید انجام می‌شود. پایان Project و Goal نیازمند تعیین تکلیف childهای فعال است و تاریخچه نباید بازنویسی شود. timezone از IANA و local-date پایدار استفاده می‌کند. قواعد temporal و Backlog در ۰۱۵A و هویت روزانه و effective local dates در ۰۱۵B تکمیل شده‌اند.

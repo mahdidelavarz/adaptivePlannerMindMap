@@ -1,23 +1,19 @@
-# Discussion 019B — Final Transactions, Concurrency, and Idempotency Resolution
+# Discussion 019B — Transactions, Concurrency, and Idempotency
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
-
-- [[01-Open-Discussions/019b-transactions-concurrency-and-idempotency]]
-
-Where wording differs, this final resolution is authoritative.
+This document is the authoritative Discussion 019B resolution for mutation transactions, concurrency, idempotency, lock ordering, bulk atomicity, and durable event intent.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/015b-routine-local-date-and-daily-occurrence-amendment]]
-- [[01-Open-Discussions/018a-final-action-permission-trust-and-reversibility-resolution]]
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
-- [[01-Open-Discussions/019a-final-canonical-data-model-resolution]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/015b-routine-local-date-and-daily-occurrence-amendment]]
+- [[01-Closed-Discussions/018-action-permissions-trust-and-reversibility]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/019a-canonical-data-model-and-invariants]]
 
 ---
 
@@ -585,7 +581,7 @@ Remove or close:
 
 ## 18. Affected Later Specifications
 
-### Discussion 019C
+### [[01-Closed-Discussions/019c-events-ai-observability-and-retention|Discussion 019C]]
 
 - event envelope and taxonomy
 - occurrence exposure event or durable marker
@@ -610,7 +606,7 @@ Remove or close:
 - idempotency-expiry replay tests
 - outbox atomicity tests
 
-### Discussion 022
+### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 - rollout sequencing
 - migration of version fields
@@ -624,3 +620,11 @@ Remove or close:
 Discussion 019B is closed.
 
 Transaction boundaries, concurrency, staged parent resolution, bulk atomicity, retry behavior, idempotency, deterministic lock ordering, and durable event-intent requirements are accepted for MVP.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث قرارداد نهایی تمام تغییرات داده در MVP را مشخص می‌کند. هر فرمان ابتدا مجوز، وضعیت فعلی و نسخهٔ مورد انتظار را بررسی می‌کند و سپس در یک مرز تراکنشی روشن اجرا می‌شود. کنترل هم‌زمانی به‌صورت optimistic است و برای invariantهای چندردیفی از قفل‌های کوتاه و ترتیب قفل‌گذاری قطعی استفاده می‌شود.
+
+فرمان‌های تکراری با idempotency کنترل می‌شوند و اجرای دوبارهٔ یک نتیجهٔ نهاییِ یکسان می‌تواند بدون ایجاد اثر یا رویداد تکراری موفق تلقی شود. عملیات گروهی همه یا هیچ هستند، تغییر وضعیت Goal و Project به‌صورت مرحله‌ای انجام می‌شود و ثبت intent رویداد با transactional outbox بخشی از همان تراکنش دامنه است.

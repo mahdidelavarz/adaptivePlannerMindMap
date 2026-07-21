@@ -1,21 +1,16 @@
-# Discussion 018C — Final AI Failure, Privacy, Domain, and Hostile Input Resolution
+# Discussion 018A — Final AI Failure, Privacy, Domain, and Hostile Input Resolution
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
-
-- [[01-Open-Discussions/018b-ai-failure-privacy-domain-and-hostile-input-handling]]
-- [[01-Open-Discussions/018b-claude-review-brief]]
-
-Where wording differs, this final resolution is authoritative.
+This document is the authoritative final resolution for AI failure, privacy, domain boundaries, crisis safety, and hostile input. The earlier Part B proposal and Claude review brief were removed after consolidation.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
-- [[01-Open-Discussions/018a-final-action-permission-trust-and-reversibility-resolution]]
-- [[01-Open-Discussions/017b-final-reconcile-intelligence-resolution]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/018-action-permissions-trust-and-reversibility]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
 
 ---
 
@@ -95,7 +90,7 @@ Required manual capabilities include:
 ### Execution
 
 - complete, Carry, replan, move to Backlog, and Drop Task
-- Restore a dropped Task under Discussion 018A semantics
+- Restore a dropped Task under Discussion 018 semantics
 - mark and correct RoutineOccurrence
 - initiate accepted parent lifecycle transitions
 
@@ -275,7 +270,7 @@ allowed deterministic actions remain available
 Today and manual Reconcile remain accessible
 ```
 
-The UI must preserve the trust classes from Discussion 018A and must not relabel deterministic facts or rules as AI output.
+The UI must preserve the trust classes from Discussion 018 and must not relabel deterministic facts or rules as AI output.
 
 ---
 
@@ -389,7 +384,7 @@ Additional MVP decisions accepted:
 
 ---
 
-## 17. Mind Map Impact
+## 17. Mind Map Impact — Handoff to Discussion 022
 
 ### Product Vision
 
@@ -474,7 +469,7 @@ PROMPT_INJECTION_BLOCKED
 
 ---
 
-## 18. Affected Later Specifications
+## 18. Affected Later Specifications — Handoff to Discussion 022
 
 ### Discussion 019
 
@@ -513,6 +508,16 @@ PROMPT_INJECTION_BLOCKED
 
 ## 19. Closure
 
-Discussion 018B is closed at the product-semantics level.
+Discussion 018A is accepted and closed at the product-semantics level.
 
 The crisis safety specification remains required implementation and validation work under the explicit Discussion 021 release gate. It is not an unresolved semantic question and does not permit MVP shipment before acceptance.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۸A قرارداد نهایی failure، privacy، domain safety و hostile input را تعریف می‌کند. قاعدهٔ اصلی این است که سیستم هنگام خرابی AI برای mutation بسته می‌ماند، اما دسترسی کاربر به قابلیت‌های manual و deterministic را تا حد امن حفظ می‌کند. خروجی ناقص یا schema-invalid قابل‌نمایش یا اعمال نیست و retry، manual fallback، degraded mode و kill switch باید رفتار صریح و قابل‌مشاهده داشته باشند.
+
+context ارسالی به provider باید operation-scoped و حداقلی باشد. secretها، tokenها، credentialها و داده‌های غیرضروری نباید ارسال شوند. raw prompt retention به‌طور پیش‌فرض محدود است و logging، audit، analytics و privacy deletion مرزهای جدا دارند. imported content فقط داده است و هرگز instruction یا authority محسوب نمی‌شود؛ prompt injection و تلاش برای تغییر policy باید پیش از استفاده مهار شوند.
+
+در domainهای پرخطر، محصول فقط می‌تواند کارهای سازمان‌دهی‌شده و user-provided را مرتب کند و نباید diagnosis، prescription یا advice تخصصی بسازد. محتوای crisis یا self-harm به `SAFETY_FALLBACK` می‌رود و نرخ تولید PlanningDraft، explanation، confirmation و mutation از آن باید صفر باشد. Crisis Safety Readiness یک release gate اجباری در ۰۲۱ است و بحث ۰۲۲ مسئول rollout، fallback readiness، kill-switch operations و انتقال به اسناد رسمی است.

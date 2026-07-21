@@ -1,26 +1,21 @@
-# Discussion 017B — Final Reconcile Intelligence Resolution
+# Discussion 017 — Final Reconcile Intelligence and Actions Resolution
 
 ## Status
 
 Accepted and closed after GPT × Claude review.
 
-This document is the authoritative closure resolution for:
-
-- [[01-Open-Discussions/017-ai-reconcile-intelligence-and-actions]]
-- [[01-Open-Discussions/017a-goal-continuation-and-temporal-checkpoint-resolution]]
-
-The earlier Discussion 017 text remains historical review material. Where language differs, this final resolution and the accepted amendments listed below are authoritative.
+This document is the authoritative final resolution for Reconcile intelligence and actions. It incorporates the accepted Goal-continuation and temporal-checkpoint decisions. Earlier drafts and the intermediate amendment were removed after consolidation; this document is the sole product-semantic authority for Discussion 017.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/012-core-product-model]]
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
-- [[01-Open-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/016-reconcile-trigger-and-severity]]
-- [[01-Open-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
+- [[01-Closed-Discussions/012-core-product-model]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/016-reconcile-trigger-and-severity]]
+- [[01-Closed-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
 
 ---
 
@@ -535,3 +530,15 @@ GPT and Claude review identified and resolved:
 No blocking or important unresolved product-semantic issue remains inside Discussion 017.
 
 Discussion 017 is closed.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۷ قرارداد نهایی هوشمندی و actionهای Reconcile را مشخص می‌کند. Reconcile ابتدا از canonical state، ownership، metricهای deterministic و ruleهای versioned استفاده می‌کند؛ AI فقط مجاز است نتیجهٔ ruleهای پذیرفته‌شده را توضیح دهد و حق ندارد problem، metric، علت، recommendation type یا lifecycle conclusion جدید اختراع کند. free text کاربر وارد rule matching و metric calculation نمی‌شود.
+
+Goal Continuation Check یک checkpoint قطعی با متن خنثی است و فقط سه گزینهٔ `CONTINUE`، `REVIEW_LATER` و `ABANDON_GOAL` دارد. نمایش خودکار آن برای هر Goal حداکثر یک‌بار در ۳۰ local day است. absence یا inactivity به‌تنهایی intent را تعیین نمی‌کند و محصول هیچ‌گاه abandonment را توصیه نمی‌کند.
+
+Grouping ابتدا بر اساس ownership و سپس entity type، review lane، rule match و risk انجام می‌شود. recommendation فقط با rule ID معتبر و evidence کافی مجاز است. protected itemها از actionهای مخرب حذف می‌شوند، bulk action نیازمند preview و تأیید صریح است و خالی‌شدن parent باید قبل از commit نمایش داده شود. commitment review از execution backlog جداست و `REVIEW_DUE` severity اجرایی را افزایش نمی‌دهد.
+
+۰۱۷ مرجع نهایی semantics محصول است؛ ۰۱۷A اثرات temporal آن را برای Mind Map تجمیع می‌کند، ۰۱۸ authority و reversibility را تکمیل می‌کند و ۰۱۹ تا ۰۲۱ مسئول persistence، runtime و validation هستند.

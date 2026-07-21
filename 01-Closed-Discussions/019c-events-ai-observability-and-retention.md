@@ -1,16 +1,17 @@
-# Discussion 019C — Final Events, AI Observability, and Retention Resolution
+# Discussion 019C — Events, AI Observability, and Retention
 
 ## Status
 
-Accepted and closed after GPT × Claude review.
+Accepted and closed after GPT × Claude review and incorporation of the accepted AI context-scope observability amendment.
 
-This document is the authoritative closure resolution for:
+This document is the authoritative Discussion 019C resolution for events, AI observability, privacy boundaries, access, and retention.
 
-- [[01-Open-Discussions/019c-events-ai-observability-and-retention]]
-- [[01-Open-Discussions/019a-final-canonical-data-model-resolution]]
-- [[01-Open-Discussions/019b-final-transactions-concurrency-and-idempotency-resolution]]
+Companion authoritative resolutions:
 
-Where wording differs, this final resolution is authoritative.
+- [[01-Closed-Discussions/019a-canonical-data-model-and-invariants]] owns canonical entities and persistence invariants.
+- [[01-Closed-Discussions/019b-transactions-concurrency-and-idempotency]] owns mutation, concurrency, idempotency, and atomicity contracts.
+
+Discussion 019C may refine their observability consequences but does not replace their domain or transaction authority.
 
 ---
 
@@ -173,7 +174,7 @@ A draft record includes at least:
 
 Each revision preserves the complete bounded proposal snapshot rather than an ambiguous partial patch chain.
 
-Draft content inherits the sensitive-data and minimization boundaries from Discussion 018C.
+Draft content inherits the sensitive-data and minimization boundaries from Discussion 018A.
 
 Partial AI output is not persisted as an approvable draft in MVP.
 
@@ -329,6 +330,9 @@ AIOperation records provider-neutral operational metadata:
 - modelVersion?
 - promptTemplateId
 - promptTemplateVersion
+- contextBuilderKey
+- contextBuilderVersion
+- contextScopeManifestId?
 - schemaVersion
 - rulesCatalogVersion?
 - startedAt
@@ -345,6 +349,43 @@ AIOperation records provider-neutral operational metadata:
 Domain tables must not depend on provider-specific model names.
 
 Provider and model metadata belong to operational observability and proposal provenance, not canonical entity semantics.
+
+### 10.1 AI Context Scope Manifest
+
+Every Planning and Reconcile AI operation records the logical key and version of the deterministic context builder that produced its request. These identifiers remain provider-neutral unless a provider name is already part of provider-neutral runtime configuration metadata.
+
+The optional linked record is:
+
+```txt
+AIContextScopeManifest
+- id
+- aiOperationId
+- builderKey
+- builderVersion
+- operationType
+- includedContextCategories[]
+- includedEntityTypes[]
+- includedEntityCount
+- includedFieldGroups[]
+- excludedSensitiveCategories[]
+- freeTextIncluded
+- importedContentIncluded
+- createdAt
+```
+
+The manifest records scope metadata only: which categories and field groups were included or excluded, not their actual content. It must not duplicate raw prompts, raw responses, entity descriptions, user-authored notes, imported documents, canonical entity snapshots, authentication material, or secrets.
+
+Required invariants:
+
+- Reconcile MVP operations record `freeTextIncluded = false` and `importedContentIncluded = false`.
+- Planning operations record only the categories actually supplied.
+- The manifest records an already-authorized context-building result; it never grants permission to send data.
+- Missing manifest data must not cause the runtime to broaden context silently.
+- Scope metadata must match the categories present in the constructed DTO.
+- Context scope metadata inherits the access and retention boundaries of AIOperation metadata.
+- Raw-content retention rules remain unchanged.
+
+`AIContextScopeManifest` uses retention class R4 and the same least-privilege access boundary as AIOperation metadata. Restricted engineering and safety-review roles may use it for privacy verification, context regression analysis, incident investigation, and version comparison. It is not an ordinary analytics dimension for reconstructing sensitive user behavior.
 
 ---
 
@@ -720,6 +761,7 @@ Every persisted record type must have an explicit retention class.
 | ReconcileGroup | R2 | Session grouping |
 | ReconcileRecommendation | R2 | Decision and command linkage |
 | AIOperation metadata | R4 | No raw content by default |
+| AIContextScopeManifest | R4 | Categories and counts only; no raw context |
 | AI failure operational record | R4 | Internal category and diagnostics |
 | Outbox delivery record | R4 | Delivery mechanics, not domain truth |
 | Idempotency record | R4 | Operational replay boundary |
@@ -851,11 +893,15 @@ May access canonical state and approved user-visible history required to operate
 
 May access R4 metadata under least privilege, without unrestricted raw user content.
 
+Context Scope Manifests are limited to approved privacy verification, context regression, incident investigation, and builder-version comparison purposes.
+
 ### Analytics access
 
 May access approved de-identified or minimized R1/R2 projections.
 
 Must not access R5 crisis records or R6 raw AI content by default.
+
+Context Scope Manifests are not ordinary analytics dimensions and must not be used to reconstruct sensitive user behavior.
 
 ### Security and safety restricted access
 
@@ -967,6 +1013,7 @@ PROMPT_INJECTION_BLOCKED
 - acceptance and application success are separate facts
 - transactional outbox preserves durable event intent
 - provider-neutral AI operation metadata is required
+- Planning and Reconcile operations record context-builder identity and content-free Context Scope Manifests
 - crisis observability uses restricted access and analysis governance
 - semantic event history is preferred over opaque update noise
 
@@ -980,7 +1027,8 @@ PROMPT_INJECTION_BLOCKED
 - structured proposal and session records
 - changedFields and semantic event emitters
 - restricted crisis storage and access paths
-- raw-content redaction and context builders
+- raw-content redaction and versioned context builders
+- APIs must not expose the full Context Scope Manifest to ordinary clients
 
 ### Discussion 021
 
@@ -991,8 +1039,10 @@ PROMPT_INJECTION_BLOCKED
 - raw-content leakage tests
 - changedFields regression tests
 - proposal/session linkage tests
+- context-builder version and Context Scope Manifest correctness tests
+- Reconcile free-text and imported-content exclusion tests
 
-### Discussion 022
+### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 - retention jobs and expiry sequencing
 - outbox rollout
@@ -1027,3 +1077,15 @@ Discussion 019 is now closed across:
 ```
 
 Exact SQL, ORM mapping, duration values, legal bases, infrastructure choices, and implementation sequencing remain work for Discussions 020–022 and legal/security review. They may not weaken the accepted boundaries in this resolution.
+
+The former AI context-scope observability amendment is fully incorporated into Sections 10, 20, 25, 27, and 28 of this resolution and no longer requires a separate governing file.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث قرارداد نهایی رویدادها، داده‌های عملیاتی AI، حریم خصوصی، سطح دسترسی و نگه‌داری داده را مشخص می‌کند. وضعیت مرجع دامنه، تاریخچهٔ رویدادها، observability عملیاتی AI و محتوای خام AI چهار لایهٔ جدا هستند و هیچ‌کدام نباید به منبع حقیقت دیگری تبدیل شوند. پذیرش پیشنهاد با موفقیت اجرای فرمان یکسان نیست و تاریخچه باید تعارض، شکست و انقضای پیشنهاد را صادقانه ثبت کند.
+
+برای هر نوع رکورد یک کلاس نگه‌داری مشخص شده است. محتوای خام AI به‌طور پیش‌فرض ذخیره نمی‌شود یا عمر بسیار کوتاه و دسترسی محدود دارد؛ داده‌های بحران و امنیت نیز مسیر دسترسی و حاکمیت جدا دارند و برای تحلیل رفتاری یا شخصی‌سازی قابل استفاده نیستند.
+
+هر عملیات Planning و Reconcile کلید و نسخهٔ context builder را ثبت می‌کند. Context Scope Manifest فقط دسته‌ها، تعدادها و گروه فیلدهای استفاده‌شده را ثبت می‌کند و شامل متن واقعی prompt، پاسخ، توضیحات، یادداشت‌ها یا محتوای واردشده نیست. در Reconcile MVP استفاده از متن آزاد و محتوای واردشده صریحاً ممنوع و قابل آزمون است.

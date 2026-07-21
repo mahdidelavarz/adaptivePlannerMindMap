@@ -4,12 +4,18 @@
 
 Accepted and closed after GPT × Claude review.
 
+Required companion amendment:
+
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+
+This document owns the base entity, ownership, relationship, lifecycle, and outcome model. Discussion 012A adds the accepted temporal-visibility invariant and checkpoint rules. They form one decision family and must be read together. Where temporal wording differs, Discussion 012A is authoritative.
+
 Claude reviewed the proposed core model and confirmed that no blocking contradiction remains. Mahdi is the final decision-maker and has accepted the model below.
 
 Related discussions:
 
-- [[01-Open-Discussions/010-ai-first-planning-and-reconcile-roadmap]]
-- [[01-Open-Discussions/011-ai-native-mvp-scope-and-mindmap-update]]
+- [[01-Closed-Discussions/010-ai-first-planning-and-reconcile-roadmap]]
+- [[01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update]]
 
 ---
 
@@ -464,3 +470,13 @@ Potential ADRs:
 - Project-owned Routine lifecycle rule
 
 No Mind Map or formal document is modified by closing this discussion alone.
+
+---
+
+# خلاصهٔ فارسی
+
+بحث ۰۱۲ مدل مفهومی اصلی محصول را تثبیت می‌کند. موجودیت‌های canonical شامل `Goal`، `Project`، `Task`، `Routine` و `RoutineOccurrence` هستند؛ `Plan` یک پیشنهاد موقت است و موجودیت canonical جداگانه‌ای محسوب نمی‌شود.
+
+Task و Routine می‌توانند به یک Goal، یک Project یا هیچ‌کدام تعلق داشته باشند، اما هم‌زمان دو parent ندارند. Project یک تلاش محدود و قابل‌مدیریت است؛ Goal نتیجهٔ مطلوب را نمایش می‌دهد و انجام فعالیت‌ها به‌تنهایی اثبات‌کنندهٔ دستیابی به Goal نیست. تأیید نتیجهٔ واقعی با کاربر است.
+
+Task برای کار یک‌باره و Routine برای رفتار تکرارشونده است. اجرای Routine از طریق `RoutineOccurrence` ثبت می‌شود و occurrenceهای تاریخی واقعیت‌های مستقل باقی می‌مانند. پایان Project روی Routineهای متعلق به آن اثر دارد، اما تغییر وضعیت childها نباید خودکار نتیجهٔ Goal را تعیین کند. قواعد زمانی این مدل در ۰۱۲A تکمیل شده‌اند.

@@ -2,15 +2,15 @@
 
 ## Status
 
-Accepted as a required amendment following Discussion 012A.
+Accepted and closed as a required amendment following Discussion 012A.
 
-This amendment extends [[01-Open-Discussions/015-task-and-routine-execution-model]] without reopening its accepted Task lifecycle, RoutineOccurrence lifecycle, Today derivation, Carry semantics, parent terminal cascades, or correction rules.
+This amendment extends [[01-Closed-Discussions/015-task-and-routine-execution-model]] without reopening its accepted Task lifecycle, RoutineOccurrence lifecycle, Today derivation, Carry semantics, parent terminal cascades, or correction rules.
 
 Related accepted decisions:
 
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/014a-temporal-checkpoint-planning-draft-amendment]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
 
 ---
 
@@ -231,3 +231,13 @@ Review-due derivation must not mutate lifecycle state.
 - system defaults respect earlier target/deadline boundaries.
 - review evaluation does not mutate lifecycle automatically.
 - Routine recurrence remains its natural temporal checkpoint.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۵A مدل اجرای ۰۱۵ را با معنای دقیق تاریخ‌ها تکمیل می‌کند: `plannedDate` زمان اجرای Task، `reviewDate` زمان بازبینی تعهد، `deadline` آخرین مرز معنادار و `targetDate` مرز هدف Goal یا Project است. این تاریخ‌ها مترادف نیستند و می‌توانند هم‌زمان وجود داشته باشند.
+
+Today فقط execution را نشان می‌دهد؛ رسیدن `reviewDate` به‌تنهایی Task را وارد Today نمی‌کند. `REVIEW_DUE` نیز با `EXECUTION_OVERDUE` متفاوت است. Backlog یک placement صریح است و Task فعال در Backlog باید `reviewDate` آینده داشته باشد.
+
+حل checkpoint می‌تواند Task را برای یک تاریخ مشخص schedule کند، با review جدید در Backlog نگه دارد یا پس از تأیید Drop کند. تغییر `reviewDate` به‌تنهایی Carry نیست و نباید Carry count را افزایش دهد. ارزیابی checkpointها deterministic است و بدون تصمیم معتبر کاربر lifecycle را تغییر نمی‌دهد.

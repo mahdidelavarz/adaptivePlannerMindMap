@@ -2,15 +2,17 @@
 
 ## Status
 
-Accepted as a required amendment following Discussion 012A.
+Accepted and closed as a required amendment following Discussion 012A.
 
-This amendment extends [[01-Open-Discussions/014-ai-planning-output-contract]] without reopening its accepted hierarchy, seven-day detailed horizon, approval semantics, low-friction conversation policy, or source-of-truth rules.
+This amendment extends [[01-Closed-Discussions/014-ai-planning-output-contract]] without reopening its accepted hierarchy, seven-day detailed horizon, approval semantics, low-friction conversation policy, or source-of-truth rules.
+
+The planning-level temporal contract in this amendment remains authoritative. Discussion 019A owns canonical persistence and invariants, Discussion 020B owns API and draft lifecycle, and Discussion 020C owns structured-output enforcement. Those later decisions implement and refine this amendment without replacing it. Mind Map and formal-document application remain a Discussion 022 handoff.
 
 Related accepted decisions:
 
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/013-ai-planning-entry-and-conversation-flow]]
-- [[01-Open-Discussions/014-ai-planning-output-contract]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/013-ai-planning-entry-and-conversation-flow]]
+- [[01-Closed-Discussions/014-ai-planning-output-contract]]
 
 ---
 
@@ -228,3 +230,13 @@ Discussion 021 must validate timezone boundaries, earlier target/deadline cappin
 - defaults are visible, editable, and source-labelled.
 - `nextTemporalCheckpoint` remains derived.
 - review checkpoints do not alter the accepted seven-day detailed execution horizon.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۴A قرارداد `PlanningDraft` را با فیلدهای temporal تکمیل می‌کند. Goal دارای `targetDate?` و `reviewDate` است؛ Project باید `targetDate` یا `reviewDate` داشته باشد؛ و Task باید `plannedDate` یا `reviewDate` داشته باشد و placement آن به‌صورت `SCHEDULED` یا `BACKLOG` مشخص شود. `deadline` نیز مرزی مستقل از placement است.
+
+تاریخ‌های review پیش‌فرض باید با سیاست deterministic محصول ساخته، با `reviewDateSource` مشخص و در review قابل‌ویرایش باشند. AI نباید برای گرفتن این تاریخ‌ها سؤال اجباری جدید ایجاد کند یا آن‌ها را از برداشت روان‌شناختی و حدس دربارهٔ ظرفیت کاربر بسازد.
+
+`reviewDate` می‌تواند بیرون از افق اجرایی هفت‌روزه باشد، زیرا checkpoint مدیریتی است و Today entry ایجاد نمی‌کند. `nextTemporalCheckpoint` همچنان derived باقی می‌ماند و یک فیلد canonical یا قابل‌ویرایش جداگانه نیست.

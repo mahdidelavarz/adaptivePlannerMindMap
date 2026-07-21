@@ -2,13 +2,13 @@
 
 ## Status
 
-Accepted amendment required by the final Discussion 019A data-model resolution.
+Accepted and closed as an amendment required by the final Discussion 019A data-model resolution.
 
 This amendment extends:
 
-- [[01-Open-Discussions/015-task-and-routine-execution-model]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/019a-final-canonical-data-model-resolution]]
+- [[01-Closed-Discussions/015-task-and-routine-execution-model]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/019a-canonical-data-model-and-invariants]]
 
 Where this amendment is more specific, it is authoritative for MVP Routine occurrence semantics.
 
@@ -139,4 +139,14 @@ DUPLICATE_OCCURRENCE_PREVENTED
 
 ## 6. Closure
 
-This amendment is accepted as a dependency of Discussions 019B and 019C.
+This amendment is accepted and closed. Discussion 019B owns its transactional enforcement, Discussion 019C owns its event and retention details, and Discussion 022 owns Mind Map and formal-document application.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۵B قواعد دقیق RoutineOccurrence در MVP را تثبیت می‌کند. هر Routine در هر local calendar date حداکثر یک occurrence دارد و هویت آن با `(routineId, scheduledLocalDate)` تعیین می‌شود. رفتار دوبار در روز باید با دو Routine مستقل مدل شود و multi-slot recurrence به بعد از MVP موکول شده است.
+
+بازهٔ فعال recurrence با `effectiveFromLocalDate` و `effectiveUntilLocalDate` تعریف می‌شود و هر دو مرز inclusive هستند. `createdAt` و `stoppedAt` timestampهای audit هستند و نباید جای local date را بگیرند.
+
+توقف Routine وضعیت را به `STOPPED` تغییر می‌دهد، timestamp دقیق و آخرین local date معتبر را ثبت می‌کند و occurrenceهای تاریخی را حفظ می‌کند. تولید occurrence باید داخل بازهٔ مؤثر باشد و retry به occurrence موجود برسد، نه اینکه مورد تکراری بسازد. اجرای transaction در ۰۱۹B و event/retention در ۰۱۹C تعریف می‌شود.

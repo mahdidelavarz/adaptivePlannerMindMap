@@ -2,15 +2,17 @@
 
 ## Status
 
-Accepted as a required amendment following Discussion 012A and Discussion 015A.
+Accepted and closed as a required amendment following Discussion 012A and Discussion 015A.
 
-This amendment extends [[01-Open-Discussions/016-reconcile-trigger-and-severity]] without reopening its accepted execution-backlog severity bands, once-per-local-day primary prompt policy, Today access, absence guardrails, or action-specific blocking model.
+This amendment extends [[01-Closed-Discussions/016-reconcile-trigger-and-severity]] without reopening its accepted execution-backlog severity bands, once-per-local-day primary prompt policy, Today access, absence guardrails, or action-specific blocking model.
+
+Discussion 017 owns the final action and recommendation semantics for this lane. Discussion 021 owns immutable pre-session severity reporting, and Discussion 022 owns Mind Map and formal-document application.
 
 Related accepted decisions:
 
-- [[01-Open-Discussions/012a-temporal-checkpoint-amendment]]
-- [[01-Open-Discussions/015a-temporal-checkpoint-execution-amendment]]
-- [[01-Open-Discussions/016-reconcile-trigger-and-severity]]
+- [[01-Closed-Discussions/012a-temporal-checkpoint-amendment]]
+- [[01-Closed-Discussions/015a-temporal-checkpoint-execution-amendment]]
+- [[01-Closed-Discussions/016-reconcile-trigger-and-severity]]
 
 ---
 
@@ -227,3 +229,13 @@ Guardrail metrics:
 - absence does not directly infer intent.
 - reason codes are preserved without duplicate entity presentation.
 - Goal continuation also obeys a separate per-Goal cadence.
+
+---
+
+# خلاصهٔ فارسی
+
+۰۱۶A amendment مربوط به review checkpointهاست. رسیدن `reviewDate` می‌تواند Reconcile را eligible کند، اما `REVIEW_DUE` execution backlog یا نشانهٔ شکست اجرا نیست و نباید در محاسبهٔ Light، Medium یا Recovery وارد شود.
+
+review checkpointها در lane جداگانهٔ `Commitment reviews` نمایش داده می‌شوند. اگر تعداد زیادی checkpoint هم‌زمان برسند، باید بر اساس entity type و ownership گروه‌بندی و در chunkهای محدود ارائه شوند؛ نمایش یک prompt جدا برای هر entity ممنوع است. یک entity با چند reason code نیز باید فقط یک بار در گروه مناسب دیده شود.
+
+سیاست یک prompt اصلی در هر local day و دسترسی دائمی به Today همچنان برقرار است. Goal continuation علاوه بر suppression روزانه، cadence اختصاصی خود را رعایت می‌کند. actionهای نهایی Task، Project و Goal در ۰۱۷B تعریف شده‌اند.

@@ -1,4 +1,4 @@
-# Discussion 020C — Final Structured Output, Reliability, and Cost Controls Resolution
+# Discussion 020C — Structured Output, Reliability, and Cost Controls
 
 ## Status
 
@@ -8,10 +8,10 @@ This document is the authoritative resolution for Discussion 020C.
 
 Accepted dependencies:
 
-- [[01-Open-Discussions/020a-final-ai-runtime-boundaries-and-orchestration-resolution]]
-- [[01-Open-Discussions/020b-final-api-and-frontend-state-contracts-resolution]]
-- [[01-Open-Discussions/018c-final-failure-privacy-domain-and-hostile-input-resolution]]
-- [[01-Open-Discussions/019c-final-events-ai-observability-and-retention-resolution]]
+- [[01-Closed-Discussions/020a-ai-runtime-boundaries-and-orchestration]]
+- [[01-Closed-Discussions/020b-api-and-frontend-state-contracts]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
+- [[01-Closed-Discussions/019c-events-ai-observability-and-retention]]
 
 ---
 
@@ -493,7 +493,7 @@ bounded context
 
 None remain inside Discussion 020C.
 
-Numeric thresholds and rollout-specific settings belong to Discussions 021 and 022.
+Numeric thresholds and rollout-specific settings belong to [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]] and [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]].
 
 ---
 
@@ -510,5 +510,21 @@ Create or update:
 - Planning context budget specification
 - cost-budget and provider spend-cap runbook
 - kill-switch runbook
-- reliability/adversarial test plan in Discussion 021
-- rollout readiness checklist in Discussion 022
+- reliability/adversarial test plan in [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]]
+- rollout readiness checklist in [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
+
+---
+
+## 21. Closure
+
+Discussion 020C is accepted and closed at the structured-output, reliability, runtime-control, and cost-control level.
+
+Together with Discussions 020A and 020B, it completes the Discussion 020 runtime architecture program. Exact numeric thresholds and rollout-specific configuration remain implementation and validation work in Discussions 021 and 022 and may not weaken these accepted constraints.
+
+---
+
+## خلاصهٔ فارسی
+
+این بحث مسیر نهایی پذیرش خروجی AI را مشخص می‌کند. هیچ خروجی تا زمانی که انتقال کامل، parse، schema validation، repair مجاز، اعتبارسنجی معنایی و زمانی، بررسی referenceها، graph و policy را با موفقیت طی نکند قابل استفاده نیست. خروجی ناقص، repair مبهم، reference حل‌نشده، چرخه در graph یا context ناقص همگی باعث رد کامل نتیجه می‌شوند.
+
+retry، timeout، circuit breaker، rate limit، fallback، بودجهٔ context و هزینه همگی محدود و قابل مشاهده‌اند. در pilot حداکثر دو فراخوانی فیزیکی مجاز است، fallback خودکار بین providerها وجود ندارد و علاوه بر کنترل داخلی، hard spend cap سمت provider اجباری است. kill switchها باید پیش از فراخوانی بررسی شوند و فعال‌شدن آن‌ها نباید مسیر دستی محصول را مسدود کند.
