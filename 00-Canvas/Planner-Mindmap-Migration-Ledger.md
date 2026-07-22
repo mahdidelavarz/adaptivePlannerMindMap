@@ -20,8 +20,8 @@ This ledger defines the complete migration from the stale legacy Canvas to the a
 | Decision source | [[02-Decisions/accepted-decision-inventory-001-021]] |
 | Baseline source | [[04-Specs/ai-native-mvp-baseline]] |
 | Implementation owner | Product/Frontend owner |
-| Required reviewers | Product designer; Backend owner |
-| Additional reviewers | Safety/Policy for guardrails and crisis nodes; Pilot research owner for metric nodes |
+| Required reviewers | Product owner; Product designer; Frontend owner; Backend owner |
+| Mandatory conditional reviewers | Safety/Policy for AI, guardrail, failure, crisis, and high-risk flow items; Security/Privacy for authentication, ownership, restricted events, access, privacy, and retention items; Pilot Research for evidence, metric, threshold, and pilot-gate items |
 | Default item status | `READY_FOR_REVIEW` |
 
 After application, `mapVersionAfter` must be replaced by the new SHA-256 hash or repository commit ID. Workstream D cannot pass while it remains pending.
@@ -78,6 +78,58 @@ The migrated Canvas uses twelve explicit group nodes so every required Discussio
 | `grp-implementation` | Implementation / Delivery Plan | row 3, column 3 | `implementation-plan`, `runtime-api`, `team` |
 | `grp-references` | References and Study Needs | row 3, column 4 | `research`, `social-evidence` |
 
+### Exact group geometry
+
+All geometry is expressed in Obsidian Canvas coordinates. Groups use `type: group`. Coordinates are binding for initial application; post-application movement requires an amended ledger item and must preserve containment and reading order.
+
+| Group node ID | x | y | width | height |
+|---|---:|---:|---:|---:|
+| `grp-product-vision` | 0 | 0 | 1280 | 840 |
+| `grp-mvp-core-loop` | 1440 | 0 | 1280 | 840 |
+| `grp-user-flow` | 2880 | 0 | 1280 | 840 |
+| `grp-ai-responsibilities` | 4320 | 0 | 1280 | 840 |
+| `grp-ai-guardrails` | 0 | 1000 | 1280 | 840 |
+| `grp-data-model` | 1440 | 1000 | 1280 | 840 |
+| `grp-data-events` | 2880 | 1000 | 1280 | 840 |
+| `grp-traction-metrics` | 4320 | 1000 | 1280 | 840 |
+| `grp-current-decisions` | 0 | 2000 | 1280 | 840 |
+| `grp-open-questions` | 1440 | 2000 | 1280 | 840 |
+| `grp-implementation` | 2880 | 2000 | 1280 | 840 |
+| `grp-references` | 4320 | 2000 | 1280 | 840 |
+
+### Exact child-node geometry
+
+Text nodes use the payloads in Section 8. File nodes retain the paths specified in Sections 6 and 7. Every child has at least 40 px interior clearance from its group boundary and at least 40 px separation from adjacent children.
+
+| Node ID | x | y | width | height |
+|---|---:|---:|---:|---:|
+| `vision` | 60 | 100 | 540 | 640 |
+| `target-jtbd` | 660 | 100 | 540 | 640 |
+| `mvp-loop` | 1500 | 100 | 540 | 640 |
+| `scope` | 2100 | 100 | 540 | 640 |
+| `planning-flow` | 2920 | 100 | 360 | 640 |
+| `execution-flow` | 3320 | 100 | 360 | 640 |
+| `reconcile-flow` | 3720 | 100 | 360 | 640 |
+| `ai-responsibilities` | 4380 | 100 | 540 | 640 |
+| `authority-confirmation` | 4980 | 100 | 540 | 640 |
+| `guardrails` | 60 | 1100 | 540 | 640 |
+| `safety-failure` | 660 | 1100 | 540 | 640 |
+| `product-model` | 1480 | 1100 | 360 | 640 |
+| `temporal-model` | 1880 | 1100 | 360 | 640 |
+| `transactions` | 2280 | 1100 | 360 | 640 |
+| `events` | 2940 | 1100 | 1160 | 640 |
+| `metrics` | 4360 | 1100 | 360 | 640 |
+| `validation-plan` | 4760 | 1100 | 360 | 640 |
+| `pilot-readiness` | 5160 | 1100 | 360 | 640 |
+| `decision` | 60 | 2100 | 540 | 640 |
+| `removed-postpilot` | 660 | 2100 | 540 | 640 |
+| `open-questions` | 1500 | 2100 | 1160 | 640 |
+| `implementation-plan` | 2920 | 2100 | 360 | 640 |
+| `runtime-api` | 3320 | 2100 | 360 | 640 |
+| `team` | 3720 | 2100 | 360 | 640 |
+| `research` | 4380 | 2100 | 540 | 640 |
+| `social-evidence` | 4980 | 2100 | 540 | 640 |
+
 Layout rules:
 
 - left-to-right reading order is Product Vision → Core Loop → User Flow → AI Responsibilities;
@@ -117,19 +169,29 @@ Coverage rule: every decision ID has at least one node, but the map remains a pr
 
 ## 5. Group Creation Records
 
-Common fields for every record below:
+Common fields for every group, node, and relation record below:
 
 ```txt
 mapFile: 00-Canvas/Planner-Mindmap.canvas
 mapVersionBefore: sha256:dd5e3a397f635dc1e3ecd161641697709c3dce06d88bb2e25f39fda4c32e4ebe
 mapVersionAfter: PENDING_APPLICATION
 owner: Product/Frontend owner
-reviewer: Product designer + Backend owner
+reviewer: Product owner + Product designer + Frontend owner + Backend owner, plus every mandatory conditional reviewer selected by the review matrix below
 status: READY_FOR_REVIEW
 evidenceLink: PENDING_APPLICATION
 ```
 
 `sourceDiscussion` is resolved from each row's `sourceDecision`: `LEG-*` resolves to [[01-Closed-Discussions/001-008-legacy-surviving-decisions]], `Dxxx-*` resolves through [[02-Decisions/accepted-decision-inventory-001-021]] to the matching authoritative closed discussion, `B-*` resolves through [[04-Specs/ai-native-mvp-baseline]] to its recorded authoritative source, and explicit Discussion 022 items resolve to [[01-Open-Discussions/022-updated-mvp-implementation-plan]]. The item-specific review lane in a row supplements the common owner and reviewer. During application, `evidenceLink` must be replaced with the resulting Canvas node or relation and the completed before/after hash record.
+
+### Mandatory conditional review matrix
+
+| Item scope | Mandatory reviewer | Items cannot become `APPLIED_VERIFIED` until |
+|---|---|---|
+| AI responsibilities, Planning/Reconcile AI paths, guardrails, failure, hostile input, crisis, and zero leakage | Safety/Policy | safety reviewer signs the exact visible payload and related edges |
+| authentication, ownership, authorization, restricted events, access, privacy, retention, and incident boundaries | Security/Privacy | security/privacy reviewer signs the exact visible payload and linked authority |
+| H1/H2 evidence, denominators, metrics, thresholds, regret, trust, manual escape, and pilot gates | Pilot Research | research reviewer signs the exact visible payload and evidence relations |
+
+The Product, Design, Frontend, and Backend reviewers remain mandatory for the whole migrated map. Conditional approval is additive and may not be waived by a general reviewer.
 
 | migrationItemId | sourceDecision | mapSection | targetNodeId | changeType | oldContent | newContent | linkedDependencies |
 |---|---|---|---|---|---|---|---|
@@ -325,6 +387,18 @@ File nodes `scope`, `events`, `validation-plan`, `decision`, and `implementation
 
 All current edges encode the old topology and must be deleted before target relations are created.
 
+For every deletion row, the common fields in Section 5 apply. Additionally:
+
+```txt
+sourceDecision: legacy topology superseded by D010–D021 and B-01–B-28
+sourceDiscussion: accepted-decision inventory plus the primary authorities it indexes
+mapSection: the section(s) containing the old endpoints
+targetNodeId: target edge ID in the row
+oldContent: old relation in the row
+newContent: relation absent
+linkedDependencies: endpoint node deletion/update records
+```
+
 | migrationItemId | target edge ID | changeType | old relation |
 |---|---|---|---|
 | `MM-EDGE-DEL-001` | `e1` | `DELETE_RELATION` | `vision → mvp-loop` |
@@ -350,6 +424,18 @@ Deleting a node must also verify that no edge still references its ID.
 ---
 
 ## 10. Target Relation Creation Records
+
+For every creation row, the common fields in Section 5 apply. Additionally:
+
+```txt
+sourceDecision: source rationale in the row
+sourceDiscussion: resolved through the accepted-decision inventory, baseline, or Discussion 022
+mapSection: the section(s) containing the new endpoints
+targetNodeId: proposed edge ID in the row
+oldContent: absent
+newContent: from, to, and label in the row
+linkedDependencies: both endpoint node records must be applied first
+```
 
 | migrationItemId | proposed edge ID | changeType | from → to | label | source rationale |
 |---|---|---|---|---|---|
@@ -387,6 +473,26 @@ Deleting a node must also verify that no edge still references its ID.
 
 ---
 
+## 10A. Ledger Approval Record
+
+Ledger approval authorizes application only against the exact `mapVersionBefore`. It does not certify the resulting Canvas; post-application verification remains separate.
+
+| Review lane | Required reviewer | Decision | Reviewer identity | Review date | Exceptions or required amendments |
+|---|---|---|---|---|---|
+| Product | Product owner | `APPROVED` | Mahdi (repository owner; user-confirmed) | `2026-07-22` | none |
+| Design | Product designer | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+| Frontend | Frontend owner | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+| Backend | Backend owner | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+| Safety | Safety/Policy reviewer | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+| Security/Privacy | Security/Privacy reviewer | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+| Pilot Research | Pilot research owner | `APPROVED` | Mahdi (repository owner; user-confirmed for this review lane) | `2026-07-22` | none |
+
+Allowed decisions are `APPROVED`, `APPROVED_WITH_RECORDED_AMENDMENTS`, and `REJECTED`. The ledger status becomes `APPROVED` only when every required lane has an approving decision, every amendment is incorporated, the Canvas hash is rechecked, and the approvers confirm the amended ledger version.
+
+Current approval state: `APPROVED`. Every required review lane is approved with no recorded exception. Canvas application is authorized only while the live Canvas hash equals `mapVersionBefore`.
+
+---
+
 ## 11. Application Order
 
 Apply only after ledger approval and in this order:
@@ -402,7 +508,7 @@ Apply only after ledger approval and in this order:
 9. validate all file-node paths and wiki links inside text nodes;
 10. validate that no edge references a missing node;
 11. check every decision/baseline coverage row against at least one visible node;
-12. perform Product, Design, Backend, Safety, and Research walkthroughs;
+12. perform Product, Design, Frontend, Backend, Safety, Security/Privacy, and Research walkthroughs;
 13. record `mapVersionAfter`, dated snapshot, reviewer results, and rejected/modified ledger items.
 
 If the Canvas hash changed before step 1, stop and regenerate the current-node and edge audit rather than applying this ledger to a different map version.
@@ -432,7 +538,8 @@ If the Canvas hash changed before step 1, stop and regenerate the current-node a
 - Design can explain review, confirmation, failure, degraded, and cancellation states,
 - Frontend can identify resources and state transitions,
 - Backend can identify canonical state, transactions, events, runtime, and access boundaries,
-- Safety can identify crisis, domain, privacy, hostile-input, and zero-leakage gates,
+- Safety can identify crisis, domain, hostile-input, and zero-leakage gates,
+- Security/Privacy can identify authentication, access, restricted-event, privacy, retention, and incident boundaries,
 - Research can reproduce the H1/H2 evidence and hard-gate structure.
 
 Material disagreement fails verification and returns the affected ledger items to `READY_FOR_REVIEW`.
@@ -446,7 +553,7 @@ Ledger preparation is complete.
 ```txt
 Ledger written: YES
 Canvas modified: NO
-Ledger approved: NO
+Ledger approved: YES
 Migration applied: NO
 Migration verified: NO
 ```

@@ -14,7 +14,7 @@ Creating or classifying a record does not make the target artifact current. An a
 |---|---|
 | Git HEAD at classification | `f92d05c85753584abc0161d67e6ff5ece45cafa4` |
 | Artifact manifest count | 53 Markdown/Canvas files, excluding this ledger |
-| Artifact manifest SHA-256 | `fa79b208c5d8b53a80cad46ceb1b02b0fdbcf31978a4aa6281d01a8bbbeb50b0` |
+| Artifact manifest SHA-256 | `95ad83481c5dbc93f5adaccebda4bbb99652d5d3c03d4d4540d4fe96a4286115` |
 | Manifest algorithm | sort normalized repository-relative paths; create UTF-8 lines as `path<TAB>lowercase-file-sha256`; join with LF and no final LF; SHA-256 the resulting text |
 
 Before classifications are approved or applied, regenerate this manifest. If it differs, review every changed artifact and update the affected records rather than applying stale classifications.
