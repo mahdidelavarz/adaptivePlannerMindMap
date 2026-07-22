@@ -1,8 +1,10 @@
-# Phase 1 Authentication
+# AI-Native MVP Authentication
 
 ## Status
 
-Retained authentication and session specification for the current MVP, limited by the legacy reconciliation boundary below.
+`RETAINED_WITH_AMENDMENTS — CURRENT WITHIN THE BOUNDARY BELOW`
+
+Retained authentication and session specification for the current AI-native MVP, limited by the legacy reconciliation boundary below.
 
 Retained through [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] after the legacy source discussion was removed. Product-model language outside the retained authentication and session contract is not current authority.
 
@@ -24,6 +26,14 @@ required auth tests
 ```
 
 It does not define the exact SMS provider, final timeout values, or deployment secrets.
+
+## Current integration boundary
+
+- Authentication and exclusive ownership apply to every canonical and temporary AI workflow resource.
+- Ownership-safe 404 behavior applies to PlanningAttempt, PlanningDraft, ReconcileSession, ActionConfirmation, and CommandResult as well as canonical entities.
+- Restricted crisis/safety events and raw-content access require the privacy/access rules in [[01-Closed-Discussions/019c-events-ai-observability-and-retention]].
+- Authentication success never authorizes an AI proposal or bypasses confirmation, version, or commit-time revalidation rules.
+- Exact OTP lifetime, resend window, attempt count, cooldown, JWT lifetime, SMS provider, and production secrets block production auth configuration until approved.
 
 ---
 

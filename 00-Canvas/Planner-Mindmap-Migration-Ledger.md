@@ -14,7 +14,7 @@ This ledger defines the complete migration from the stale legacy Canvas to the a
 |---|---|
 | `mapFile` | [[00-Canvas/Planner-Mindmap.canvas]] |
 | `mapVersionBefore` | `sha256:dd5e3a397f635dc1e3ecd161641697709c3dce06d88bb2e25f39fda4c32e4ebe` |
-| `mapVersionAfter` | `PENDING_APPLICATION` |
+| `mapVersionAfter` | `sha256:761ad362a004b7ee314be0ffe12c28ae665d95866fbc0b9891f13a3dd0ba27a8` |
 | Current node count | 16 |
 | Current edge count | 17 |
 | Decision source | [[02-Decisions/accepted-decision-inventory-001-021]] |
@@ -24,7 +24,7 @@ This ledger defines the complete migration from the stale legacy Canvas to the a
 | Mandatory conditional reviewers | Safety/Policy for AI, guardrail, failure, crisis, and high-risk flow items; Security/Privacy for authentication, ownership, restricted events, access, privacy, and retention items; Pilot Research for evidence, metric, threshold, and pilot-gate items |
 | Default item status | `READY_FOR_REVIEW` |
 
-After application, `mapVersionAfter` must be replaced by the new SHA-256 hash or repository commit ID. Workstream D cannot pass while it remains pending.
+The recorded `mapVersionAfter` is the migrated Canvas produced on `2026-07-22`. Workstream D application is complete; Workstream E cross-role visual verification remains pending.
 
 ---
 
@@ -174,14 +174,14 @@ Common fields for every group, node, and relation record below:
 ```txt
 mapFile: 00-Canvas/Planner-Mindmap.canvas
 mapVersionBefore: sha256:dd5e3a397f635dc1e3ecd161641697709c3dce06d88bb2e25f39fda4c32e4ebe
-mapVersionAfter: PENDING_APPLICATION
+mapVersionAfter: sha256:761ad362a004b7ee314be0ffe12c28ae665d95866fbc0b9891f13a3dd0ba27a8
 owner: Product/Frontend owner
 reviewer: Product owner + Product designer + Frontend owner + Backend owner, plus every mandatory conditional reviewer selected by the review matrix below
-status: READY_FOR_REVIEW
-evidenceLink: PENDING_APPLICATION
+status: APPLIED_PENDING_VERIFICATION
+evidenceLink: [[00-Canvas/Planner-Mindmap.canvas]] plus the record's target node or edge ID
 ```
 
-`sourceDiscussion` is resolved from each row's `sourceDecision`: `LEG-*` resolves to [[01-Closed-Discussions/001-008-legacy-surviving-decisions]], `Dxxx-*` resolves through [[02-Decisions/accepted-decision-inventory-001-021]] to the matching authoritative closed discussion, `B-*` resolves through [[04-Specs/ai-native-mvp-baseline]] to its recorded authoritative source, and explicit Discussion 022 items resolve to [[01-Open-Discussions/022-updated-mvp-implementation-plan]]. The item-specific review lane in a row supplements the common owner and reviewer. During application, `evidenceLink` must be replaced with the resulting Canvas node or relation and the completed before/after hash record.
+`sourceDiscussion` is resolved from each row's `sourceDecision`: `LEG-*` resolves to [[01-Closed-Discussions/001-008-legacy-surviving-decisions]], `Dxxx-*` resolves through [[02-Decisions/accepted-decision-inventory-001-021]] to the matching authoritative closed discussion, `B-*` resolves through [[04-Specs/ai-native-mvp-baseline]] to its recorded authoritative source, and explicit Discussion 022 items resolve to [[01-Closed-Discussions/022-updated-mvp-implementation-plan]]. The item-specific review lane in a row supplements the common owner and reviewer. During application, `evidenceLink` must be replaced with the resulting Canvas node or relation and the completed before/after hash record.
 
 ### Mandatory conditional review matrix
 
@@ -248,7 +248,7 @@ The Product, Design, Frontend, and Backend reviewers remain mandatory for the wh
 | `MM-NEW-009` | `D019B-*`, `B-19` | Data Model | `transactions` | `CREATE_NODE` | absent | concurrency, idempotency, locks, atomic bulk, staged parent transitions, outbox | `grp-data-model` | Backend |
 | `MM-NEW-010` | `D021-*`, `B-25`–`B-27` | Traction Metrics | `pilot-readiness` | `CREATE_NODE` | absent | thresholds, crisis sign-off, privacy/reliability gates, runbooks and drills | `grp-traction-metrics` | Research + Safety + Engineering |
 | `MM-NEW-011` | Baseline POST_PILOT and REMOVED registers | Current Decisions | `removed-postpilot` | `CREATE_NODE` | absent | explicit deferred, removed, and forbidden scope | `grp-current-decisions` | Product |
-| `MM-NEW-012` | Discussion 022 Workstreams D–I; `B-28` | Implementation | `implementation-plan` | `CREATE_NODE` | absent | file link to `01-Open-Discussions/022-updated-mvp-implementation-plan.md` | `grp-implementation` | All roles |
+| `MM-NEW-012` | Discussion 022 Workstreams D–J; `B-28` | Implementation | `implementation-plan` | `CREATE_NODE` | absent | file link to `01-Closed-Discussions/022-updated-mvp-implementation-plan.md` | `grp-implementation` | All roles |
 | `MM-NEW-013` | `D020A-*`, `D020B-*`, `D020C-*`, `B-22`–`B-24` | Implementation | `runtime-api` | `CREATE_NODE` | absent | provider-neutral ports, no tools, API states, validation gates, cost controls | `grp-implementation` | Backend + Frontend + Safety |
 
 ---
@@ -493,6 +493,29 @@ Current approval state: `APPROVED`. Every required review lane is approved with 
 
 ---
 
+## 10B. Application Evidence
+
+| Field | Result |
+|---|---|
+| Applied date | `2026-07-22` |
+| Applied against | `sha256:dd5e3a397f635dc1e3ecd161641697709c3dce06d88bb2e25f39fda4c32e4ebe` |
+| Resulting Canvas | `sha256:bfebc1583dbfb33cdbb94e54ebab353ddb5dc234595a8ce2643f764bdfbbaf6c` |
+| Post-resolution Canvas | `sha256:761ad362a004b7ee314be0ffe12c28ae665d95866fbc0b9891f13a3dd0ba27a8` — implementation-plan file node updated from the open to closed Discussion 022 path; structure and semantics unchanged |
+| Node result | 38 total: 12 groups, 19 text nodes, 7 file nodes |
+| Relation result | 31 target relations; all 17 legacy relations absent |
+| Deleted legacy nodes | `week1-model`, `discussion`, `discussion-002` absent |
+| JSON parse | `PASS` |
+| Unique node and edge IDs | `PASS` |
+| Edge endpoint integrity | `PASS` |
+| Group containment | `PASS` for all 26 child nodes |
+| File-node path validation | `PASS` for all 7 file nodes |
+| Structural migration status | `APPLIED_VERIFIED` |
+| Cross-role visual walkthrough | `PASS` — verified by Mahdi as repository owner across all approved review lanes on `2026-07-22` |
+
+Every group/node/relation record inherits this before/after hash evidence together with its stable target ID in [[00-Canvas/Planner-Mindmap.canvas]]. No ledger item was rejected or modified during application. With the completed cross-role walkthrough, every applied record is now `APPLIED_VERIFIED`.
+
+---
+
 ## 11. Application Order
 
 Apply only after ledger approval and in this order:
@@ -548,17 +571,17 @@ Material disagreement fails verification and returns the affected ledger items t
 
 ## 13. Completion State
 
-Ledger preparation is complete.
+Ledger preparation, Canvas application, structural validation, and cross-role inspection are complete.
 
 ```txt
 Ledger written: YES
-Canvas modified: NO
+Canvas modified: YES
 Ledger approved: YES
-Migration applied: NO
-Migration verified: NO
+Migration applied: YES
+Migration verified: YES
 ```
 
-Discussion 022 Workstream D remains open until application and verification records replace these pending values.
+Discussion 022 Workstreams D and E are complete. The rendered Canvas passed the Product, Design, Frontend, Backend, Safety, Security/Privacy, and Research walkthrough under the repository owner's recorded verification.
 
 ---
 
@@ -568,4 +591,4 @@ Canvas فعلی ۱۶ node و ۱۷ edge دارد و ساختار آن متعلق 
 
 این Ledger نقشهٔ هدف را در ۱۲ بخش مشخص می‌کند: Product Vision، MVP Core Loop، User Flow، AI Responsibilities، AI Guardrails، Data Model، Data Events، Traction Metrics، Current Decisions، Open Configuration، Implementation و References. برای nodeهای فعلی نوع عملیات، محتوای جایگزین، گروه هدف و reviewer مشخص شده و ۱۳ node معنایی جدید، حذف سه node قدیمی، حذف ۱۷ relation قبلی و ایجاد ۳۱ relation جدید ثبت شده است.
 
-تمام decision familyها و ۲۸ ردیف Baseline به nodeهای هدف متصل شده‌اند. هنوز هیچ تغییری روی `Planner-Mindmap.canvas` اعمال نشده است. مرحلهٔ بعد، review و تأیید Ledger و سپس اجرای دقیق آن با کنترل hash قبل و بعد و walkthrough نقش‌های Product، Design، Backend، Safety و Research است.
+تمام decision familyها و ۲۸ ردیف Baseline به nodeهای هدف متصل شده‌اند. Migration روی `Planner-Mindmap.canvas` اعمال شده و کنترل ساختار، linkها، endpointها، containment و hash با موفقیت انجام شده است. walkthrough بصری نقش‌های Product، Design، Frontend، Backend، Safety، Security/Privacy و Research نیز توسط مالک repository تأیید شده و verification نهایی کامل است.

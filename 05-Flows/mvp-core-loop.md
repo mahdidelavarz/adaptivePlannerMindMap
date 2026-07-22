@@ -1,53 +1,42 @@
-# MVP Core Loop
+# AI-Native MVP Core Loop
 
-This file converts the FigJam MVP flow into a maintainable Mermaid flowchart.
+## Status
 
-## Core loop
+`REWRITTEN — CURRENT FLOW PROJECTION`
 
 ```mermaid
 flowchart LR
-  A["User opens app"] --> B{"Has unresolved tasks?"}
-
-  B -->|Yes| C["Reconcile screen"]
-  B -->|No| D["Today page"]
-
-  C --> E{"User action"}
-  E -->|Done| F["Mark completed"]
-  E -->|Carry| G["Carry forward"]
-  E -->|Drop| H["Drop task"]
-
-  G --> I{"Keep same size?"}
-  I -->|Yes| D
-  I -->|No| J["Shrink / clarify task"]
-  J --> D
-
-  F --> K["Append event"]
-  H --> K
-  D --> L["User plans or works"]
-  L --> K
-
-  K --> M["Daily rollup"]
-  M --> N["Weekly evaluation"]
-  N --> O["AI proposes next plan draft"]
-  O --> P{"User approves?"}
-  P -->|Edit| Q["User edits"]
-  P -->|Approve| R["Next 7-day plan"]
-  Q --> R
+  A[Real intention] --> B{Entry path}
+  B -->|Manual| C[Manual canonical command]
+  B -->|AI-assisted| D[Bounded Planning conversation]
+  D --> E{Output gates pass?}
+  E -->|No| F[Visible failure or manual continuation]
+  E -->|Yes| G[Reviewable PlanningDraft]
+  G --> H[Edit and server preview]
+  C --> H
+  H --> I{Explicit confirmation valid?}
+  I -->|No, stale, or cancelled| H
+  I -->|Yes| J[Commit-time revalidation]
+  J --> K[Atomic deterministic mutation + outbox]
+  K --> L[CommandResult]
+  L --> M[Today execution]
+  M --> N[Deterministic Reconcile facts and lanes]
+  N --> O{Optional rule-gated AI?}
+  O -->|No| P[Manual deterministic adaptation]
+  O -->|Yes| Q[Bounded explanation/recommendation]
+  Q --> R[Preview + explicit confirmation]
+  P --> R
+  R --> J
+  N -->|Skip| M
+  E -->|Crisis| S[Fixed localized fallback; zero proposal/mutation leakage]
 ```
 
-## Product meaning
+## Invariants
 
-The first product bet is not "AI creates a perfect plan".
+- AI output is never permission or canonical state.
+- Today never blocks on Reconcile.
+- Invalid/partial output creates no reviewable resource.
+- Manual and deterministic paths remain available.
+- Every consequence is previewed, confirmed, revalidated, committed atomically, and evidenced.
 
-The first product bet is:
-
-> If users can reconcile unfinished work without shame, they are more likely to return after slippage instead of abandoning the planner.
-
-## Locked behavior
-
-- No red overdue guilt wall.
-- No streak-first design.
-- No automatic AI plan application.
-- AI drafts only.
-- User approves changes.
-- Append-only event log.
+Authority: [[04-Specs/ai-native-mvp-baseline]] and Discussions 010–020B.

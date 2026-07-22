@@ -606,7 +606,7 @@ Remove or close:
 - idempotency-expiry replay tests
 - outbox atomicity tests
 
-### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
+### [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 - rollout sequencing
 - migration of version fields

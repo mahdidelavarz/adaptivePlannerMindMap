@@ -1,54 +1,19 @@
-# ADR-001 — Reconcile-on-open is the MVP Core Loop
+# ADR-001 — Reconcile-on-open MVP Core Loop — Superseded
 
 ## Status
-Superseded legacy ADR — do not implement as the current MVP contract.
 
-The old Done/Carry/Drop-only flow and its product-model assumptions do not survive [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]. Current Reconcile semantics are owned by Discussions 016–018A, and current sequencing is owned by [[01-Open-Discussions/022-updated-mvp-implementation-plan]].
+`SUPERSEDED — DO NOT IMPLEMENT`
 
-## Context
+This ADR described the deprecated Reconcile-first MVP. Its Done/Carry/Drop-only flow, blocking-first framing, and old product-model assumptions are not current behavior.
 
-The project initially had a large long-term vision: an adaptive personal planning and learning system that understands the user over time.
+Current authority:
 
-That vision is too large for the first implementation.
+- [[02-Decisions/accepted-decision-inventory-001-021]]
+- [[04-Specs/ai-native-mvp-baseline]]
+- [[01-Closed-Discussions/016-reconcile-trigger-and-severity]]
+- [[01-Closed-Discussions/016a-review-checkpoint-trigger-and-presentation-amendment]]
+- [[01-Closed-Discussions/017-ai-reconcile-intelligence-and-actions]]
+- [[01-Closed-Discussions/018-action-permissions-trust-and-reversibility]]
+- [[01-Closed-Discussions/018a-ai-failure-privacy-domain-and-hostile-input-resolution]]
 
-The MVP needs a narrow behavioral loop.
-
-## Decision
-
-The first MVP will use **reconcile-on-open** as its core loop.
-
-When the user opens the app and has unresolved tasks, the app first helps them reconcile the past before planning the future.
-
-## User Actions
-
-- Done
-- Carry
-- Drop
-
-## Why
-
-The core hypothesis is that unfinished work creates guilt, avoidance, and abandonment.
-
-A planner that helps users restart after slippage may create more long-term value than a planner that simply piles up overdue tasks.
-
-## Consequences
-
-### Positive
-
-- Clear MVP focus
-- Strong behavioral hypothesis
-- Differentiates from basic to-do lists
-- Creates useful data about completion, avoidance, and carry-forward behavior
-
-### Negative
-
-- May feel like friction if implemented badly
-- Needs very careful non-judgmental UX
-- Success depends on return behavior, not just task completion
-
-## Related Files
-
-- [[04-Specs/mvp-scope]]
-- [[04-Specs/event-taxonomy]]
-- [[04-Specs/metrics]]
-- [[05-Flows/mvp-core-loop]]
+The current MVP loop is `Plan → Execute → Adapt`. Today never becomes inaccessible merely because Reconcile is available. Historical content remains available through Git history.

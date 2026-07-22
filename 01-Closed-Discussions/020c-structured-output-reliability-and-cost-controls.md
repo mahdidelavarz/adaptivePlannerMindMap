@@ -493,7 +493,7 @@ bounded context
 
 None remain inside Discussion 020C.
 
-Numeric thresholds and rollout-specific settings belong to [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]] and [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]].
+Numeric thresholds and rollout-specific settings belong to [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]] and [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]].
 
 ---
 
@@ -511,7 +511,7 @@ Create or update:
 - cost-budget and provider spend-cap runbook
 - kill-switch runbook
 - reliability/adversarial test plan in [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]]
-- rollout readiness checklist in [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
+- rollout readiness checklist in [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 ---
 

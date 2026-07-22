@@ -606,7 +606,7 @@ Add:
 
 None remain inside Discussion 021.
 
-Numeric pilot thresholds and rollout execution details must be instantiated in the signed pilot analysis plan and [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] readiness artifacts without weakening this resolution.
+Numeric pilot thresholds and rollout execution details must be instantiated in the signed pilot analysis plan and [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] readiness artifacts without weakening this resolution.
 
 ---
 
@@ -627,7 +627,7 @@ Create or update:
 - crisis observability audit checklist,
 - crisis release sign-off record,
 - pilot analysis template,
-- [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] rollout readiness checklist.
+- [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] rollout readiness checklist.
 
 ---
 
@@ -637,7 +637,7 @@ Discussion 021 is closed.
 
 Pilot rollout is forbidden until the Crisis Safety Readiness gate and all other applicable hard gates pass under the locked analysis and release plan.
 
-Implementation sequencing, numeric threshold instantiation, evidence collection, and rollout readiness remain governed by [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] and may not weaken these gates.
+Implementation sequencing, numeric threshold instantiation, evidence collection, and rollout readiness remain governed by [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] and may not weaken these gates.
 
 ---
 

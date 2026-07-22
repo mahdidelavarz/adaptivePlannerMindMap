@@ -1,5 +1,8 @@
 # Research Log
 
+> [!IMPORTANT]
+> This file contains non-authoritative evidence and research questions. It may support hypothesis design but cannot authorize product behavior, safety claims, or implementation scope. Current hypotheses and decision gates are owned by [[01-Closed-Discussions/021-validation-plan-and-decision-gates]]. Decision authority is indexed by [[02-Decisions/accepted-decision-inventory-001-021]].
+
 ## Purpose
 
 Track evidence behind the Adaptive Planner assumptions.

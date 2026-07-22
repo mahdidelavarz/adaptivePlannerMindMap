@@ -100,7 +100,7 @@ Each row has exactly one owning authority. In the `Primary authority; required d
 | `B-25` | H1/H2 instrumentation, metric dictionary, denominator mapping, immutable severity segmentation, and analysis package | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | Traction Metrics; Data Events | M8 | thresholds/classifiers lock before outcome review |
 | `B-26` | Crisis corpus, localized resources, restricted observability audit, and Product + Safety + Engineering sign-off | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | AI Guardrails; Implementation | M8–M9 | whole-pilot crisis hard gate passes |
 | `B-27` | Monitoring, incident response, support, kill-switch, rollback, spend-cap, and pilot-auth runbooks/drills | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]]; [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]; [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] | Implementation / Delivery Plan | M8–M9 | readiness checklist and drills pass |
-| `B-28` | Decision-to-Canvas, spec, code, event, test, and gate traceability | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Open-Discussions/022-updated-mvp-implementation-plan]] | All sections | M0 onward | no accepted decision or metric lacks implementation evidence |
+| `B-28` | Decision-to-Canvas, spec, code, event, test, and gate traceability | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/022-updated-mvp-implementation-plan]] | All sections | M0 onward | no accepted decision or metric lacks implementation evidence |
 
 ---
 

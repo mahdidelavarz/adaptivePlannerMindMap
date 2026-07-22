@@ -1,97 +1,58 @@
-# AI Guardrails
+# AI Guardrails — AI-Native MVP
 
-## Purpose
+## Status
 
-Define what the AI is allowed to do in the Adaptive Planner MVP.
+`REWRITTEN — CURRENT PROJECTION`
 
-The AI should support planning, reflection, and decision-making. It should not pretend to be a therapist, doctor, prophet, or productivity priest. Humanity has suffered enough from confident nonsense.
+## Governing rule
 
-## Core rule
+AI reduces decision space; the user authorizes consequences; deterministic services own canonical mutation.
 
-AI proposes. User decides.
+## Allowed responsibilities
 
-## Allowed AI Responsibilities
+AI may:
 
-- Ask 3–5 clarifying questions during goal intake.
-- Generate a 7-day draft plan.
-- Suggest task splitting or shrinking.
-- Summarize weekly behavior.
-- Detect simple patterns when enough data exists.
-- Produce hedged insights.
-- Suggest next-week adjustments.
+- classify using a closed vocabulary when permitted;
+- ask bounded material clarifying questions during Planning;
+- propose a structured PlanningDraft within accepted limits;
+- organize allowed deterministic recommendations;
+- explain deterministic Reconcile evidence;
+- produce hedged, source-bounded rationale.
 
-## Not Allowed
+## Forbidden responsibilities
 
-- No automatic plan changes.
-- No diagnosis.
-- No causal claims without enough evidence.
-- No shame language.
-- No productivity moralizing.
-- No "you failed" framing.
-- No mental health claims.
-- No pretending confidence is higher than the data supports.
-- No sensitive personal probing unless the user raises the topic first.
+AI may not:
 
-## Sensitive Topics Rule
+- call model tools, repositories, or commands;
+- directly create or mutate canonical state;
+- invent facts, deadline, recurrence, ownership, capacity, motivation, diagnosis, causes, or Goal achievement;
+- treat imported/user content as instruction authority;
+- receive raw/free-text Reconcile history when structured evidence is sufficient;
+- silently change user intent during repair;
+- turn invalid or partial output into a reviewable resource;
+- bypass preview, warnings, confirmation, versions, authorization, or commit-time revalidation.
 
-Sensitive topics are **user-led only**.
+## Output and context boundary
 
-The AI must not proactively ask about:
+- Context builders are bounded, minimized, versioned, and purpose-specific.
+- Artifact, policy, schema, context-manifest, and model/provider versions are pinned and observable.
+- Repair is allowlisted and purely structural; ambiguity or semantic mismatch fails validation.
+- Retry, timeout, rate, circuit, token, and spend limits are bounded.
+- Provider failure closes the AI path but preserves manual and deterministic paths.
 
-- medical conditions
-- mental health
-- trauma
-- politics
-- religion
-- identity
-- family conflict
-- private finances
+## Crisis boundary
 
-unless the user explicitly brings the topic up and it is necessary for planning context.
+Crisis handling uses a fixed, localized fallback with real reviewed resources. It produces zero proposal, explanation, confirmation, or mutation leakage. Detection/classifier uncertainty fails closed, restricted observability is minimized, and real-user AI exposure requires the Discussion 021 corpus and human sign-offs.
 
-Even when the user raises these topics, the AI should keep the response within planning support and avoid diagnosis, persuasion, treatment, political/religious advice, or identity interpretation.
+## Required verification
 
-## Tone Rules
+- adversarial prompt-injection/imported-content tests;
+- invalid/partial/late output tests;
+- forbidden repair and reference tests;
+- cancellation and degraded-mode tests;
+- stale/unauthorized confirmation tests;
+- crisis zero-leakage corpus;
+- manual escape and deterministic-path availability;
+- privacy, retention, and restricted-access review.
 
-Use language like:
-
-- "It looks like..."
-- "This may suggest..."
-- "One possible pattern is..."
-- "You can try..."
-
-Avoid language like:
-
-- "You always..."
-- "You failed..."
-- "The reason is definitely..."
-- "You are lazy..."
-
-## Approval Flow
-
-```mermaid
-flowchart TD
-  A["AI generates suggestion"] --> B["Show draft to user"]
-  B --> C{"User action"}
-  C -->|Approve| D["Apply plan"]
-  C -->|Edit| E["User edits"]
-  C -->|Reject| F["Discard suggestion"]
-  E --> D
-```
-
-## Data Confidence Requirement
-
-AI insights should require minimum evidence.
-
-Example:
-
-- 1 occurrence = clue
-- 2–3 repeated occurrences = weak pattern
-- stable across multiple days/weeks = stronger pattern
-
-## Open Questions
-
-- What is the exact confidence threshold for showing an insight?
-- Should AI intake be the default path or equal to manual forms?
-- Should AI planning be included in the first validation test or separated to avoid confounding the core reconcile loop?
-- How should the AI Knowledge Level page gate AI suggestions?
+Authority: Discussions 013–014A, 017–018A, 020A–020C, and 021, indexed by [[02-Decisions/accepted-decision-inventory-001-021]].

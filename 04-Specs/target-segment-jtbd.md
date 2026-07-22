@@ -1,74 +1,29 @@
-# Target Segment + JTBD
+# Target Pilot Need State
 
-## Purpose
+## Status
 
-Define who the MVP is for and what job the product is hired to do.
+`REWRITTEN — CURRENT PRODUCT PROJECTION`
 
-This must be explicit before UI, backend, metrics, or AI planning become too broad.
+## Functional participant profile
 
-## Primary Segment
+Pilot participants bring a real goal, responsibility, project, routine, or planning intention; are willing to review AI-generated proposals; execute through Today; and may need adaptation after plan drift.
 
-Self-directed knowledge workers who repeatedly abandon planning tools after their plans break.
+This is a functional need state, not a diagnostic or demographic claim. The product does not infer personality, motivation, capacity, diagnosis, discipline, or Goal achievement.
 
-Initial likely segment:
+## Job to be done
 
-- developers
-- solo builders
-- technical students
-- freelancers
-- people managing uncertain personal projects without a stable external manager
+> Help me turn an intention into a credible plan, execute what matters today, and adapt safely when reality diverges—without losing control of consequential changes.
 
-## Stronger First Segment Candidate
+## Product promise
 
-Developers / solo builders building real projects under uncertainty.
+- bounded assistance rather than an unreviewable generated plan;
+- manual creation and escape remain available;
+- execution records reality without judging the person;
+- Reconcile separates deterministic facts from optional AI explanation;
+- the user explicitly authorizes consequences.
 
-Reason:
+## Pilot configuration boundary
 
-- They already understand tools and systems.
-- They often manage ambiguous goals.
-- They experience task spillover, context switching, and unfinished work.
-- They can give useful product feedback.
-- Mahdi understands this segment personally.
+Cohort, consent, locale, recruitment exclusions, observation window, exposure minimums, and sample/threshold rules are unresolved pilot configuration owned by Discussion 021. They must be locked in the signed pilot protocol and must not change the functional product semantics above.
 
-## Core Job To Be Done
-
-When my plan breaks and unfinished tasks start piling up, I want a non-judgmental way to restart, decide what still matters, and continue from today, so I do not abandon the whole planning system.
-
-## Current Alternatives
-
-- Notion
-- Todoist
-- TickTick
-- Google Calendar
-- paper planning
-- notes app
-- mental tracking
-- avoidance
-
-## Main Pain
-
-The problem is not only forgetting tasks.
-
-The deeper loop is:
-
-```txt
-unfinished work → guilt/clutter → avoidance → planner abandonment
-```
-
-## MVP Promise
-
-A clean restart after slippage.
-
-## What This Product Is Not
-
-- Not a generic task manager
-- Not a motivational quote machine
-- Not a streak app
-- Not a therapist
-- Not a full life OS in MVP
-
-## Open Questions
-
-- Should the first test focus only on developers/solo builders?
-- Should students be included in the same cohort or tested separately?
-- Is the strongest pain actually unfinished work, or goal-to-task breakdown friction?
+Authority: B-02 in [[04-Specs/ai-native-mvp-baseline]] and Discussions 010 and 021.

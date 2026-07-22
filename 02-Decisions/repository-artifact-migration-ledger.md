@@ -13,8 +13,8 @@ Creating or classifying a record does not make the target artifact current. An a
 | Field | Value |
 |---|---|
 | Git HEAD at classification | `f92d05c85753584abc0161d67e6ff5ece45cafa4` |
-| Artifact manifest count | 53 Markdown/Canvas files, excluding this ledger |
-| Artifact manifest SHA-256 | `95ad83481c5dbc93f5adaccebda4bbb99652d5d3c03d4d4540d4fe96a4286115` |
+| Artifact manifest count | 65 Markdown/Canvas files, excluding this ledger |
+| Artifact manifest SHA-256 | `a0cfe0adba2cde09ed80e07027d8ab26f479612dfaa19bacf56ddca3c3878e5e` |
 | Manifest algorithm | sort normalized repository-relative paths; create UTF-8 lines as `path<TAB>lowercase-file-sha256`; join with LF and no final LF; SHA-256 the resulting text |
 
 Before classifications are approved or applied, regenerate this manifest. If it differs, review every changed artifact and update the affected records rather than applying stale classifications.
@@ -146,17 +146,17 @@ The closed Discussions 010–021 are covered as one immutable authority family: 
 
 | ID | Artifact | Current status and authority | Action | Owner / mandatory reviewers | Gate | Verification | Status |
 |---|---|---|---|---|---|---|---|
-| `RAM-001` | `01-Closed-Discussions/010…021` | Primary detailed decision authority | `KEEP` | Product / applicable decision owners | M0 | Inventory paths and IDs resolve; no file is edited as migration cleanup | `CLASSIFIED` |
-| `RAM-002` | `01-Closed-Discussions/001-008-legacy-surviving-decisions.md` | Narrow retained compatibility authority | `KEEP` | Product + Backend + Security/Privacy | M0 | Every legacy reuse cites a retained `LEG-*` decision | `CLASSIFIED` |
-| `RAM-003` | `02-Decisions/accepted-decision-inventory-001-021.md` | Authoritative index and ownership map | `KEEP` | Product + Backend + Safety + Research | M0 | All indexed discussion paths and decision families resolve | `CLASSIFIED` |
-| `RAM-004` | `04-Specs/ai-native-mvp-baseline.md` | Current scope projection | `KEEP` | Product + Design + Backend + Safety + Research | M0 | All 28 rows identify one primary authority, any required dependencies, and milestone/gate mapping | `CLASSIFIED` |
-| `RAM-005` | `01-Open-Discussions/022-updated-mvp-implementation-plan.md` | Open governing migration plan; M1–M9 are provisional | `AMEND` | All accountable role owners | M0 | Add artifact-ledger handoff; explicitly keep M1–M9 provisional until Workstreams G–I pass | `READY_FOR_REVIEW` |
-| `RAM-006` | `00-Canvas/Planner-Mindmap-Migration-Ledger.md` | Prepared Canvas migration control | `AMEND` | Product + Design + Backend; conditional Safety, Security/Privacy, Research | M0 | Relation defaults, concrete layout, approval, and mandatory lane sign-offs are recorded | `READY_FOR_REVIEW` |
-| `RAM-007` | `02-Decisions/repository-artifact-migration-ledger.md` | Repository migration control | `KEEP` | Product + Backend + Design + Safety + Security/Privacy + Research | M0 | All records reviewed; application evidence replaces pending states | `READY_FOR_REVIEW` |
-| `RAM-008` | `README.md` | Current navigation summary; not behavioral authority | `KEEP` | Product | M0 | Link check passes and state matches Discussion 022 | `APPLIED_PENDING_VERIFICATION` |
-| `RAM-009` | `00-START-HERE.md` | Current onboarding/navigation; not behavioral authority | `KEEP` | Product + Design + Backend | M0 | Reading order resolves and no legacy implementation start remains | `APPLIED_PENDING_VERIFICATION` |
-| `RAM-010` | `02-Decisions/gpt-review-standards.md` | Living review-process standard | `AMEND` | Product | M0 | Startup order points to current entry points and authority hierarchy | `CLASSIFIED` |
-| `RAM-011` | `02-Decisions/claude-review-standards.md` | Living adversarial-review standard | `AMEND` | Product + Safety + Research | M0 | Review rules do not revive stale product assumptions | `CLASSIFIED` |
+| `RAM-001` | `01-Closed-Discussions/010…021` | Primary detailed decision authority | `KEEP` | Product / applicable decision owners | M0 | Inventory paths and IDs resolve; no file was edited as migration cleanup | `APPLIED_VERIFIED` |
+| `RAM-002` | `01-Closed-Discussions/001-008-legacy-surviving-decisions.md` | Narrow retained compatibility authority | `KEEP` | Product + Backend + Security/Privacy | M0 | Every legacy reuse cites a retained `LEG-*` decision | `APPLIED_VERIFIED` |
+| `RAM-003` | `02-Decisions/accepted-decision-inventory-001-021.md` | Authoritative index and ownership map | `KEEP` | Product + Backend + Safety + Research | M0 | All indexed discussion paths and decision families resolve | `APPLIED_VERIFIED` |
+| `RAM-004` | `04-Specs/ai-native-mvp-baseline.md` | Current scope projection | `KEEP` | Product + Design + Backend + Safety + Research | M0 | All 28 rows identify one primary authority, dependencies, and milestone/gate mapping | `APPLIED_VERIFIED` |
+| `RAM-005` | `01-Closed-Discussions/022-updated-mvp-implementation-plan.md` | Closed final planning resolution; M1–M8 authoritative for planning, M9 readiness gated | `AMEND` | All accountable role owners | M0 | Final artifact handoff, planning authority, and readiness boundary are explicit | `APPLIED_VERIFIED` |
+| `RAM-006` | `00-Canvas/Planner-Mindmap-Migration-Ledger.md` | Applied and verified Canvas migration control | `AMEND` | Product + Design + Backend; conditional Safety, Security/Privacy, Research | M0 | Geometry, relation fields, approvals, hashes, application, and walkthrough evidence recorded | `APPLIED_VERIFIED` |
+| `RAM-007` | `02-Decisions/repository-artifact-migration-ledger.md` | Repository migration control | `KEEP` | Product + Backend + Design + Safety + Security/Privacy + Research | M0 | Application and cross-role semantic verification recorded | `APPLIED_VERIFIED` |
+| `RAM-008` | `README.md` | Current navigation summary; not behavioral authority | `KEEP` | Product | M0 | Link check passes and state matches Discussion 022 | `APPLIED_VERIFIED` |
+| `RAM-009` | `00-START-HERE.md` | Current onboarding/navigation; not behavioral authority | `KEEP` | Product + Design + Backend | M0 | Reading order resolves and no legacy implementation start remains | `APPLIED_VERIFIED` |
+| `RAM-010` | `02-Decisions/gpt-review-standards.md` | Living review-process standard | `AMEND` | Product | M0 | Startup order points to current entry points and authority hierarchy | `APPLIED_VERIFIED` |
+| `RAM-011` | `02-Decisions/claude-review-standards.md` | Living adversarial-review standard | `AMEND` | Product + Safety + Research | M0 | Review rules do not revive stale product assumptions | `APPLIED_VERIFIED` |
 
 ---
 
@@ -164,9 +164,9 @@ The closed Discussions 010–021 are covered as one immutable authority family: 
 
 | ID | Artifact | Conflicting or reusable content | Action and replacement | Source decisions | Owner / mandatory reviewers | Gate | Verification | Status |
 |---|---|---|---|---|---|---|---|---|
-| `RAM-ADR-001` | `02-Decisions/ADR-001-reconcile-on-open.md` | Entire Reconcile-first core loop is superseded | `REPLACE_WITH_REDIRECT` → inventory, baseline, Discussions 016–018A | D010–D011; D016–D018A | Product + Design | M0 | Only historical explanation and current links remain | `READY_FOR_REVIEW` |
-| `RAM-ADR-002` | `02-Decisions/ADR-002-phase-1-technical-foundation.md` | Retained framework/API/auth baseline mixed with obsolete PWA, event, AI-deferral, and sequencing rules | `REWRITE` as the post-022 technical-foundation ADR; later narrowly scoped ADRs may be referenced without changing this action | LEG-02–LEG-08; D019A–D020C | Backend + Frontend + Security/Privacy | M1 before `SLICE_LOCKED` | Every retained rule maps to a `LEG-*` or current decision; exact versions remain configuration | `READY_FOR_REVIEW` |
-| `RAM-ADR-003` | `02-Decisions/ADR-003-phase-0-closure.md` | Body still claims old architecture authorizes coding | `REPLACE_WITH_REDIRECT` → Discussion 022 final resolution when published | D010–D011; B-28; Discussion 022 | Product + all role owners | M0 | No active readiness or authority claim remains | `READY_FOR_REVIEW` |
+| `RAM-ADR-001` | `02-Decisions/ADR-001-reconcile-on-open.md` | Entire Reconcile-first core loop is superseded | `REPLACE_WITH_REDIRECT` → inventory, baseline, Discussions 016–018A | D010–D011; D016–D018A | Product + Design | M0 | Only historical explanation and current links remain | `APPLIED_VERIFIED` |
+| `RAM-ADR-002` | `02-Decisions/ADR-002-phase-1-technical-foundation.md` | Retained framework/API/auth baseline mixed with obsolete PWA, event, AI-deferral, and sequencing rules | `REWRITE` as the post-022 technical-foundation ADR; later narrowly scoped ADRs may be referenced without changing this action | LEG-02–LEG-08; D019A–D020C | Backend + Frontend + Security/Privacy | M1 before `SLICE_LOCKED` | Rewritten and semantically approved; exact versions remain configuration | `APPLIED_VERIFIED` |
+| `RAM-ADR-003` | `02-Decisions/ADR-003-phase-0-closure.md` | Body still claims old architecture authorizes coding | `REPLACE_WITH_REDIRECT` → Discussion 022 final resolution when published | D010–D011; B-28; Discussion 022 | Product + all role owners | M0 | No active readiness or authority claim remains | `APPLIED_VERIFIED` |
 
 ---
 
@@ -174,19 +174,19 @@ The closed Discussions 010–021 are covered as one immutable authority family: 
 
 | ID | Artifact | Current status / conflict | Action and replacement | Source decisions | Owner / mandatory reviewers | Gate | Verification | Status |
 |---|---|---|---|---|---|---|---|---|
-| `RAM-SPEC-001` | `04-Specs/auth-phase-1.md` | Retained authentication contract with unresolved configuration values | `AMEND`; rename framing to current MVP and add configuration ownership | LEG-03–LEG-05; D018A; D019A–D019C | Backend + Security/Privacy + Frontend | M1 | Retained boundary, privacy, transaction, event, and test rules agree with current decisions | `CLASSIFIED` |
-| `RAM-SPEC-002` | `04-Specs/api-contracts-phase-1.md` | Global/auth conventions partly reusable; product endpoints and Reconcile contract obsolete | `REWRITE` as the current API-contract index; it may link to bounded auth, Planning, command, and Reconcile contract modules | LEG-06; D018; D019B; D020B | Backend + Frontend + Security/Privacy | M1/M2; AI portions before M4 | Contract states, versioning, idempotency, conflict, cancellation, confirmation, and error envelopes trace to sources | `READY_FOR_REVIEW` |
-| `RAM-SPEC-003` | `04-Specs/data-model-phase-1.md` | Goal/Task-only persistence and old events contradict current canonical model | `REPLACE_WITH_REDIRECT` after a current canonical schema/migration spec is created | D012–D012A; D015–D015B; D019A–D019C | Backend + Product + Security/Privacy | M1 | Replacement covers five canonical entities, temporal model, invariants, lineage, versioning, outbox, retention | `READY_FOR_REVIEW` |
-| `RAM-SPEC-004` | `04-Specs/event-taxonomy.md` | Legacy event list and scheduling model | `REPLACE_WITH_REDIRECT` → Discussion 019C until a current event catalog is generated | D019C; D021; LEG-08 | Backend + Research + Security/Privacy | M1 | Replacement covers semantic lifecycle, AI resources, commands, Reconcile, safety, degradation, privacy classes, and metric consumers | `READY_FOR_REVIEW` |
-| `RAM-SPEC-005` | `04-Specs/mvp-scope.md` | Explicitly superseded Reconcile-first scope | `REPLACE_WITH_REDIRECT` → `ai-native-mvp-baseline.md` | D010–D011; B-01–B-28 | Product + Design | M0 | No old scope table remains actionable | `READY_FOR_REVIEW` |
-| `RAM-SPEC-006` | `04-Specs/ai-guardrails.md` | Useful principle but incomplete and contains obsolete question/output assumptions | `REWRITE` as current guardrail specification | D013–D014A; D017–D018A; D020A–D020C; D021 | Safety + Product + Backend + Security/Privacy | M4; crisis portions before M5/pilot | Covers authority, context minimization, hostile input, failure, crisis zero leakage, no tools, manual escape, observability | `READY_FOR_REVIEW` |
-| `RAM-SPEC-007` | `04-Specs/day-0-onboarding.md` | Manual-first validation and old product model | `REWRITE` as AI-native first-run/Planning entry UX, preserving only source-backed low-friction principles | D010–D014A; B-02–B-08 | Product + Design + Safety | M4 | Global/contextual/manual entry, bounded clarification, empty/manual paths, failure and crisis states all exist | `CLASSIFIED` |
-| `RAM-SPEC-008` | `04-Specs/reconcile-ux.md` | Old Done/Carry/Drop Reconcile-first UX | `REWRITE` as current deterministic and optional AI-assisted Reconcile UX | D015–D018A; D020B | Product + Design + Backend + Safety | M6 before `SLICE_LOCKED` | Separate lanes, severity, Today access, skip, chunking, confirmation, cancellation, stale/conflict, degraded states covered | `READY_FOR_REVIEW` |
-| `RAM-SPEC-009` | `04-Specs/metrics.md` | Reconcile-first metric model conflicts with H1/H2 contract | `REPLACE_WITH_REDIRECT` → Discussion 021 until a current metric catalog is produced | D019C; D021 | Research + Product + Safety + Security/Privacy | M1 instrumentation; final before pilot | Denominators, exposure/resource/disposition/command separation, hard gates, regret, trust, manual escape covered | `READY_FOR_REVIEW` |
-| `RAM-SPEC-010` | `04-Specs/validation-plan.md` | Sequential manual-first → AI plan is superseded | `REPLACE_WITH_REDIRECT` → Discussion 021 until pilot protocol is instantiated | D021; B-25–B-27 | Research + Safety + Security/Privacy + Product | M9 before `PILOT_LOCKED` | H1/H2, thresholds, sample rules, crisis corpus/resources/sign-offs, retention, analysis plan covered | `READY_FOR_REVIEW` |
-| `RAM-SPEC-011` | `04-Specs/week-1-evaluation-model.md` | Old evaluation concept is outside accepted metric model | `ARCHIVE`; add a non-authoritative historical warning and remove it from active navigation and Canvas | D021 | Research + Product + Safety | M0 | No current metric depends on it and repository search cannot mistake it for the pilot model | `READY_FOR_REVIEW` |
-| `RAM-SPEC-012` | `04-Specs/target-segment-jtbd.md` | Demographic assumptions are not the accepted functional pilot need state | `REWRITE` from baseline target-user boundary and validation cohort configuration | B-02; D021 | Product + Research + Safety | M0/pilot protocol | Avoids diagnosis/capacity/personality inference; separates target need state from cohort configuration | `CLASSIFIED` |
-| `RAM-SPEC-013` | `04-Specs/phase-1-implementation-stack.md` | Technical baseline partly retained; packages, versions, exclusions, and sequence are stale | `AMEND` after reuse audit; keep exact choices provisional | LEG-02; LEG-07; D019–D020C; Discussion 022 | Backend + Frontend + Security/Privacy | M1 before scaffold lock | Compatibility, security support, runtime needs, tests, operations, and current exclusions verified | `CLASSIFIED` |
+| `RAM-SPEC-001` | `04-Specs/auth-phase-1.md` | Retained authentication contract with unresolved configuration values | `AMEND`; rename framing to current MVP and add configuration ownership | LEG-03–LEG-05; D018A; D019A–D019C | Backend + Security/Privacy + Frontend | M1 | Amended and semantically approved; configuration values remain | `APPLIED_VERIFIED` |
+| `RAM-SPEC-002` | `04-Specs/api-contracts-phase-1.md` | Global/auth conventions partly reusable; product endpoints and Reconcile contract obsolete | `REWRITE` as the current API-contract index; it may link to bounded auth, Planning, command, and Reconcile contract modules | LEG-06; D018; D019B; D020B | Backend + Frontend + Security/Privacy | M1/M2; AI portions before M4 | Rewritten and semantically approved; exact slice schemas remain to lock | `APPLIED_VERIFIED` |
+| `RAM-SPEC-003` | `04-Specs/data-model-phase-1.md` | Goal/Task-only persistence and old events contradict current canonical model | `REPLACE_WITH_REDIRECT` pending the M1 canonical schema/migration specification | D012–D012A; D015–D015B; D019A–D019C | Backend + Product + Security/Privacy | M1 | Unsafe legacy body removed; current authority and M1 handoff explicit | `APPLIED_VERIFIED` |
+| `RAM-SPEC-004` | `04-Specs/event-taxonomy.md` | Legacy event list and scheduling model | `REPLACE_WITH_REDIRECT` → Discussion 019C until a current event catalog is generated | D019C; D021; LEG-08 | Backend + Research + Security/Privacy | M1 | Unsafe event list removed; catalog handoff explicit | `APPLIED_VERIFIED` |
+| `RAM-SPEC-005` | `04-Specs/mvp-scope.md` | Explicitly superseded Reconcile-first scope | `REPLACE_WITH_REDIRECT` → `ai-native-mvp-baseline.md` | D010–D011; B-01–B-28 | Product + Design | M0 | No old scope table remains actionable | `APPLIED_VERIFIED` |
+| `RAM-SPEC-006` | `04-Specs/ai-guardrails.md` | Useful principle but incomplete and contains obsolete question/output assumptions | `REWRITE` as current guardrail specification | D013–D014A; D017–D018A; D020A–D020C; D021 | Safety + Product + Backend + Security/Privacy | M4; crisis portions before M5/pilot | Rewritten and semantically approved | `APPLIED_VERIFIED` |
+| `RAM-SPEC-007` | `04-Specs/day-0-onboarding.md` | Manual-first validation and old product model | `REWRITE` as AI-native first-run/Planning entry UX, preserving only source-backed low-friction principles | D010–D014A; B-02–B-08 | Product + Design + Safety | M4 | Rewritten and semantically approved | `APPLIED_VERIFIED` |
+| `RAM-SPEC-008` | `04-Specs/reconcile-ux.md` | Old Done/Carry/Drop Reconcile-first UX | `REWRITE` as current deterministic and optional AI-assisted Reconcile UX | D015–D018A; D020B | Product + Design + Backend + Safety | M6 before `SLICE_LOCKED` | Rewritten and semantically approved | `APPLIED_VERIFIED` |
+| `RAM-SPEC-009` | `04-Specs/metrics.md` | Reconcile-first metric model conflicts with H1/H2 contract | `REPLACE_WITH_REDIRECT` → Discussion 021 until a current metric catalog is produced | D019C; D021 | Research + Product + Safety + Security/Privacy | M1 instrumentation; final before pilot | Unsafe metric model removed; current evidence boundary explicit | `APPLIED_VERIFIED` |
+| `RAM-SPEC-010` | `04-Specs/validation-plan.md` | Sequential manual-first → AI plan is superseded | `REPLACE_WITH_REDIRECT` → Discussion 021 until pilot protocol is instantiated | D021; B-25–B-27 | Research + Safety + Security/Privacy + Product | M9 before `PILOT_LOCKED` | Unsafe pilot sequence removed; protocol handoff explicit | `APPLIED_VERIFIED` |
+| `RAM-SPEC-011` | `04-Specs/week-1-evaluation-model.md` | Old evaluation concept is outside accepted metric model | `ARCHIVE`; add a non-authoritative historical warning and remove it from active navigation and Canvas | D021 | Research + Product + Safety | M0 | Archived marker applied; absent from navigation and Canvas | `APPLIED_VERIFIED` |
+| `RAM-SPEC-012` | `04-Specs/target-segment-jtbd.md` | Demographic assumptions are not the accepted functional pilot need state | `REWRITE` from baseline target-user boundary and validation cohort configuration | B-02; D021 | Product + Research + Safety | M0/pilot protocol | Rewritten and semantically approved; cohort configuration remains | `APPLIED_VERIFIED` |
+| `RAM-SPEC-013` | `04-Specs/phase-1-implementation-stack.md` | Technical baseline partly retained; packages, versions, exclusions, and sequence are stale | `AMEND` after reuse audit; keep exact choices provisional | LEG-02; LEG-07; D019–D020C; Discussion 022 | Backend + Frontend + Security/Privacy | M1 before scaffold lock | Amended and semantically approved; exact versions/reuse remain | `APPLIED_VERIFIED` |
 
 ---
 
@@ -194,11 +194,11 @@ The closed Discussions 010–021 are covered as one immutable authority family: 
 
 | ID | Artifact | Current status / conflict | Action and replacement | Source decisions | Owner / mandatory reviewers | Gate | Verification | Status |
 |---|---|---|---|---|---|---|---|---|
-| `RAM-FLOW-001` | `05-Flows/mvp-core-loop.md` | Old Reconcile-on-open Mermaid flow | `REWRITE` as Plan → Execute → Adapt flow after Canvas approval | D010–D020B; B-01 | Product + Design + Backend + Safety | M0 | Includes proposal, confirmation, deterministic commit, Today, Reconcile, manual/degraded/crisis paths | `READY_FOR_REVIEW` |
-| `RAM-IMPL-001` | `05-Implementation/phase-1-plan.md` | Legacy phase sequence and product scope | `REPLACE_WITH_REDIRECT` until final Discussion 022 plan is approved; later replace with accepted vertical milestone plan | Discussion 022 Workstreams F–I; B-28 | All accountable role owners | M0 | No team member can mistake old milestones for current instructions | `READY_FOR_REVIEW` |
-| `RAM-RES-001` | `03-Research/research-log.md` | Non-authoritative evidence; some themes may no longer map to current hypotheses | `AMEND` with authority warning and current hypothesis/source mapping | LEG-01; D021 | Research + Product | Before pilot protocol | Every claim retains confidence/source; evidence never authorizes behavior | `CLASSIFIED` |
-| `RAM-REF-001` | `06-References/social-evidence.md` | Appropriately marked anecdotal, but centered on old problem framing | `KEEP` with link/claim audit | LEG-01 | Research | M0 | Remains explicitly non-authoritative and no unverified statistic enters baseline | `CLASSIFIED` |
-| `RAM-CANVAS-001` | `00-Canvas/Planner-Mindmap.canvas` | Stale visual map | Governed by the separate Canvas migration ledger | D010–D021; B-01–B-28 | Product + Design + Backend + Safety + Security/Privacy + Research | M0 | Canvas structural, coverage, link, role-walkthrough, and hash gates pass | `READY_FOR_REVIEW` |
+| `RAM-FLOW-001` | `05-Flows/mvp-core-loop.md` | Old Reconcile-on-open Mermaid flow | `REWRITE` as Plan → Execute → Adapt flow after Canvas approval | D010–D020B; B-01 | Product + Design + Backend + Safety | M0 | Rewritten and semantically approved | `APPLIED_VERIFIED` |
+| `RAM-IMPL-001` | `05-Implementation/phase-1-plan.md` | Legacy phase sequence and product scope | `REPLACE_WITH_REDIRECT` until final Discussion 022 plan is approved; later replace with accepted vertical milestone plan | Discussion 022 Workstreams F–J; B-28 | All accountable role owners | M0 | No team member can mistake old milestones for current instructions | `APPLIED_VERIFIED` |
+| `RAM-RES-001` | `03-Research/research-log.md` | Non-authoritative evidence; some themes may no longer map to current hypotheses | `AMEND` with authority warning and current hypothesis/source mapping | LEG-01; D021 | Research + Product | Before pilot protocol | Authority boundary verified; detailed claim/source audit remains a pre-pilot research task | `APPLIED_VERIFIED` |
+| `RAM-REF-001` | `06-References/social-evidence.md` | Appropriately marked anecdotal, but centered on old problem framing | `KEEP` with link/claim audit | LEG-01 | Research | M0 | Non-authoritative boundary verified; detailed claim audit remains a pre-pilot research task | `APPLIED_VERIFIED` |
+| `RAM-CANVAS-001` | `00-Canvas/Planner-Mindmap.canvas` | Migrated and verified AI-native visual projection | Governed by the separate Canvas migration ledger | D010–D021; B-01–B-28 | Product + Design + Backend + Safety + Security/Privacy + Research | M0 | Structural, link, hash, and cross-role walkthrough gates passed | `APPLIED_VERIFIED` |
 
 ---
 
@@ -240,15 +240,31 @@ These are not unresolved product semantics. Defaults may not weaken accepted inv
 
 ## 11. Completion state
 
+### Application evidence
+
+Repository artifact classifications were approved for application by the repository owner and applied on `2026-07-22`.
+
+```txt
+unsafe legacy bodies replaced or archived: PASS
+rewritten projections created:             PASS
+navigation synchronized:                   PASS
+all repository wiki links resolve:         PASS
+unsafe legacy instruction search:          PASS (zero unmarked matches)
+Canvas JSON/hash regression:               PASS
+rewritten-content role walkthrough:        PASS — repository owner approval on `2026-07-22`
+unresolved configuration packages:         PENDING BY MILESTONE
+```
+
 ```txt
 Ledger written:                         YES
-Classifications approved:               NO
-Navigation safety verified:             PENDING
-Canvas migration applied and verified:  NO
-Formal artifacts migrated:              NO
+Classifications approved:               YES
+Navigation safety verified:             YES
+Canvas migration applied:               YES
+Canvas visual verification:             YES
+Formal artifacts migrated:              YES
 Configuration ownership instantiated:   NO
-Repository verification passed:         NO
-M0 source-of-truth freeze:               NO
+Repository verification passed:         YES
+M0 source-of-truth freeze:               YES
 ```
 
 The candidate M1–M9 sequence remains `PROVISIONAL` until Discussion 022 Workstreams G–J and this ledger’s R3 gate pass.

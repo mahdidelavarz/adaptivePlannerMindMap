@@ -6,6 +6,8 @@ Collect direct user-language evidence around planner abandonment, task shame, ov
 
 This file is not scientific proof. It is product discovery evidence.
 
+It is non-authoritative and may not override [[02-Decisions/accepted-decision-inventory-001-021]] or establish pilot thresholds. Current H1/H2 evidence requirements are owned by [[01-Closed-Discussions/021-validation-plan-and-decision-gates]].
+
 ## Confidence Status
 
 Anecdotal but direct.

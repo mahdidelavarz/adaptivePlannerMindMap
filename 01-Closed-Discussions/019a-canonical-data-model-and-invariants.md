@@ -504,7 +504,7 @@ Create or update later:
 - Routine recurrence and occurrence identity specification
 - Task Drop and Restore persistence specification
 - active temporal-query contract
-- schema migration plan in [[01-Open-Discussions/022-updated-mvp-implementation-plan]]
+- schema migration plan in [[01-Closed-Discussions/022-updated-mvp-implementation-plan]]
 
 Applied amendment:
 

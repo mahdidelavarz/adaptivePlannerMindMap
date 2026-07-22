@@ -1042,7 +1042,7 @@ PROMPT_INJECTION_BLOCKED
 - context-builder version and Context Scope Manifest correctness tests
 - Reconcile free-text and imported-content exclusion tests
 
-### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
+### [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 - retention jobs and expiry sequencing
 - outbox rollout

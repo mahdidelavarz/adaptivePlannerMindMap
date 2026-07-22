@@ -4,16 +4,17 @@
 
 The old Reconcile-first Phase 1 MVP and its implementation-ready framing are deprecated.
 
-The accepted AI-native direction has been consolidated, but the repository-wide migration is still in progress. Do not begin implementation from the old Canvas, Phase 1 plan, ADRs, flows, or specifications.
+The accepted AI-native direction and repository documentation migration are complete. Implementation is still blocked until Discussion 022 makes its provisional milestone sequence authoritative and the applicable configuration/readiness gates pass.
 
 ```txt
 Accepted product decisions       Closed Discussions 010–021
 Legacy compatibility decisions  001–008 surviving-decisions record
 Decision index                   Complete
 AI-native MVP baseline           Complete
-Mind Map                         Stale; migration pending
+Mind Map                         Migrated and verified
 Discussion 022                   Open
 Implementation plan              Not yet authoritative
+M0 source-of-truth freeze        Complete
 ```
 
 ## Required reading order
@@ -22,13 +23,16 @@ Implementation plan              Not yet authoritative
 
 1. [[02-Decisions/accepted-decision-inventory-001-021]] — authoritative discussion index, decision IDs, ownership boundaries, and conflict resolutions
 2. [[04-Specs/ai-native-mvp-baseline]] — MVP-required, pilot-required, post-pilot, removed, and unresolved scope
-3. [[01-Open-Discussions/022-updated-mvp-implementation-plan]] — migration, verification, sequencing, and readiness gates
+3. [[01-Closed-Discussions/022-updated-mvp-implementation-plan]] — final migration, implementation-planning, and readiness resolution
 
 ### Mind Map migration
 
 4. [[00-Canvas/Planner-Mindmap-Migration-Ledger]] — prepared migration operations and traceability
-5. [[00-Canvas/Planner-Mindmap.canvas]] — inspect only as the stale migration input until the ledger is applied and verified
+5. [[00-Canvas/Planner-Mindmap.canvas]] — migrated and verified AI-native visual projection
 6. [[02-Decisions/repository-artifact-migration-ledger]] — classifications, required reviewers, migration gates, and unresolved-configuration ownership for the rest of the vault
+7. [[05-Implementation/implementation-reuse-and-supersession-matrix]] — retained technical foundations, superseded behavior, and new implementation work
+8. [[05-Implementation/workstream-i-approval-package]] — dependency, milestone, ownership, freeze, test, scope-cut, and risk approval package
+9. [[05-Implementation/workstream-j-approval-package]] — pilot/release readiness criteria and hard-gate structure; no readiness claim
 
 ### Detailed behavior
 
@@ -67,23 +71,23 @@ The minimum interpretation is:
 
 Manual escape, confirmation boundaries, crisis fail-closed behavior, access control, idempotency, events, observability, and pilot evidence are cross-cutting requirements rather than later cleanup.
 
-## What is not safe to use yet
+## Historical and redirect artifacts
 
-Unless Discussion 022 explicitly reconciles and adopts them, do not treat these as current implementation authority:
+The following paths now contain explicit redirects, archive markers, or rewritten projections. Their historical Git versions remain non-authoritative:
 
 - [[02-Decisions/ADR-001-reconcile-on-open]]
 - [[02-Decisions/ADR-002-phase-1-technical-foundation]]
 - [[02-Decisions/ADR-003-phase-0-closure]]
 - [[05-Implementation/phase-1-plan]]
 - [[05-Flows/mvp-core-loop]]
-- the older Phase 1 specifications under `04-Specs/`
-- the current visible structure of [[00-Canvas/Planner-Mindmap.canvas]]
+- redirect/archive specifications under `04-Specs/`
+- pre-migration Canvas versions retained in Git history
 
-These files may contain reusable technical material, but reusable code or design does not reactivate deprecated product behavior.
+Follow each current file's status block. Reusable code or design does not reactivate deprecated product behavior.
 
 ## Next authorized documentation step
 
-The next repository-wide step is to review and approve the Mind Map migration ledger, apply it only if the Canvas hash still matches, and then verify the migrated map across Product, Design, Frontend, Backend, Safety, and Research perspectives.
+The Mind Map, repository migration, M0 freeze, reuse classification, Workstream I planning package, Workstream J checklist structures, and final Discussion 022 resolution are complete. M1–M8 are authoritative for implementation planning; contracts and named assignees still lock at their recorded gates. Pilot and release remain `NOT_READY`. The next operational step is to instantiate M1 owners/configuration and lock its entry contracts before implementation begins.
 
 After the map passes verification, continue Discussion 022’s remaining workstreams:
 

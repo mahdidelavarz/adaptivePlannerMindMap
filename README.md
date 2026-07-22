@@ -9,9 +9,12 @@ Start with:
 1. [[00-START-HERE]]
 2. [[02-Decisions/accepted-decision-inventory-001-021]]
 3. [[04-Specs/ai-native-mvp-baseline]]
-4. [[01-Open-Discussions/022-updated-mvp-implementation-plan]]
+4. [[01-Closed-Discussions/022-updated-mvp-implementation-plan]]
 5. [[00-Canvas/Planner-Mindmap-Migration-Ledger]]
 6. [[02-Decisions/repository-artifact-migration-ledger]]
+7. [[05-Implementation/implementation-reuse-and-supersession-matrix]]
+8. [[05-Implementation/workstream-i-approval-package]]
+9. [[05-Implementation/workstream-j-approval-package]]
 
 ## Current state
 
@@ -19,14 +22,18 @@ Start with:
 Legacy decision reconciliation                 COMPLETE
 Accepted-decision inventory                    COMPLETE
 AI-native MVP baseline                         COMPLETE
-Mind Map migration ledger                      PREPARED, NOT APPROVED
-Repository Mind Map migration                  NOT APPLIED
-Cross-role Mind Map verification               PENDING
-Authoritative implementation plan              PENDING
+Mind Map migration ledger                      APPROVED AND APPLIED
+Repository Mind Map migration                  APPLIED AND VERIFIED
+Cross-role Mind Map verification               COMPLETE
+M0 source-of-truth freeze                      COMPLETE
+Workstream I implementation planning package   APPROVED
+Workstream J readiness checklist structures    APPROVED; PILOT/RELEASE NOT READY
+Implementation planning authority              M1–M8 ACTIVE; M9 NOT PASSED
+Final Discussion 022 resolution                PUBLISHED
 Implementation readiness                       NOT YET APPROVED
 ```
 
-The current [[00-Canvas/Planner-Mindmap.canvas]] still represents the deprecated MVP. It is a migration target, not an authoritative description of the product.
+The current [[00-Canvas/Planner-Mindmap.canvas]] has been migrated to the accepted AI-native baseline and passed structural and cross-role verification. It is now the verified visual projection described by the source-of-truth hierarchy.
 
 ## Current product frame
 
@@ -61,28 +68,27 @@ The consolidated index is [[02-Decisions/accepted-decision-inventory-001-021]]. 
 
 ## Migration warning
 
-Files outside the authoritative set have not all been reconciled yet. In particular, the following may still describe the deprecated MVP:
+Legacy implementation-facing artifacts have been migrated to current projections, explicit redirects, or archive markers. Historical content may still appear in Git history, and redirect files remain intentionally searchable so old links fail safely. In particular, do not recover behavior from:
 
-- older ADRs in `02-Decisions/`;
+- superseded ADR bodies in Git history;
 - research-derived product claims;
-- most older files in `04-Specs/`;
-- `05-Flows/mvp-core-loop.md`;
-- `05-Implementation/phase-1-plan.md`;
-- the current repository Canvas.
+- pre-migration specifications and flow versions in Git history;
+- the old Phase 1 milestone plan;
+- any pre-migration Canvas snapshot retained in Git history.
 
-Do not implement behavior from those files merely because they remain in the vault. Reconcile each file against the accepted discussions, then update it, mark it superseded, or remove it from active navigation.
+Current files must be read according to their status blocks. Redirect and archive markers are intentionally non-authoritative; rewritten projections remain subordinate to their accepted source decisions.
 
 ## Repository structure
 
 - `00-Canvas/` — repository Mind Map and its migration ledger
-- `01-Closed-Discussions/` — authoritative accepted product, domain, runtime, safety, and validation decisions
-- `01-Open-Discussions/` — active discussions; currently includes the migration and implementation reconciliation plan
+- `01-Closed-Discussions/` — authoritative accepted product, domain, runtime, safety, validation, migration, and implementation-planning decisions
+- `01-Open-Discussions/` — active unresolved work; currently empty
 - `02-Decisions/` — accepted-decision inventory plus ADRs awaiting or carrying explicit reconciliation status
 - Repository-wide artifact classifications and migration gates are tracked in [[02-Decisions/repository-artifact-migration-ledger]].
 - `03-Research/` — non-authoritative evidence and research notes
-- `04-Specs/` — the current AI-native baseline plus specifications at different migration states
-- `05-Flows/` — supporting or historical flows; not authoritative unless explicitly reconciled
-- `05-Implementation/` — implementation artifacts at different migration states; no current plan is authoritative yet
+- `04-Specs/` — current AI-native projections plus explicit legacy redirects/archive markers
+- `05-Flows/` — current supporting flow projection
+- `05-Implementation/` — legacy-plan redirect plus the verified reuse/supersession matrix; the Discussion 022 sequence remains provisional
 - `06-References/` — non-authoritative source notes and references
 
 ## Change rule

@@ -635,7 +635,7 @@ Must test:
 - deterministic Reconcile failure
 - context scope observability correctness
 
-### [[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
+### [[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]]
 
 Must sequence:
 

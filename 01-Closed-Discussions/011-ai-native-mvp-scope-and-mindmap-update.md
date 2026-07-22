@@ -76,7 +76,7 @@ The table below replaces the original “start with Discussion 012 and review in
 | API and frontend state | [[01-Closed-Discussions/020b-api-and-frontend-state-contracts]] | attempts, drafts, confirmation, commands, polling, errors and frontend state machines |
 | Structured-output reliability and cost | [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]] | schemas, validation, repair, retry, budgets, model routing and cost controls |
 | Validation and decision gates | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | hypotheses, denominators, thresholds, safety gates, pilot decisions and forbidden claims |
-| Baseline migration and implementation | [[01-Open-Discussions/022-updated-mvp-implementation-plan]] | legacy reconciliation, Mind Map migration, formal specs, milestones, ownership and pilot readiness |
+| Baseline migration and implementation | [[01-Closed-Discussions/022-updated-mvp-implementation-plan]] | legacy reconciliation, Mind Map migration, formal specs, milestones, ownership and pilot readiness |
 
 ---
 

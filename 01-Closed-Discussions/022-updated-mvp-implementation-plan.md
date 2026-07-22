@@ -2,9 +2,9 @@
 
 ## Status
 
-Open for baseline construction, Mind Map migration, and final resolution.
+Closed — final planning resolution published on `2026-07-22`.
 
-Workstreams A–C are complete. Discussions 001–008 have one consolidated surviving-decisions record, no Discussion 009 exists, Discussions 010–021 have a verified decision inventory, and the final AI-native MVP baseline is explicit. Workstreams D–I remain open.
+Workstreams A–J are complete. M0 is frozen, the Mind Map and repository artifacts are migrated and verified, implementation reuse is classified, M1–M8 are authoritative for implementation planning, and readiness checklist structures are approved. M9 has not passed: the product remains `PILOT_NOT_READY` and `RELEASE_NOT_READY` until implementation evidence satisfies the approved checklists.
 
 ## Purpose
 
@@ -272,7 +272,7 @@ Discussions 010–021 contain written `Mind Map Impact` sections, but those chan
 
 The migration target is [[00-Canvas/Planner-Mindmap.canvas]]. It still contains legacy 001/002 file nodes and other pre-consolidation concepts; those nodes are migration work, not current authority.
 
-Therefore, the current map must be treated as stale until migration is complete.
+The map was stale when this workstream began. The approved ledger has now been applied, and the resulting Canvas passed structural and cross-role verification.
 
 ### 6.3 Migration Record
 
@@ -363,11 +363,11 @@ Mind Map migration passes only when:
 
 Produce and execute a **Mind Map Migration Ledger**. The ledger alone is not completion; [[00-Canvas/Planner-Mindmap.canvas]] must be changed, versioned, and reviewed.
 
-Ledger preparation is complete:
+Ledger preparation and Canvas application are complete:
 
 - [[00-Canvas/Planner-Mindmap-Migration-Ledger]]
 
-The ledger is validated against the current Canvas hash and is ready for review. Canvas application, post-migration hashing, cross-role walkthrough, and verification remain pending, so Workstream D is not yet complete.
+The ledger was approved and applied against its recorded pre-migration hash. The resulting Canvas hash, structural evidence, and cross-role walkthrough verification are recorded in the ledger. Workstreams D and E are complete.
 
 ---
 
@@ -453,7 +453,7 @@ This slice must include auth/ownership, versioning, failure handling, and basic 
 
 ### 8.3 Proposed Milestone Sequence
 
-The M1–M9 sequence below is `PROVISIONAL`. It does not become an authoritative implementation roadmap until Workstreams G–J complete repository verification, reuse classification, dependency and ownership approval, exit gates, and the pilot-readiness package.
+Before Workstream I approval, M1–M9 were entirely `PROVISIONAL`. Workstream I approval makes M1–M8 and their implementation gates authoritative for planning. M9's structure is approved, but M9 cannot pass, authorize pilot exposure, or make the full roadmap final until Workstream J approves the pilot-readiness package and the final Discussion 022 resolution is published.
 
 #### M0 — Reconciliation and Map Baseline
 
@@ -918,19 +918,19 @@ Discussion 022 must produce or require:
 2. [[02-Decisions/accepted-decision-inventory-001-021|Accepted Decision Inventory]] — completed
 3. Authoritative Discussion Index — completed inside the Accepted Decision Inventory
 4. [[04-Specs/ai-native-mvp-baseline|Final MVP Baseline Matrix]] — completed
-5. [[00-Canvas/Planner-Mindmap-Migration-Ledger|Mind Map Migration Ledger]] — prepared and structurally validated; application pending
-6. [[02-Decisions/repository-artifact-migration-ledger|Repository Artifact Migration Ledger]] — prepared; classification approval and application pending
+5. [[00-Canvas/Planner-Mindmap-Migration-Ledger|Mind Map Migration Ledger]] — approved, applied, and verified
+6. [[02-Decisions/repository-artifact-migration-ledger|Repository Artifact Migration Ledger]] — applied and verified; M0 source-of-truth freeze complete
 7. Updated and verified [[00-Canvas/Planner-Mindmap.canvas|repository Mind Map]]
-8. Implementation Reuse and Supersession Matrix
-9. Dependency Graph
-10. Milestone and Exit Gate Plan
-11. Ownership Matrix
-12. Contract Freeze Register
-13. Test Coverage Matrix
-14. Scope-Cut Register
-15. Pilot Readiness Checklist
-16. Release Readiness Checklist
-17. Risk and Contingency Register
+8. [[05-Implementation/implementation-reuse-and-supersession-matrix|Implementation Reuse and Supersession Matrix]] — complete for the current repository; no implementation code is present
+9. [[05-Implementation/dependency-graph|Dependency Graph]] — Workstream I approved
+10. [[05-Implementation/milestone-exit-gate-plan|Milestone and Exit Gate Plan]] — Workstream I approved; M1–M8 authoritative for planning, M9 passage pending Workstream J
+11. [[05-Implementation/ownership-matrix|Ownership Matrix]] — Workstream I approved; named implementation assignees required before applicable milestone entry
+12. [[05-Implementation/contract-freeze-register|Contract Freeze Register]] — Workstream I approved; contracts remain `DRAFT` until their gates
+13. [[05-Implementation/test-coverage-matrix|Test Coverage Matrix]] — Workstream I approved
+14. [[05-Implementation/scope-cut-register|Scope-Cut Register]] — Workstream I approved; no individual scope cut approved by default
+15. [[05-Implementation/pilot-readiness-checklist|Pilot Readiness Checklist]] — structure approved; all implementation evidence remains `NOT_STARTED`, decision `PILOT_NOT_READY`
+16. [[05-Implementation/release-readiness-checklist|Release Readiness Checklist]] — structure approved; decision `RELEASE_NOT_READY`
+17. [[05-Implementation/risk-contingency-register|Risk and Contingency Register]] — Workstream I approved; reassessment required at each gate
 
 ---
 
@@ -942,14 +942,14 @@ Discussion 022 closes only after this order is completed:
 A. reconcile Discussions 001–008; confirm Discussion 009 absence — COMPLETE
 B. inventory Discussions 010–021 — COMPLETE
 C. resolve conflicts and produce final MVP baseline — COMPLETE
-D. create migration ledger — PREPARED; approval and application pending
-E. classify repository artifacts and approve the Repository Artifact Migration Ledger
-F. update actual Mind Map
-G. migrate formal artifacts and verify map/repository consistency across roles
-H. classify reusable and superseded implementation work
-I. approve milestone sequence, ownership, and exit gates
-J. approve pilot-readiness checklist
-K. publish final Discussion 022 resolution
+D. create and approve migration ledger — COMPLETE
+E. classify repository artifacts and approve the Repository Artifact Migration Ledger — COMPLETE
+F. update and verify actual Mind Map — COMPLETE; structural and cross-role verification passed
+G. migrate formal artifacts and verify map/repository consistency across roles — COMPLETE
+H. classify reusable and superseded implementation work — COMPLETE; no in-scope implementation code exists, retained foundations and new-work areas classified
+I. approve milestone sequence, ownership, exit gates, freezes, tests, scope cuts, and risks — COMPLETE; M1–M8 authoritative for planning, M9 structure approved but passage pending Workstream J
+J. approve pilot- and release-readiness checklist structures — COMPLETE; readiness remains `NOT_READY`
+K. publish final Discussion 022 resolution — COMPLETE
 ```
 
 No remaining step may be marked complete solely because a future action was documented. Step A is complete because its consolidated record exists, its source dispositions are explicit, and the obsolete source files have been removed.
@@ -1027,3 +1027,60 @@ The final resolution must contain:
 - affected specifications and ADRs.
 
 Discussion 022 is not resolved merely by approving this plan. It is resolved when the reconciliation and Mind Map migration work has actually been completed and the resulting implementation plan is accepted.
+
+---
+
+## 20. Final Resolution
+
+### Resolution state
+
+Discussion 022 is closed. The planning baseline and M1–M8 implementation-planning sequence are accepted.
+
+```txt
+Legacy reconciliation:                         COMPLETE
+Accepted-decision inventory:                   COMPLETE
+AI-native MVP baseline:                        COMPLETE
+Mind Map migration and verification:           COMPLETE
+Repository artifact migration/verification:    COMPLETE
+M0 source-of-truth freeze:                     COMPLETE
+Implementation reuse classification:           COMPLETE
+Workstream I planning package:                 APPROVED
+M1–M8 implementation-planning authority:       ACTIVE
+Workstream J checklist structures:             APPROVED
+M9 pilot-readiness passage:                    NOT PASSED
+Pilot readiness:                               NOT_READY
+Public release readiness:                      NOT_READY
+```
+
+### Accepted authority and artifacts
+
+- Detailed product/runtime/safety/validation behavior remains owned by authoritative closed Discussions 010–021 and their explicit ownership boundaries.
+- Narrow retained compatibility behavior remains owned by [[01-Closed-Discussions/001-008-legacy-surviving-decisions]].
+- [[02-Decisions/accepted-decision-inventory-001-021]] is the accepted decision index.
+- [[04-Specs/ai-native-mvp-baseline]] is the accepted scope projection.
+- [[00-Canvas/Planner-Mindmap.canvas]] is the migrated and verified visual projection.
+- [[02-Decisions/repository-artifact-migration-ledger]] records the verified repository migration and M0 freeze.
+- [[05-Implementation/implementation-reuse-and-supersession-matrix]] records the current no-code audit and reuse boundaries.
+- [[05-Implementation/workstream-i-approval-package]] governs M1–M8 planning, dependencies, ownership, freezes, tests, scope cuts, and risks.
+- [[05-Implementation/workstream-j-approval-package]] governs readiness criteria without asserting readiness.
+
+### Implementation authority
+
+M1–M8 may be used for implementation planning in the accepted dependency order. This authority does not waive:
+
+- named assignees before milestone entry;
+- milestone-specific configuration packages;
+- `SLICE_LOCKED` and `PILOT_LOCKED` contracts;
+- required tests and exit evidence;
+- safety, privacy, security, accessibility, reliability, evidence, and manual-escape gates;
+- explicit amendments when accepted product behavior would change.
+
+M9 cannot pass and real-user AI exposure is not authorized until every applicable hard gate in [[05-Implementation/pilot-readiness-checklist]] is `PASS` with durable evidence and final approver signatures.
+
+Public release remains separately governed by [[05-Implementation/release-readiness-checklist]]. Passing implementation milestones or pilot readiness does not automatically authorize public release.
+
+### Remaining open items
+
+No product-semantic question remains open. Remaining work consists of implementation, named assignments, configuration packages, locked contracts, test evidence, operational readiness, pilot evidence, and release evidence at their recorded gates.
+
+Any future behavior change must amend or reopen its owning accepted decision rather than silently editing a projection, milestone, Canvas node, or implementation detail.

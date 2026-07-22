@@ -620,7 +620,7 @@ Record or link:
 
 [[01-Closed-Discussions/021-validation-plan-and-decision-gates|Discussion 021]] must include contract, concurrency, reconnect, cancellation, warning-staleness, and duplicate-invocation tests.
 
-[[01-Open-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] must sequence deployment of new resource contracts and client migration safely.
+[[01-Closed-Discussions/022-updated-mvp-implementation-plan|Discussion 022]] must sequence deployment of new resource contracts and client migration safely.
 
 ---
 
