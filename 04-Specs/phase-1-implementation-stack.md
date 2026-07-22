@@ -2,7 +2,7 @@
 
 ## Status
 
-`AMENDED — PROVISIONAL UNTIL M1 SLICE LOCK`
+`AMENDED — M1 CONFIGURATION PROPOSED; NOT SLICE LOCKED`
 
 ## Retained baseline
 
@@ -50,6 +50,6 @@
 
 ## Values required before scaffold lock
 
-Exact supported versions, build manifests, migration numbering, CI images, dependency-security policy, owners, and environment configuration must be selected and recorded before M1 is `SLICE_LOCKED`. Provider and operational values follow their later milestone gates in [[02-Decisions/repository-artifact-migration-ledger]].
+The proposed release lines, repository layout, named owners, environment boundary, migration convention, and Kavenegar boundary are recorded in [[05-Implementation/m1-entry-package]] and [[05-Implementation/m1-configuration-register]]. They remain proposals until the required owners approve that register. Exact patch versions belong in generated manifests and lockfiles and must be reviewed before scaffold commit.
 
-Authority: `LEG-02`, `LEG-07`, Discussions 019A–020C, and provisional sequencing in Discussion 022.
+Authority: `LEG-02`, `LEG-07`, Discussions 019A–020C, and the authoritative M1–M8 sequencing in closed Discussion 022.

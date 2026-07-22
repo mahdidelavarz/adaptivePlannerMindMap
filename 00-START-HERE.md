@@ -12,8 +12,8 @@ Legacy compatibility decisions  001–008 surviving-decisions record
 Decision index                   Complete
 AI-native MVP baseline           Complete
 Mind Map                         Migrated and verified
-Discussion 022                   Open
-Implementation plan              Not yet authoritative
+Discussion 022                   Closed
+Implementation plan              M1–M8 authoritative for planning
 M0 source-of-truth freeze        Complete
 ```
 
@@ -33,6 +33,8 @@ M0 source-of-truth freeze        Complete
 7. [[05-Implementation/implementation-reuse-and-supersession-matrix]] — retained technical foundations, superseded behavior, and new implementation work
 8. [[05-Implementation/workstream-i-approval-package]] — dependency, milestone, ownership, freeze, test, scope-cut, and risk approval package
 9. [[05-Implementation/workstream-j-approval-package]] — pilot/release readiness criteria and hard-gate structure; no readiness claim
+10. [[05-Implementation/m1-entry-package]] — named ownership, repository boundary, and M1 entry sequence
+11. [[05-Implementation/m1-configuration-register]] — confirmed Kavenegar choice and proposed stack/auth values requiring review
 
 ### Detailed behavior
 
@@ -87,18 +89,9 @@ Follow each current file's status block. Reusable code or design does not reacti
 
 ## Next authorized documentation step
 
-The Mind Map, repository migration, M0 freeze, reuse classification, Workstream I planning package, Workstream J checklist structures, and final Discussion 022 resolution are complete. M1–M8 are authoritative for implementation planning; contracts and named assignees still lock at their recorded gates. Pilot and release remain `NOT_READY`. The next operational step is to instantiate M1 owners/configuration and lock its entry contracts before implementation begins.
+The Mind Map, repository migration, M0 freeze, reuse classification, Workstream I planning package, Workstream J checklist structures, and final Discussion 022 resolution are complete. M1–M8 are authoritative for implementation planning. M1 names are instantiated and its configuration package is ready for owner review; contracts still lock at their recorded gates. Pilot and release remain `NOT_READY`.
 
-After the map passes verification, continue Discussion 022’s remaining workstreams:
-
-```txt
-classify reusable versus superseded implementation material
-→ approve dependencies, milestones, ownership, and exit gates
-→ approve pilot-readiness requirements
-→ publish the final Discussion 022 resolution
-```
-
-Implementation is ready only after those gates make the new plan authoritative.
+Next: review [[05-Implementation/m1-entry-package]] and [[05-Implementation/m1-configuration-register]]. After Reza and Mahdi acknowledge the package and all M1 parameters are approved, scaffold implementation inside this repository and begin the authenticated ownership slice.
 
 ## Change rule
 

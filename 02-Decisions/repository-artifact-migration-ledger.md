@@ -2,7 +2,7 @@
 
 ## Status
 
-Prepared for Discussion 022 repository-migration review. **Not yet approved or fully applied.**
+`APPLIED_VERIFIED — M0 CLOSED; M1 CONFIGURATION PREPARATION ACTIVE`
 
 This ledger controls migration of repository artifacts from the deprecated Reconcile-first Phase 1 MVP to the accepted AI-native MVP. It complements [[00-Canvas/Planner-Mindmap-Migration-Ledger]]; neither ledger replaces the other.
 
@@ -13,8 +13,8 @@ Creating or classifying a record does not make the target artifact current. An a
 | Field | Value |
 |---|---|
 | Git HEAD at classification | `f92d05c85753584abc0161d67e6ff5ece45cafa4` |
-| Artifact manifest count | 65 Markdown/Canvas files, excluding this ledger |
-| Artifact manifest SHA-256 | `a0cfe0adba2cde09ed80e07027d8ab26f479612dfaa19bacf56ddca3c3878e5e` |
+| Artifact manifest count | 67 Markdown/Canvas files, excluding this ledger |
+| Artifact manifest SHA-256 | `76a40d50fe4b516486ebccdc3d20addd6dbfeecfc87a5695cebea7a6d2961a58` |
 | Manifest algorithm | sort normalized repository-relative paths; create UTF-8 lines as `path<TAB>lowercase-file-sha256`; join with LF and no final LF; SHA-256 the resulting text |
 
 Before classifications are approved or applied, regenerate this manifest. If it differs, review every changed artifact and update the affected records rather than applying stale classifications.
@@ -208,8 +208,8 @@ These are not unresolved product semantics. Defaults may not weaken accepted inv
 
 | Configuration family | Accountable role | Required reviewers | Required by | Default if undecided | Blocking gate | Destination artifact | Status |
 |---|---|---|---|---|---|---|---|
-| OTP lifetime, resend, attempts, cooldown, JWT lifetime, SMS provider | Backend | Security/Privacy + Product | M1 auth foundation | No production enablement | `SLICE_LOCKED` for authenticated slice | amended auth spec + deployment config | `UNASSIGNED_VALUES` |
-| Framework/package/image versions and database migrations | Backend/Frontend by component | Security/Privacy + consuming owner | M1 | No scaffold lock | M1 exit | amended stack spec + manifests | `UNASSIGNED_VALUES` |
+| OTP lifetime, resend, attempts, cooldown, JWT lifetime, SMS provider | Reza | Mahdi | M1 auth foundation | No production enablement | `SLICE_LOCKED` for authenticated slice | auth spec + M1 configuration register + deployment config | `PROPOSED_VALUES`; Kavenegar `CONFIRMED` |
+| Framework/package/image versions and database migrations | Reza (Backend) / Mahdi (Frontend) | consuming owner + Mahdi as Security/Privacy | M1 | No scaffold lock | M1 exit | stack spec + M1 configuration register + manifests | `PROPOSED_VALUES` |
 | Retry, timeout, rate, circuit-breaker, cancellation, and concurrency limits | Backend | Frontend + Safety + Security/Privacy | M4 mock contract; final M5 | Fail closed; manual path remains | M5 exit | runtime/reliability spec + config | `UNASSIGNED_VALUES` |
 | Provider, model, artifact bundle, token budget, unit-cost budget, and hard spend cap | Backend/Product | Safety + Security/Privacy | M5 | AI runtime disabled | M5 exit and `PILOT_LOCKED` | runtime spec + operations config | `UNASSIGNED_VALUES` |
 | Planning clarification/chunk limits, draft TTL, confirmation TTL, Undo duration, final copy | Product | Design + Backend + Safety | M4/M6 as applicable | Feature remains behind internal gate | applicable slice lock | UX/contract specs | `UNASSIGNED_VALUES` |
@@ -262,9 +262,9 @@ Navigation safety verified:             YES
 Canvas migration applied:               YES
 Canvas visual verification:             YES
 Formal artifacts migrated:              YES
-Configuration ownership instantiated:   NO
+Configuration ownership instantiated:   YES FOR M1; VALUES PENDING APPROVAL
 Repository verification passed:         YES
 M0 source-of-truth freeze:               YES
 ```
 
-The candidate M1–M9 sequence remains `PROVISIONAL` until Discussion 022 Workstreams G–J and this ledger’s R3 gate pass.
+Discussion 022 Workstreams A–K and repository gate R3 are complete. M1–M8 are authoritative for implementation planning; M9, pilot, and release remain gated and not ready. The active handoff is [[05-Implementation/m1-entry-package]].

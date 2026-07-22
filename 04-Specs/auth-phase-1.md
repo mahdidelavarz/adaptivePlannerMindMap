@@ -25,7 +25,7 @@ auth transaction guarantees
 required auth tests
 ```
 
-It does not define the exact SMS provider, final timeout values, or deployment secrets.
+It does not own deployment secrets. The selected SMS provider and proposed M1 parameters are recorded in [[05-Implementation/m1-configuration-register]] until approved and copied into implementation configuration.
 
 ## Current integration boundary
 
@@ -33,7 +33,7 @@ It does not define the exact SMS provider, final timeout values, or deployment s
 - Ownership-safe 404 behavior applies to PlanningAttempt, PlanningDraft, ReconcileSession, ActionConfirmation, and CommandResult as well as canonical entities.
 - Restricted crisis/safety events and raw-content access require the privacy/access rules in [[01-Closed-Discussions/019c-events-ai-observability-and-retention]].
 - Authentication success never authorizes an AI proposal or bypasses confirmation, version, or commit-time revalidation rules.
-- Exact OTP lifetime, resend window, attempt count, cooldown, JWT lifetime, SMS provider, and production secrets block production auth configuration until approved.
+- Kavenegar is the confirmed SMS provider. Exact OTP/session limits and provider behavior remain proposed in [[05-Implementation/m1-configuration-register]] and block scaffold lock until approved; production secrets never belong in this repository.
 
 ---
 
@@ -476,7 +476,7 @@ provider timeout and retry policy
 whether logout-all is exposed in Phase 1 UI
 ```
 
-These are implementation parameters, not open architecture questions.
+These are implementation parameters, not open architecture questions. Their current review state and proposed values are centralized in [[05-Implementation/m1-configuration-register]].
 
 ---
 

@@ -15,6 +15,8 @@ Start with:
 7. [[05-Implementation/implementation-reuse-and-supersession-matrix]]
 8. [[05-Implementation/workstream-i-approval-package]]
 9. [[05-Implementation/workstream-j-approval-package]]
+10. [[05-Implementation/m1-entry-package]]
+11. [[05-Implementation/m1-configuration-register]]
 
 ## Current state
 
@@ -30,6 +32,7 @@ Workstream I implementation planning package   APPROVED
 Workstream J readiness checklist structures    APPROVED; PILOT/RELEASE NOT READY
 Implementation planning authority              M1–M8 ACTIVE; M9 NOT PASSED
 Final Discussion 022 resolution                PUBLISHED
+M1 entry/configuration package                 READY FOR OWNER REVIEW
 Implementation readiness                       NOT YET APPROVED
 ```
 
@@ -88,7 +91,7 @@ Current files must be read according to their status blocks. Redirect and archiv
 - `03-Research/` — non-authoritative evidence and research notes
 - `04-Specs/` — current AI-native projections plus explicit legacy redirects/archive markers
 - `05-Flows/` — current supporting flow projection
-- `05-Implementation/` — legacy-plan redirect plus the verified reuse/supersession matrix; the Discussion 022 sequence remains provisional
+- `05-Implementation/` — implementation controls, approved milestone plan, readiness gates, and the reviewable M1 entry/configuration package
 - `06-References/` — non-authoritative source notes and references
 
 ## Change rule

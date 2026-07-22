@@ -2,9 +2,9 @@
 
 ## Status
 
-`WORKSTREAM_I_APPROVED — ROLE LABELS REQUIRE NAMED ASSIGNEES BEFORE MILESTONE ENTRY`
+`WORKSTREAM_I_APPROVED — M1 NAMES INSTANTIATED; ACKNOWLEDGEMENT PENDING`
 
-Role labels must be replaced with named individuals before the applicable milestone begins. Mahdi is currently the repository/Product owner and recorded cross-role documentation approver; implementation accountability still requires explicit assignees.
+M1 roles are instantiated in [[05-Implementation/m1-entry-package]]: Reza owns Backend and Mahdi owns every other accountability lane. Alireza is a paid external design contributor whose work is accepted by Mahdi; he is not an accountable owner. Later milestones must revisit Mahdi's concentration of roles before entry.
 
 | Area | Accountable | Responsible contributors | Mandatory reviewers | Approval point |
 |---|---|---|---|---|
@@ -21,6 +21,19 @@ Role labels must be replaced with named individuals before the applicable milest
 | operations/support/incident/rollback | Backend owner | Backend + Product | Safety, Security/Privacy | M8/M9 |
 
 ## Milestone accountability
+
+### Current named role map
+
+| Role | Named owner | Boundary |
+|---|---|---|
+| Product owner | Mahdi | confirmed |
+| Backend owner | Reza | confirmed; acknowledgement pending |
+| Product Design owner | Mahdi | confirmed; Alireza is a paid external contributor |
+| Frontend owner | Mahdi | temporary |
+| Security/Privacy owner | Mahdi | temporary; Reza supplies independent technical review |
+| Safety/Policy owner | Mahdi | temporary |
+| Pilot Research owner | Mahdi | temporary |
+| Operations/Support owner | Mahdi | temporary; Reza reviews backend operations |
 
 | Milestone | Accountable role | Required exit approvers |
 |---|---|---|
