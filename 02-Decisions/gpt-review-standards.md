@@ -5,9 +5,9 @@
 Living document. Captures the standards GPT must follow when proposing, revising,
 and documenting product decisions for Adaptive Planner.
 
-Any GPT instance continuing the product review should read this file, then
-`02-Decisions/claude-review-standards.md`, then the relevant discussion and its
-accepted dependencies before proposing changes.
+Any GPT instance continuing the product review must begin with the repository
+entry points and authority index, then read both review standards, the relevant
+discussion, and its accepted dependencies before proposing changes.
 
 ## Purpose
 
@@ -43,8 +43,9 @@ For each Discussion from 012 onward:
 12. Only after the final decisions, Mind Map impact, and affected documents are
     recorded may the discussion status be changed to its closed/accepted state.
 
-Discussion 022 must begin only after accepted decisions from Discussions 012–021
-have been consolidated into the Mind Map and formal product documents.
+Discussion 022 owns consolidation into the Mind Map and formal product documents.
+It may begin from the accepted decision inventory, but it cannot close until the
+actual Canvas and repository artifacts are migrated and verified.
 
 ## 2. Discussion Structure
 
@@ -280,14 +281,19 @@ A new GPT conversation continuing this project should begin with:
 
 ```txt
 Read these files first:
-1. 02-Decisions/gpt-review-standards.md
-2. 02-Decisions/claude-review-standards.md
-3. 01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update.md
-4. the current discussion
-5. all accepted discussions that the current discussion depends on
+1. README.md
+2. 00-START-HERE.md
+3. 02-Decisions/accepted-decision-inventory-001-021.md
+4. 04-Specs/ai-native-mvp-baseline.md
+5. 02-Decisions/gpt-review-standards.md
+6. 02-Decisions/claude-review-standards.md
+7. the current discussion
+8. all accepted closed discussions that the current discussion depends on
+9. for migration work, Discussion 022 and both migration ledgers
 
 Then propose answers and decisions for the current discussion before requesting
-Claude review. Preserve the scope boundaries and do not update the Mind Map yet.
-Before closing the discussion, record its Mind Map impact and affected formal
-documents inside the discussion file itself.
+Claude review. Follow the source hierarchy in Discussion 022 and preserve scope
+boundaries. Before closing a product discussion, record its Mind Map impact and
+affected formal documents. Apply migration changes only through the approved
+Discussion 022 ledgers and verification gates.
 ```

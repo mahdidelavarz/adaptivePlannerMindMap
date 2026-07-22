@@ -11,6 +11,7 @@ Start with:
 3. [[04-Specs/ai-native-mvp-baseline]]
 4. [[01-Open-Discussions/022-updated-mvp-implementation-plan]]
 5. [[00-Canvas/Planner-Mindmap-Migration-Ledger]]
+6. [[02-Decisions/repository-artifact-migration-ledger]]
 
 ## Current state
 
@@ -77,6 +78,7 @@ Do not implement behavior from those files merely because they remain in the vau
 - `01-Closed-Discussions/` — authoritative accepted product, domain, runtime, safety, and validation decisions
 - `01-Open-Discussions/` — active discussions; currently includes the migration and implementation reconciliation plan
 - `02-Decisions/` — accepted-decision inventory plus ADRs awaiting or carrying explicit reconciliation status
+- Repository-wide artifact classifications and migration gates are tracked in [[02-Decisions/repository-artifact-migration-ledger]].
 - `03-Research/` — non-authoritative evidence and research notes
 - `04-Specs/` — the current AI-native baseline plus specifications at different migration states
 - `05-Flows/` — supporting or historical flows; not authoritative unless explicitly reconciled

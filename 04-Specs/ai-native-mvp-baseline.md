@@ -69,7 +69,9 @@ Planning is the first-value engine. Reconcile is not deferred; it is the adaptat
 
 ## 4. Final MVP Baseline Matrix
 
-| ID | Capability or boundary | Status | Authoritative source | Mind Map section | Milestone | Pilot gate |
+Each row has exactly one owning authority. In the `Primary authority; required dependencies` column, the first linked source is the primary authority for that baseline row. Any later linked sources are required dependencies or refinements and may not silently replace the primary owner's semantics. Detailed field ownership remains governed by [[02-Decisions/accepted-decision-inventory-001-021]].
+
+| ID | Capability or boundary | Status | Primary authority; required dependencies | Mind Map section | Milestone | Pilot gate |
 |---|---|---|---|---|---|---|
 | `B-01` | Complete `Plan → Execute → Adapt` loop | `MVP_REQUIRED` | [[01-Closed-Discussions/010-ai-first-planning-and-reconcile-roadmap]]; [[01-Closed-Discussions/011-ai-native-mvp-scope-and-mindmap-update]] | Product Vision; MVP Core Loop | M0–M7 | H1 and H2 must both be measurable |
 | `B-02` | Functional pilot participant profile and consented bounded cohort | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/010-ai-first-planning-and-reconcile-roadmap]]; [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | Product Vision; Traction Metrics | M0, M8, M9 | recruitment, consent, exclusions, and locale locked |
@@ -97,7 +99,7 @@ Planning is the first-value engine. Reconcile is not deferred; it is the adaptat
 | `B-24` | Strict output validation, allowlisted repair, bounded retry/timeout/rate/circuit controls, pinned artifacts, and spend caps | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]] | AI Guardrails; Implementation | M5, M7, M9 | reliability/adversarial tests and provider hard-cap verification pass |
 | `B-25` | H1/H2 instrumentation, metric dictionary, denominator mapping, immutable severity segmentation, and analysis package | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | Traction Metrics; Data Events | M8 | thresholds/classifiers lock before outcome review |
 | `B-26` | Crisis corpus, localized resources, restricted observability audit, and Product + Safety + Engineering sign-off | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | AI Guardrails; Implementation | M8–M9 | whole-pilot crisis hard gate passes |
-| `B-27` | Monitoring, incident response, support, kill-switch, rollback, spend-cap, and pilot-auth runbooks/drills | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/001-008-legacy-surviving-decisions]]; [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]; [[01-Closed-Discussions/021-validation-plan-and-decision-gates]] | Implementation / Delivery Plan | M8–M9 | readiness checklist and drills pass |
+| `B-27` | Monitoring, incident response, support, kill-switch, rollback, spend-cap, and pilot-auth runbooks/drills | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Closed-Discussions/021-validation-plan-and-decision-gates]]; [[01-Closed-Discussions/020c-structured-output-reliability-and-cost-controls]]; [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] | Implementation / Delivery Plan | M8–M9 | readiness checklist and drills pass |
 | `B-28` | Decision-to-Canvas, spec, code, event, test, and gate traceability | `PILOT_REQUIRED_NON_PRODUCT` | [[01-Open-Discussions/022-updated-mvp-implementation-plan]] | All sections | M0 onward | no accepted decision or metric lacks implementation evidence |
 
 ---

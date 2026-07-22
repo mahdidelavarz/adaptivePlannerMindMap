@@ -28,6 +28,7 @@ Implementation plan              Not yet authoritative
 
 4. [[00-Canvas/Planner-Mindmap-Migration-Ledger]] — prepared migration operations and traceability
 5. [[00-Canvas/Planner-Mindmap.canvas]] — inspect only as the stale migration input until the ledger is applied and verified
+6. [[02-Decisions/repository-artifact-migration-ledger]] — classifications, required reviewers, migration gates, and unresolved-configuration ownership for the rest of the vault
 
 ### Detailed behavior
 

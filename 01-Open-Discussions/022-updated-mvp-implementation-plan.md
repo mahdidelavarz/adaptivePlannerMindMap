@@ -56,7 +56,7 @@ When sources disagree, use this precedence order:
 
 The current Mind Map may not override an accepted resolution merely because the map is easier to see.
 
-Each final baseline decision must identify exactly one authoritative source.
+Each final baseline decision must identify exactly one primary authoritative owner. Required dependency sources may also be named, but they may not obscure ownership or silently replace the primary owner's semantics.
 
 ---
 
@@ -452,6 +452,8 @@ manually create one Task
 This slice must include auth/ownership, versioning, failure handling, and basic observability.
 
 ### 8.3 Proposed Milestone Sequence
+
+The M1–M9 sequence below is `PROVISIONAL`. It does not become an authoritative implementation roadmap until Workstreams G–J complete repository verification, reuse classification, dependency and ownership approval, exit gates, and the pilot-readiness package.
 
 #### M0 — Reconciliation and Map Baseline
 
@@ -917,17 +919,18 @@ Discussion 022 must produce or require:
 3. Authoritative Discussion Index — completed inside the Accepted Decision Inventory
 4. [[04-Specs/ai-native-mvp-baseline|Final MVP Baseline Matrix]] — completed
 5. [[00-Canvas/Planner-Mindmap-Migration-Ledger|Mind Map Migration Ledger]] — prepared and structurally validated; application pending
-6. Updated and verified [[00-Canvas/Planner-Mindmap.canvas|repository Mind Map]]
-7. Implementation Reuse and Supersession Matrix
-8. Dependency Graph
-9. Milestone and Exit Gate Plan
-10. Ownership Matrix
-11. Contract Freeze Register
-12. Test Coverage Matrix
-13. Scope-Cut Register
-14. Pilot Readiness Checklist
-15. Release Readiness Checklist
-16. Risk and Contingency Register
+6. [[02-Decisions/repository-artifact-migration-ledger|Repository Artifact Migration Ledger]] — prepared; classification approval and application pending
+7. Updated and verified [[00-Canvas/Planner-Mindmap.canvas|repository Mind Map]]
+8. Implementation Reuse and Supersession Matrix
+9. Dependency Graph
+10. Milestone and Exit Gate Plan
+11. Ownership Matrix
+12. Contract Freeze Register
+13. Test Coverage Matrix
+14. Scope-Cut Register
+15. Pilot Readiness Checklist
+16. Release Readiness Checklist
+17. Risk and Contingency Register
 
 ---
 
@@ -940,12 +943,13 @@ A. reconcile Discussions 001–008; confirm Discussion 009 absence — COMPLETE
 B. inventory Discussions 010–021 — COMPLETE
 C. resolve conflicts and produce final MVP baseline — COMPLETE
 D. create migration ledger — PREPARED; approval and application pending
-E. update actual Mind Map
-F. verify map consistency across roles
-G. classify reusable and superseded implementation work
-H. approve milestone sequence, ownership, and exit gates
-I. approve pilot-readiness checklist
-J. publish final Discussion 022 resolution
+E. classify repository artifacts and approve the Repository Artifact Migration Ledger
+F. update actual Mind Map
+G. migrate formal artifacts and verify map/repository consistency across roles
+H. classify reusable and superseded implementation work
+I. approve milestone sequence, ownership, and exit gates
+J. approve pilot-readiness checklist
+K. publish final Discussion 022 resolution
 ```
 
 No remaining step may be marked complete solely because a future action was documented. Step A is complete because its consolidated record exists, its source dispositions are explicit, and the obsolete source files have been removed.

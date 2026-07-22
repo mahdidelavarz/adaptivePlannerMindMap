@@ -6,6 +6,13 @@ Living document. Captures recurring standards that emerged across the GPT × Cla
 review loop for this project. Any Claude instance reviewing a discussion in this
 repo should read this file first.
 
+For current repository work, first read [[README]], [[00-START-HERE]],
+[[02-Decisions/accepted-decision-inventory-001-021]], and
+[[04-Specs/ai-native-mvp-baseline]], then both review standards, the relevant
+closed discussions, and—when migrating artifacts—Discussion 022 and both
+migration ledgers. Use Discussion 022's source hierarchy; legacy formal artifacts
+do not outrank accepted closed decisions merely because they remain in the vault.
+
 ## Purpose
 
 Long review threads develop implicit standards that a fresh context won't have.
