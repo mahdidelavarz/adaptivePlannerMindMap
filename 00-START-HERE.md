@@ -4,7 +4,7 @@
 
 The old Reconcile-first Phase 1 MVP and its implementation-ready framing are deprecated.
 
-The accepted AI-native direction and repository documentation migration are complete. Implementation is still blocked until Discussion 022 makes its provisional milestone sequence authoritative and the applicable configuration/readiness gates pass.
+The accepted AI-native direction, repository documentation migration, and final Discussion 022 resolution are complete. M1–M8 are authoritative for implementation planning. Implementation execution remains blocked until the applicable M1 owner and configuration review gates pass.
 
 ```txt
 Accepted product decisions       Closed Discussions 010–021
@@ -15,6 +15,7 @@ Mind Map                         Migrated and verified
 Discussion 022                   Closed
 Implementation plan              M1–M8 authoritative for planning
 M0 source-of-truth freeze        Complete
+M1 execution authorization       Pending owner and configuration approval
 ```
 
 ## Required reading order
