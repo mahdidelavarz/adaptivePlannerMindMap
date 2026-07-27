@@ -33,7 +33,7 @@ Workstream J readiness checklist structures    APPROVED; PILOT/RELEASE NOT READY
 Implementation planning authority              M1–M8 ACTIVE; M9 NOT PASSED
 Final Discussion 022 resolution                PUBLISHED
 M1 entry/configuration package                 READY FOR OWNER REVIEW
-Implementation readiness                       NOT YET APPROVED
+M1 execution authorization                     PENDING OWNER AND CONFIGURATION APPROVAL
 ```
 
 The current [[00-Canvas/Planner-Mindmap.canvas]] has been migrated to the accepted AI-native baseline and passed structural and cross-role verification. It is now the verified visual projection described by the source-of-truth hierarchy.
@@ -59,13 +59,25 @@ Detailed behavior belongs to the authoritative closed discussions and the accept
 
 ## Source-of-truth hierarchy
 
-When documents disagree, use this order:
+Authority is topic-specific rather than a single universal ranking:
+
+### Product and behavior semantics
 
 1. authoritative closed Discussions 010–021 and their explicit ownership boundaries;
-2. [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] for narrowly retained compatibility decisions only;
-3. verified nodes in [[00-Canvas/Planner-Mindmap.canvas]] **after** the migration ledger is applied and verification passes;
-4. formal specifications and ADRs explicitly reconciled and adopted by Discussion 022;
-5. older specifications, ADRs, implementation plans, flows, sketches, and Git history as non-normative evidence only.
+2. [[01-Closed-Discussions/001-008-legacy-surviving-decisions]] for narrowly retained compatibility decisions only.
+
+### Migration, implementation planning, ownership, and readiness structure
+
+1. [[01-Closed-Discussions/022-updated-mvp-implementation-plan]];
+2. its approved implementation, ownership, freeze, risk, test, and readiness packages under `05-Implementation/`.
+
+### Visual and formal projections
+
+1. verified nodes in [[00-Canvas/Planner-Mindmap.canvas]] after migration and verification;
+2. formal specifications and ADRs explicitly reconciled and adopted by Discussion 022;
+3. older specifications, ADRs, implementation plans, flows, sketches, and Git history as non-normative evidence only.
+
+Generated text, client state, stale map nodes, and legacy artifacts never outrank current canonical state or an accepted owning decision.
 
 The consolidated index is [[02-Decisions/accepted-decision-inventory-001-021]]. The scope projection is [[04-Specs/ai-native-mvp-baseline]].
 
