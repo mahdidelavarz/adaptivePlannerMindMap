@@ -2,9 +2,9 @@
 
 ## Status
 
-Completed for Discussion 022 Workstream C and accepted as the scope input for Mind Map migration.
+Completed for Discussion 022 Workstream C and accepted as the current scope authority for M1–M8 implementation planning.
 
-This baseline defines the smallest coherent MVP that preserves the accepted `Plan → Execute → Adapt` thesis. It becomes implementation authority only after Discussion 022 completes Mind Map verification, formal-document reconciliation, ownership, and milestone exit gates.
+This baseline defines the smallest coherent MVP that preserves the accepted `Plan → Execute → Adapt` thesis. The authority conditions recorded during Workstream C were subsequently satisfied by the final Discussion 022 resolution: Mind Map verification, formal-document reconciliation, ownership, source-of-truth freeze, and milestone planning gates are complete. Detailed behavior remains subordinate to its owning closed discussion, and M1 execution still requires its recorded owner and configuration approvals.
 
 Decision-level traceability is maintained in [[02-Decisions/accepted-decision-inventory-001-021]]. Source discussions remain authoritative for detailed semantics.
 
@@ -264,9 +264,9 @@ Any such cut requires reopening its authoritative discussion rather than editing
 - Every `PILOT_REQUIRED_NON_PRODUCT` item has a blocking gate.
 - Deferred and removed work is explicit.
 - No product-semantic conflict or open question remains across Discussions 001–021.
-- Remaining `UNRESOLVED` items are configuration, evidence, ownership, legal, or rollout packages governed by Discussion 022.
+- Remaining `UNRESOLVED` items are configuration, evidence, ownership, legal, or rollout packages governed by Discussion 022 and its implementation/readiness packages.
 
-Workstream C is complete. The next required operation is Workstream D: create the migration ledger and apply this baseline to [[00-Canvas/Planner-Mindmap.canvas]].
+Workstream C is complete. Discussion 022 subsequently completed the migration ledger, Canvas migration, repository-wide reconciliation, cross-role verification, source-of-truth freeze, implementation planning, and final closure. The next operational step is M1 owner and configuration approval through [[05-Implementation/m1-entry-package]] and [[05-Implementation/m1-configuration-register]].
 
 ---
 
@@ -276,4 +276,4 @@ Baseline نهایی MVP حلقهٔ کامل `Plan → Execute → Adapt` را ا
 
 موجودیت‌های canonical شامل Goal، Project، Task، Routine و RoutineOccurrence هستند. AI هیچ اختیار مستقیم برای mutation ندارد و confirmation نیز بدون revalidation و CommandResult به معنای موفقیت نیست. manual fallback، Today، deterministic Reconcile، crisis fail-closed، eventهای لازم برای validation و مسیر خروج از خرابی AI قابل حذف نیستند.
 
-قابلیت‌های ضروری محصول، الزامات غیرمحصولی pilot، موارد post-pilot، موارد حذف‌شده و configurationهای حل‌نشده جدا شده‌اند. هر قابلیت منبع، بخش Mind Map، milestone و pilot gate مشخص دارد. Workstream بعدی ۰۲۲ ساخت Migration Ledger و اعمال واقعی این baseline روی Canvas است.
+قابلیت‌های ضروری محصول، الزامات غیرمحصولی pilot، موارد post-pilot، موارد حذف‌شده و configurationهای حل‌نشده جدا شده‌اند. هر قابلیت منبع، بخش Mind Map، milestone و pilot gate مشخص دارد. شرایط authority این baseline توسط بسته‌شدن Discussion 022 و تکمیل migration و verification برآورده شده‌اند؛ مرحلهٔ فعلی تأیید owner و configurationهای M1 برای شروع اجرای کنترل‌شده است.
