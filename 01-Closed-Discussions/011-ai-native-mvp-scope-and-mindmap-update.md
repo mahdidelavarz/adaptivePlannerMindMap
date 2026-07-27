@@ -4,9 +4,9 @@
 
 Accepted and closed.
 
-Discussion 011 is closed as the scope umbrella and authoritative navigation index for the AI-native MVP decision chain. Discussions 012–021 have produced accepted decisions or final resolution files. Discussion 022 remains open as the implementation, formal-document, and Mind Map migration handoff; it is not a reason to keep this scope index open.
+Discussion 011 is closed as the scope umbrella and authoritative navigation index for the AI-native MVP decision chain. Discussions 012–021 produced accepted decisions or final resolution files. Discussion 022 was the implementation, formal-document, and Mind Map migration handoff and has since completed that work and closed.
 
-This file does not restate every detailed decision. It identifies the accepted product direction, the authoritative source for each decision family, precedence rules, and the work handed to Discussion 022.
+This file does not restate every detailed decision. It identifies the accepted product direction, the authoritative source for each decision family, precedence rules, and the work that was handed to Discussion 022.
 
 ---
 
@@ -125,19 +125,20 @@ The product-decision review from 012 through 021 is substantively complete:
 019 → closed by final 019A, 019B and 019C
 020 → closed by final 020A, final 020B and accepted 020C
 021 → closed by final 021 resolution
+022 → closed after legacy reconciliation, Mind Map migration, formal-document reconciliation, verification, and implementation planning
 ```
 
-All historical proposals, split hubs, and redundant closure files from Discussions 001–021 have been removed from `01-Open-Discussions`. Only Discussion 022 remains open.
+All historical proposals, split hubs, and redundant closure files from Discussions 001–022 have been removed from `01-Open-Discussions`. The folder is currently empty.
 
-Discussion 022 is intentionally still open. Legacy reconciliation, the accepted decision inventory, and the final MVP baseline are complete; Mind Map migration, formal-document reconciliation, verification, and implementation readiness remain.
+Discussion 022 completed the handoff defined here: legacy reconciliation, the accepted decision inventory, final MVP baseline, Mind Map migration, formal-document reconciliation, verification, and implementation-planning authority are now complete. M1 execution remains subject to its named owner and configuration gates.
 
 ---
 
 ## 6. Formalization Rule
 
-The accepted discussions do not silently rewrite the Mind Map, ADRs, or formal specs merely by existing.
+The accepted discussions did not silently rewrite the Mind Map, ADRs, or formal specs merely by existing.
 
-Discussion 022 must:
+Discussion 022 was required to:
 
 1. use the completed [[01-Closed-Discussions/001-008-legacy-surviving-decisions|legacy reconciliation]],
 2. use the completed [[02-Decisions/accepted-decision-inventory-001-021|decision inventory]] and [[04-Specs/ai-native-mvp-baseline|MVP baseline]],
@@ -147,7 +148,7 @@ Discussion 022 must:
 6. derive the implementation sequence from that reconciled baseline,
 7. preserve the validation and safety gates required for pilot readiness.
 
-Until this migration is complete, conflicting legacy text must not be used to override an accepted final resolution.
+Discussion 022 has completed these formalization responsibilities. Current projections and implementation packages must still remain subordinate to the owning product decisions and their recorded gates.
 
 ---
 
@@ -167,7 +168,7 @@ The final Mind Map must include, at minimum:
 - validation hypotheses, denominators, thresholds and release gates,
 - explicit deferred and rejected scope.
 
-This file records the required coverage. Discussion 022 owns the actual map edits and consistency verification.
+This file records the required coverage. Discussion 022 owned the actual map edits and consistency verification, which are now complete.
 
 ---
 
@@ -182,7 +183,7 @@ This resolution supersedes the following parts of the original Discussion 011:
 - direct reliance on initial umbrella drafts when final resolution files now exist,
 - the implication that 011 must stay open until the implementation work in 022 is finished.
 
-Discussion 011 closes the scope and navigation layer. Discussion 022 remains open for application and execution.
+Discussion 011 closes the scope and navigation layer. Discussion 022 subsequently completed the application and execution-planning handoff.
 
 ---
 
@@ -193,8 +194,8 @@ The AI-native MVP direction is accepted.
 The 012–021 product-decision chain is substantively closed.
 Final resolutions and accepted amendments are authoritative over historical drafts.
 Discussion 011 is the closed navigation index for those decisions.
-Discussion 022 is the sole open handoff for baseline reconciliation,
-Mind Map migration, formal-document updates, and implementation sequencing.
+Discussion 022 completed baseline reconciliation, Mind Map migration,
+formal-document updates, verification, and implementation sequencing.
 ```
 
 ---
@@ -205,6 +206,6 @@ Mind Map migration, formal-document updates, and implementation sequencing.
 
 حلقهٔ نهایی محصول شامل تبدیل هدف یا نیت به پیشنهاد ساختاریافتهٔ Goal، Project، Task و Routine، تأیید کاربر، اجرای Today، تولید شواهد واقعی، Reconcile قطعی و محدودشده، کمک AI برای توضیح یا پیشنهاد، و اعمال تغییر پس از تأیید و بررسی مجدد وضعیت فعلی است.
 
-بحث ۰۱۱ مسئول تعریف جهت و معرفی منابع معتبر است و اکنون بسته شده است. بحث ۰۲۲ همچنان باز می‌ماند، چون مسئول پاک‌سازی تصمیم‌های قدیمی، انتقال تصمیم‌های نهایی به Mind Map و اسناد رسمی، بررسی سازگاری و ساخت برنامهٔ اجرایی است.
+بحث ۰۱۱ مسئول تعریف جهت و معرفی منابع معتبر است. بحث ۰۲۲ نیز handoff مربوط به پاک‌سازی تصمیم‌های قدیمی، انتقال تصمیم‌های نهایی به Mind Map و اسناد رسمی، بررسی سازگاری و ساخت برنامهٔ اجرایی را کامل کرده و بسته شده است.
 
-بنابراین مسیر تصمیم‌گیری دیگر «از ۰۱۲ شروع کن» نیست؛ تصمیم‌ها گرفته شده‌اند و مرحلهٔ باقی‌مانده، اعمال و یکپارچه‌سازی آن‌ها در ۰۲۲ است.
+بنابراین مسیر تصمیم‌گیری دیگر «از ۰۱۲ شروع کن» نیست؛ تصمیم‌ها گرفته و منتقل شده‌اند و مرحلهٔ فعلی، تأیید gateهای M1 و آغاز اجرای کنترل‌شده است.
