@@ -2,13 +2,20 @@
 
 ## Status
 
-**OPEN — proposed direction, pending Claude review.**
+**OPEN — Claude review round 1 completed; findings integrated; final re-review pending.**
 
 This discussion is **not yet accepted or closed**.
 
-Nothing in this file is authoritative product behavior until the review is completed and the resulting decisions are explicitly accepted.
+Nothing in this file is authoritative product behavior until the final review is completed and the resulting direction is explicitly accepted.
 
-**Mind Map status: NOT APPLIED.**
+```txt
+STATUS = OPEN
+CLAUDE_REVIEW_ROUND_1 = COMPLETED
+ROUND_1_FINDINGS = INTEGRATED
+FINAL_REVIEW = PENDING
+MIND_MAP = NOT_APPLIED
+IMPLEMENTATION = NOT_AUTHORIZED_FROM_THIS_FILE
+```
 
 Do not update `00-Canvas/Planner-Mindmap.canvas`, formal specifications, implementation plans, or runtime contracts from this file while the discussion remains open.
 
@@ -45,7 +52,7 @@ long-term Goal / Project direction
 maximum seven-day detailed execution
 ```
 
-A user may request a one-year plan, while the AI creates only the first seven days of detailed Task and Routine execution.
+A user may request a one-year plan while the AI creates only the first seven days of detailed Task and Routine execution.
 
 Discussion 014 already defines:
 
@@ -58,7 +65,7 @@ Week 1
 
 However, a missing contract remains:
 
-> When Week 2, Week 3, or Week 20 is generated, what durable product context preserves the important facts the user gave during the original planning conversation?
+> When Week 2, Week 3, or Week 20 is generated, what durable product context preserves the important future-relevant facts the user gave during the original planning conversation?
 
 Example:
 
@@ -68,52 +75,42 @@ Reach English B2 within one year.
 
 Clarification answers:
 - current level is A2
-- about 45 minutes are available per day
+- about 45 minutes are available per study day
 - Friday must remain completely free from study
 - only a phone is available
 - conversation is more important than grammar-heavy study
 - IELTS preparation is not part of the goal
 ```
 
-The first PlanningDraft may use all of this information correctly.
+The first PlanningDraft may use all of this correctly.
 
-After approval, the raw conversation or temporary PlanningDraft must not become the product's permanent memory by accident.
-
-But if none of the future-relevant information survives, Week 2 may know only:
-
-```txt
-Goal title
-Goal desiredOutcome
-Projects
-current Tasks and Routines
-```
-
-and lose important constraints, resources, preferences, baseline state, or explicit exclusions.
+After approval, the raw conversation or temporary PlanningDraft must not become permanent product memory by accident. But if none of the future-relevant information survives, later weekly planning can lose important constraints, resources, preferences, starting state, or explicit exclusions.
 
 The product must not depend on model-session memory for correctness.
 
 Core requirement:
 
-> Weekly Planning AI must receive the durable planning context it needs from product state, not from an assumption that the model remembers an earlier conversation.
+> Weekly Planning AI must receive durable planning context from product state, not from an assumption that the model remembers an earlier conversation.
 
 ---
 
 ## 2. Scope
 
-This discussion proposes rules for:
+This discussion defines a proposed contract for:
 
 1. which information from Planning conversation may survive approval,
 2. which information must instead be written into existing canonical entity fields,
 3. which information must remain temporary and disappear with the draft,
-4. a structured `PlanningFact` model for future-relevant user facts that have no existing canonical home,
+4. structured `PlanningFact` records for future-relevant user facts that have no existing canonical home,
 5. HARD, SOFT, and INFORMATIONAL semantics,
 6. a closed vocabulary for deterministically enforceable HARD constraints,
 7. AI extraction and explicit user review of proposed Planning Facts,
-8. editing, deleting, and reconfirming persisted facts,
+8. editing, removing, expiration, and reconfirmation,
 9. deterministic validation of supported HARD constraints,
-10. assembly of context for Week N rolling execution planning,
-11. regeneration of long-term roadmap narratives instead of persisting stale AI strategy text,
-12. privacy, retention, provenance, and observability inheritance.
+10. assembly of context for rolling Week-N planning,
+11. regeneration of long-term roadmap narrative instead of persistence of stale AI strategy text,
+12. privacy, retention, provenance, and observability inheritance,
+13. Goal and standalone Project scope.
 
 ### Explicitly out of scope
 
@@ -121,24 +118,23 @@ This discussion does not propose:
 
 - a canonical `Plan` entity,
 - persistence of the full AI conversation as planning truth,
-- persistence of arbitrary AI strategy narratives,
+- persistence of arbitrary AI strategy narrative,
 - a global user planning-profile system,
 - a universal constraint language,
 - deterministic enforcement of every natural-language preference,
+- new Task time-of-day or duration fields,
 - a new Reconcile severity model,
-- a new Goal lifecycle,
-- detailed production database/API implementation before the product contract is accepted,
+- a new Goal or Project lifecycle,
+- hard blocking of manual user edits from Planning Facts,
 - Mind Map changes while this discussion is open.
 
 ---
 
-## 3. Existing Accepted Constraints That Must Remain Intact
-
-Discussion 023 must not silently replace these accepted decisions.
+## 3. Existing Accepted Decisions That Must Remain Intact
 
 ### 3.1 No canonical Plan entity
 
-The canonical MVP entities remain:
+Canonical MVP work entities remain:
 
 ```txt
 Goal
@@ -148,13 +144,13 @@ Routine
 RoutineOccurrence
 ```
 
-`PlanningDraft` may be temporarily persisted for recovery and approval workflows but is not canonical work truth.
+Planning Facts are subordinate durable planning context, not another top-level work entity and not a persisted Plan.
 
 ### 3.2 Seven-day detailed execution horizon
 
 Long-lived Goals, Projects, and Routines may span months or years.
 
-Detailed Task execution generated by one PlanningDraft remains limited to no more than seven consecutive local calendar days.
+Detailed AI-generated Task execution remains limited to no more than seven consecutive local calendar days per execution window.
 
 Discussion 023 does not authorize a 365-day scheduled Task backlog.
 
@@ -164,30 +160,24 @@ AI proposes.
 
 The user approves.
 
-No proposed durable Planning Fact may silently become trusted product state merely because the model inferred or extracted it.
+No durable Planning Fact may silently become trusted state because the model extracted or inferred it.
 
 ### 3.4 Derive instead of duplicate
 
 Existing source-of-truth discipline remains mandatory.
 
-Examples already accepted elsewhere include:
-
 ```txt
-FirstWeekEntry.date
-→ derived from Task.plannedDate
-
-nextTemporalCheckpoint
-→ derived
-
-carryCount
-→ derived from events
+FirstWeekEntry.date → derived from Task.plannedDate
+nextTemporalCheckpoint → derived
+carryCount → derived from events
+PlanningFact.category → derived from factType
 ```
 
-Planning Facts must not duplicate information that already has a correct canonical home.
+Planning Facts must not duplicate information that already has the correct canonical home.
 
 ---
 
-## 4. Proposed Governing Principle
+## 4. Governing Principle
 
 Do not persist the planning conversation.
 
@@ -200,19 +190,19 @@ Persist only reviewed, future-relevant, structured user planning facts that:
 2. do not already have an appropriate canonical field,
 3. can be represented without inventing psychological or behavioral conclusions,
 4. have explicit provenance,
-5. are visible and editable by the user.
+5. are visible, editable, and removable by the user.
 ```
 
-Then rebuild every later weekly planning context from:
+Every later weekly planning context is rebuilt from:
 
 ```txt
 canonical current state
 +
-confirmed Planning Facts
+confirmed applicable Planning Facts
 +
-recent execution evidence
+recent bounded execution evidence
 +
-relevant deterministic Reconcile facts
+relevant scoped deterministic Reconcile facts
 +
 current local temporal context
 ```
@@ -223,145 +213,207 @@ Model memory is never a correctness dependency.
 
 ## 5. Three-Way Information Placement Rule
 
-Every piece of information obtained during Planning clarification should be classified using this rule.
+Every potentially persistent planning detail must pass this classification.
 
 ### Case A — Existing canonical home exists
 
-Store it only in that canonical field.
+Store it only in the canonical field.
 
 Examples:
 
 ```txt
-user specifies Goal target date
-→ Goal.targetDate
-
-user specifies Task execution date
-→ Task.plannedDate
-
-user defines a recurring weekday pattern
-→ Routine.recurrenceDefinition
-
-user defines Project completion meaning
-→ Project.completionMeaning
+Goal target date → Goal.targetDate
+Task execution date → Task.plannedDate
+Routine weekday pattern → Routine.recurrenceDefinition
+Project completion meaning → Project.completionMeaning
+Project target date → Project.targetDate
 ```
 
-Do not also duplicate the same fact inside Goal Planning Context.
+Do not duplicate the same information in Planning Facts.
 
-### Case B — Future-relevant but no canonical home exists
+### Case B — Future-relevant and no canonical home exists
 
-Propose a structured Planning Fact for explicit review.
+AI may propose a structured Planning Fact for explicit user review.
 
-Examples may include:
+Examples:
 
 ```txt
 current English level is A2
-Friday must remain unavailable for this Goal
+Friday must remain unavailable for this planning scope
 only a phone is available
-user generally has 45 minutes per study day
 conversation-focused learning is preferred
 IELTS preparation is explicitly excluded
 ```
 
 ### Case C — Draft-local only
 
-Keep it only inside the Planning flow and discard it when the draft lifecycle ends.
-
-Example:
-
-A clarification answer that exists only to choose between two draft structures and has no later planning value should not become durable merely because it appeared in conversation.
+Keep it only inside the Planning flow and discard it with the draft lifecycle.
 
 Core rule:
 
-> Persistence is justified by future planning value, not by the fact that something was said to AI.
+> Persistence is justified by future planning value, not merely because something appeared in conversation.
+
+### Deterministic no-duplication gate
+
+Before proposed Planning Facts become reviewable, the Planning validation pipeline must check whether each proposed fact belongs in an existing canonical field proposed in the same draft.
+
+```txt
+proposed PlanningFact overlaps canonical proposal field
+→ do not persist both
+→ canonical field remains source of truth
+```
+
+Where the mapping is deterministically known, the PlanningFact proposal must be rejected or folded into the canonical proposal before review.
+
+The AI may not create a parallel fact merely to preserve conversational wording.
 
 ---
 
-## 6. Proposed Goal-Scoped Planning Context
+## 6. Planning Fact Scope
 
-For MVP, durable Planning Facts are proposed to be scoped to a Goal.
+Round-one review identified that Goal-only scope would recreate the same continuity gap for standalone Projects, which are explicitly supported by Discussion 013.
+
+For MVP, a durable Planning Fact is scoped to exactly one of:
+
+```txt
+Goal
+OR
+standalone Project
+```
 
 Conceptually:
 
 ```txt
-Goal
-└── PlanningContext
-    └── PlanningFact[]
+PlanningFact
+- goalId?
+- projectId?
+
+constraint:
+exactly one is non-null
 ```
 
-This does **not** create a new canonical work entity comparable to Goal, Project, Task, or Routine.
+Rules:
 
-The exact persistence shape remains open for review.
+- Goal-owned Project planning normally consumes the parent Goal's Planning Facts rather than duplicating them at the Project level.
+- standalone Project may own its own Planning Facts.
+- Task and Routine do not own persistent Planning Facts in MVP.
+- a one-off standalone Task does not justify a new persistent planning-memory scope.
+- user-level/global planning preferences remain out of scope.
 
-The product-level concept is:
-
-> Goal-scoped durable planning context containing user-reviewed facts needed to generate future execution windows coherently.
-
-### Why Goal-level first
-
-The current identified problem is continuity of planning for one long-running Goal.
-
-A global profile such as:
-
-```txt
-Never schedule anything on Friday across my entire life.
-```
-
-may eventually justify user-level planning preferences, but that is not required to resolve the current Goal continuity gap.
-
-MVP should not introduce a global planning-preference system without evidence.
+This mirrors the existing product discipline of explicit, exclusive ownership while avoiding a new global preference subsystem.
 
 ---
 
-## 7. Proposed PlanningFact Contract
+## 7. PlanningFact Contract
 
 Conceptual shape:
 
 ```txt
 PlanningFact
 - id
-- goalId
-- category
+- goalId?
+- projectId?
 - factType
 - strength
 - structuredValue
 - source
+- status
+- sourcePlanningAttemptId?
 - capturedAt
-- lastConfirmedAt?
+- lastConfirmedAt
 - updatedAt
+- expiredAt?
+- removedAt?
 ```
 
-Potential provenance:
+Exactly one of `goalId` or `projectId` is present.
+
+### 7.1 Category is derived
+
+`category` is not an independently mutable field.
+
+It is deterministically derived from `factType` using a versioned mapping.
+
+Example:
 
 ```txt
-source:
+UNAVAILABLE_WEEKDAY → AVAILABILITY
+AVAILABLE_DEVICE → RESOURCE
+CURRENT_LEVEL → STARTING_STATE
+LEARNING_FOCUS → PREFERENCE
+EXCLUDED_PATH → INTENT
+```
+
+A fact cannot be stored with a contradictory category label.
+
+### 7.2 Provenance
+
+Supported provenance includes:
+
+```txt
 USER_EXPLICIT
 USER_CONFIRMED_AI_EXTRACTION
 ```
 
-AI-inferred facts that have not been explicitly confirmed must not enter durable Goal planning context.
+`sourcePlanningAttemptId?` links the fact to the originating Planning attempt/draft when available for audit correlation without preserving the entire conversation as permanent context.
 
-### Proposed category vocabulary
+AI-inferred facts that have not been explicitly confirmed do not enter durable planning context.
+
+### 7.3 Initial confirmation timestamp
+
+Approval of a proposed Planning Fact in Draft Review is its first confirmation.
+
+Therefore on initial persistence:
 
 ```txt
-CONSTRAINT
-AVAILABILITY
-RESOURCE
-PREFERENCE
-STARTING_STATE
-INTENT
+capturedAt = persistence/capture time
+lastConfirmedAt = same initial confirmed time
 ```
 
-`category` describes planning meaning.
-
-`factType` describes the specific supported fact shape.
-
-The exact final taxonomy is open for Claude review.
+`lastConfirmedAt` is not null for an ACTIVE durable fact.
 
 ---
 
-## 8. Strength Semantics
+## 8. Fact Status and Lifecycle
 
-Proposed strengths:
+Planning Facts use a small lifecycle separate from work-entity lifecycle:
+
+```txt
+ACTIVE
+EXPIRED
+REMOVED
+```
+
+### ACTIVE
+
+The fact currently participates in applicable Planning context.
+
+### EXPIRED
+
+A deterministic date-bounded fact has passed its explicit validity range.
+
+Example:
+
+```txt
+UNAVAILABLE_DATE_RANGE
+2026-12-01 → 2026-12-20
+```
+
+after that range ends, the fact may become `EXPIRED` deterministically.
+
+Expiration preserves history and provenance.
+
+### REMOVED
+
+The user explicitly removes the fact from future Planning context.
+
+Removed facts are excluded from active Planning context but may remain in bounded audit history according to accepted retention policy.
+
+AI may suggest that an ACTIVE fact seems stale, but AI may not silently expire, remove, or rewrite a fact whose validity cannot be determined from its structured fields.
+
+---
+
+## 9. Strength Semantics
 
 ```txt
 HARD
@@ -371,129 +423,129 @@ INFORMATIONAL
 
 ### HARD
 
-A fact is HARD only when the product has a known machine-readable representation and a deterministic enforcement rule.
-
-Examples:
+HARD is permitted only when:
 
 ```txt
-UNAVAILABLE_WEEKDAY
-UNAVAILABLE_DATE
-UNAVAILABLE_DATE_RANGE
+1. factType is in the closed HARD vocabulary,
+2. structuredValue is schema-valid,
+3. the current MVP has enough canonical data to deterministically validate violations.
 ```
 
-A HARD fact may block a proposed detailed execution placement that violates it.
+A violation in an AI Planning proposal makes that placement invalid.
 
 ### SOFT
 
-A user preference that Planning AI should respect but whose violation does not automatically make the proposal invalid.
+A user preference the AI should respect but whose violation does not automatically invalidate a proposal.
 
-Example:
+A materially contradictory proposal may receive a non-blocking warning.
 
-```txt
-Prefer conversation practice over grammar-heavy study.
-```
-
-A visible non-blocking warning may be appropriate when a draft materially contradicts a confirmed SOFT preference.
+If contradiction detection requires AI interpretation, that warning must be represented as AI-generated review assistance rather than deterministic rule-engine output.
 
 ### INFORMATIONAL
 
-A future-relevant fact that should inform AI reasoning but cannot be deterministically enforced as a general rule.
+Future-relevant context that should inform planning but cannot be generally enforced.
 
 Example:
 
 ```txt
-Available device: phone only.
+AVAILABLE_DEVICE = PHONE_ONLY
 ```
 
-The system may not always know deterministically whether a proposed Task requires a laptop.
-
-Therefore this fact belongs in Planning context without pretending that a deterministic gate exists for every possible violation.
+Without machine-readable Task resource requirements, the system cannot deterministically prove whether every proposed Task can be performed on a phone.
 
 ---
 
-## 9. Closed HARD Constraint Vocabulary
+## 10. Closed HARD Constraint Vocabulary — MVP
 
-The HARD vocabulary must be closed and versioned.
+Claude review correctly found that `DAILY_TIME_WINDOW` and `MAX_DAILY_PLANNED_MINUTES` are not deterministically enforceable with the accepted Task model because Task has no canonical planned-time or estimated-duration field.
 
-AI must never invent a new HARD `factType` at runtime.
+They are therefore **not HARD types in MVP**.
 
-A deterministic validator must know exactly what each supported HARD type means and how to validate it.
-
-Initial candidate MVP vocabulary for review:
+The initial closed HARD vocabulary is limited to:
 
 ```txt
 UNAVAILABLE_WEEKDAY
 UNAVAILABLE_DATE
 UNAVAILABLE_DATE_RANGE
-DAILY_TIME_WINDOW
-MAX_DAILY_PLANNED_MINUTES
 ```
 
-Potential structured shapes:
+### 10.1 UNAVAILABLE_WEEKDAY
 
 ```txt
-UNAVAILABLE_WEEKDAY
+structuredValue:
 - weekdays: [MONDAY | TUESDAY | WEDNESDAY | THURSDAY | FRIDAY | SATURDAY | SUNDAY]
 ```
 
+For Goal or standalone Project scoped AI Task proposals:
+
 ```txt
-UNAVAILABLE_DATE
+Task.plannedDate local weekday in unavailable set
+→ invalid placement
+```
+
+When proposing a Routine, the recurrence proposal must not include a prohibited weekday when the recurrence representation can express that constraint.
+
+### 10.2 UNAVAILABLE_DATE
+
+```txt
+structuredValue:
 - localDate
 ```
 
+A proposed Task `plannedDate` equal to the unavailable local date is invalid.
+
+### 10.3 UNAVAILABLE_DATE_RANGE
+
 ```txt
-UNAVAILABLE_DATE_RANGE
+structuredValue:
 - startLocalDate
 - endLocalDate
 ```
 
+A proposed Task `plannedDate` inside the inclusive unavailable local-date range is invalid.
+
+### Deferred candidates
+
+These are not HARD in the current MVP:
+
 ```txt
 DAILY_TIME_WINDOW
-- startLocalTime
-- endLocalTime
-```
-
-```txt
 MAX_DAILY_PLANNED_MINUTES
-- minutes
 ```
 
-The final set must be reviewed for overlap, timezone/local-date semantics, Task fields actually available in MVP, and whether each candidate can truly be enforced with current product data.
+They may return only if later accepted canonical Task timing/duration data makes real deterministic enforcement possible.
 
-### Important downgrade rule
+The UI and AI must not advertise deterministic enforcement for them today.
 
-If a user expresses a hard natural-language constraint that is not representable by the supported closed HARD vocabulary, the system must not silently pretend deterministic enforcement exists.
+### Unsupported hard natural-language constraints
 
-It must not silently convert the user's meaning into a weaker constraint either.
-
-Instead, the draft review should make the limitation visible.
-
-Conceptually:
+If the user expresses a genuinely hard constraint outside the supported vocabulary:
 
 ```txt
-unsupported hard natural-language constraint
-→ visible unsupported-constraint state/warning
-→ user may edit/rephrase into a supported structured constraint
-   OR explicitly keep it as contextual SOFT/INFORMATIONAL guidance
+unsupported HARD meaning
+→ visible unsupported-constraint state
+→ do not pretend enforcement exists
+→ user may rephrase into a supported HARD type
+   OR explicitly retain it as SOFT/INFORMATIONAL contextual guidance
 ```
 
-The product must not weaken a user statement without visibility.
+The product must not silently weaken the user's statement.
+
+Unsupported HARD guidance does not automatically block approval of unrelated work entities, but the limitation must remain visible before approval.
 
 ---
 
-## 10. AI Extraction Is a Proposal, Not Truth
+## 11. AI Extraction Is Proposal, Not Truth
 
-Extracting future-relevant Planning Facts from conversation is a new AI responsibility.
-
-It must follow the existing authority model:
+Extracting durable Planning Facts is an AI responsibility governed by the existing authority model:
 
 ```txt
 conversation
 → AI proposes structured facts
-→ deterministic schema validation
-→ user reviews
-→ user accepts / edits / rejects
-→ accepted facts become durable context
+→ deterministic schema + duplication validation
+→ user reviews each durable fact
+→ accept / edit / reject
+→ accepted facts persist
 ```
 
 No silent absorption.
@@ -502,352 +554,362 @@ No background personality profiling.
 
 No inferred psychological labels.
 
-No conversion of ordinary conversational content into durable user facts merely because it might someday be useful.
+No persistence merely because information may someday be useful.
 
-### Draft Review requirement
+### Independent approval units
 
-Planning review should show proposed persistent facts distinctly enough that the user understands:
+Approval of work proposals and approval of durable Planning Facts are independent selections inside the same Planning review.
 
-> These details will be remembered for future planning under this Goal.
-
-The user must be able to:
+The user may:
 
 ```txt
-accept
-edit
-reject
+approve valid work entities
+while rejecting all proposed Planning Facts
 ```
 
-individual proposed facts.
+or accept some facts and reject others.
 
-Final UX treatment remains out of scope until the contract is accepted.
+Rejecting Planning Facts must not silently delete otherwise valid work proposals.
+
+A rejected fact simply does not become durable context.
 
 ---
 
-## 11. Deterministic Enforcement
+## 12. Deterministic Enforcement Scope
 
 HARD Planning Facts must not depend only on AI remembering to obey them.
 
-The accepted Discussion 020C validation pipeline already establishes that AI output becomes usable only after semantic, temporal, reference, policy, and context validation gates succeed.
+The Discussion 020C pipeline remains the enforcement location:
 
-Discussion 023 proposes adding supported HARD Planning Fact checks into the appropriate deterministic validation stages.
+```txt
+provider output
+→ schema validation
+→ semantic validation
+→ temporal validation
+→ policy/context validation
+→ usable Planning proposal
+```
+
+Supported HARD Planning Fact checks participate in those deterministic gates.
 
 Example:
 
 ```txt
-Goal Planning Fact:
+PlanningFact:
 UNAVAILABLE_WEEKDAY = FRIDAY
 
-AI proposes Task:
-plannedDate = Friday
+AI proposes:
+Task.plannedDate = Friday
 
 → deterministic validation failure
-→ proposal cannot become a valid reviewable execution placement in that form
 ```
 
-The system, not only the model, protects the accepted constraint.
+### Manual user actions
 
-### No false deterministic claims
+HARD Planning Facts gate AI-generated Planning proposals.
 
-Some Planning Facts cannot be generally validated deterministically.
+For MVP they do **not** block direct manual user actions such as Quick Create or manual Task/Routine edits.
 
-Example:
+Rationale:
+
+- a user may intentionally create an exception,
+- manual mutation authority belongs to the user,
+- forcing all manual paths through a new constraint engine would broaden this discussion substantially.
+
+Known MVP limitation:
 
 ```txt
-AVAILABLE_DEVICE = PHONE_ONLY
+manual edit may contradict an ACTIVE HARD Planning Fact
+→ user action remains authoritative
+→ no automatic rewrite occurs
 ```
 
-Without machine-readable Task resource requirements, the validator cannot prove whether an arbitrary proposed Task requires a laptop.
-
-Such a fact may inform AI reasoning but must not be advertised as deterministically enforced.
+A later UX may surface a non-blocking conflict warning, but that is not required by Discussion 023 MVP acceptance.
 
 ---
 
-## 12. Routine and Task Consumption
+## 13. Task and Routine Consumption
 
-A Goal-level Planning Fact is stored once.
+Planning Facts are stored once at their applicable Goal or standalone Project scope.
 
-It is not copied onto every Task or Routine.
+They are not copied onto each Task or Routine.
 
 ### Task generation
 
-Every future Planning operation for the Goal must receive applicable confirmed Planning Facts.
+Every future Planning operation for the scope receives applicable ACTIVE confirmed Planning Facts.
 
-Supported HARD temporal constraints are validated against proposed Task placement.
-
-Example:
-
-```txt
-UNAVAILABLE_WEEKDAY = FRIDAY
-→ Week 2 Planning must not place Goal-related Tasks on Friday
-```
+Supported HARD temporal facts are validated against proposed `Task.plannedDate`.
 
 ### Routine generation
 
-The same Goal Planning Facts are available while proposing new Routines.
+The same Planning Facts are available while proposing new Routines.
 
-When an accepted HARD constraint can be represented directly by the Routine recurrence definition, the resulting Routine should encode the canonical recurrence correctly.
+When an accepted HARD fact can be represented directly in `Routine.recurrenceDefinition`, the proposed Routine should encode the compatible recurrence.
 
-After creation, canonical recurrence remains the source of truth for that Routine.
+After Routine creation, canonical recurrence remains the Routine source of truth.
 
-Do not duplicate the same schedule rule into another Routine-local narrative field.
+Do not persist the same recurrence rule again as a Routine-local Planning Fact.
 
 ---
 
-## 13. Proposed Week-N Planning Context Contract
+## 14. Week-N Planning Context Contract
 
-The missing continuation contract should be explicit.
-
-A future weekly Planning operation for an existing Goal should receive a bounded context assembled from current product truth.
+A future weekly Planning operation receives bounded current context, never an unbounded replay of Planning conversation.
 
 Conceptually:
 
 ```txt
 WEEKLY_PLANNING_CONTEXT
 
-1. Goal
-   - desiredOutcome
-   - targetDate
-   - reviewDate where relevant
+1. Planning scope
+   - Goal OR standalone Project identity
 
-2. Confirmed Goal Planning Facts
-   - supported hard constraints
-   - availability
-   - resources
-   - preferences
-   - starting-state facts still relevant
-   - explicit exclusions / intent facts
-
-3. Active Projects
-   - ownership
-   - status
-   - completionMeaning
+2. Goal / Project current canonical fields
+   - desiredOutcome where Goal exists
+   - completionMeaning where Project exists
    - targetDate / reviewDate where relevant
 
-4. Active Routines
+3. ACTIVE confirmed applicable Planning Facts
+   - HARD constraints
+   - SOFT preferences
+   - INFORMATIONAL context
+
+4. Active child Projects where Goal-scoped
+   - ownership
+   - completionMeaning
+   - targetDate / reviewDate
+
+5. Active Routines in scope
    - recurrence
    - effective range
-   - relevant current state
+   - relevant state
 
-5. Relevant existing Tasks
+6. Existing relevant Tasks
    - unfinished work
-   - current placement
+   - placement
    - deadline / review context when relevant
 
-6. Recent execution evidence
-   - completed Tasks
-   - carried/replanned Tasks where relevant
-   - dropped Tasks where relevant
+7. Immediately preceding execution-window evidence
+   - bounded recent completed Tasks
+   - carries/replans where relevant
+   - drops where relevant
    - Routine DONE/MISSED facts
 
-7. Relevant deterministic Reconcile facts/signals
+8. Relevant deterministic Reconcile facts scoped to entities in this same Goal/Project planning scope
 
-8. Current local date and timezone
+9. Current local date and timezone
 
-9. Next detailed execution horizon
+10. Next detailed execution horizon
    - maximum seven local calendar days
 ```
 
-The exact DTO, field limits, history window, and token-budget rules belong to later technical refinement after product acceptance.
+### Bounded history
 
-### Critical invariant
+MVP execution history for rolling planning is limited to the immediately preceding execution window unless a separately accepted deterministic Reconcile fact already summarizes an older pattern.
 
-The context builder must be deterministic and bounded.
+Do not send unbounded historical Task/Routine logs merely because they exist.
 
-Missing model memory must never cause context widening or improvisational reconstruction of the original conversation.
+### Scoped Reconcile facts
+
+Reconcile context must be limited to facts whose affected entities belong to the current Goal or standalone Project scope.
+
+Global unrelated Reconcile facts must not leak into the Planning operation.
+
+### Terminal entities
+
+Terminal entities are not included merely for history. If a recent terminal Task/Project is necessary to explain the immediately preceding window, include only the bounded structured evidence needed, not an unbounded terminal history set.
+
+### Context integrity
+
+The context builder must be deterministic, bounded, and versioned.
+
+If required ACTIVE HARD facts are omitted from a Week-N request, Discussion 020C context-integrity validation must reject the operation.
 
 ---
 
-## 14. Long-Term Big Picture
+## 15. Long-Term Big Picture
 
-The original gap also raises a separate question: how should the user retain a useful one-year or multi-month big-picture view?
+The product should preserve long-term direction without persisting a stale free-form AI roadmap as truth.
 
-Proposed direction:
+### Persistent inputs
 
-### Persist facts and canonical structure
-
-Persist:
+Use:
 
 ```txt
 Goal desiredOutcome
 Goal targetDate
 Projects
-Project targetDates / completion meanings where applicable
-confirmed Goal Planning Facts
-actual current lifecycle and execution state
+Project targetDates / completion meanings
+ACTIVE confirmed Planning Facts
+actual current lifecycle state
 ```
 
-### Do not persist stale AI roadmap narrative as canonical truth
+### Derived/regenerated presentation
 
-Avoid storing a free-form block such as:
-
-```txt
-Months 1–3: fundamentals
-Months 4–6: architecture
-Months 7–9: portfolio
-...
-```
-
-as an indefinitely trusted planning source unless a future discussion defines explicit ownership, revision, and invalidation semantics.
-
-### Regenerate the view
-
-A user-facing long-term roadmap or yearly glance may be generated from current facts:
+A yearly or multi-month roadmap may be regenerated from current state:
 
 ```txt
-Goal
+Goal / Project structure
 +
-Projects and targetDates
+target dates
 +
-confirmed Planning Facts
+Planning Facts
 +
 actual progress
 +
 recent execution / Reconcile evidence
-→ fresh long-term roadmap explanation
+→ current long-term roadmap explanation
 ```
 
-Such narrative is derived AI presentation unless explicitly approved into an existing canonical field.
+This is derived AI presentation, not canonical strategy truth.
 
-This preserves the big picture without creating a stale parallel strategy source.
+It must use the existing trust label / authority semantics for AI explanation so the user can distinguish:
+
+```txt
+current AI interpretation
+≠ previously committed fact
+```
+
+Material changes in regenerated roadmap should be presented as an updated interpretation, never as if the user had previously committed to the new narrative.
 
 ---
 
-## 15. Update, Delete, and Reconfirmation
+## 16. Reconfirmation Without New Friction
 
-Persisted Planning Facts cannot be write-once memory.
+Planning Fact reconfirmation must not turn the accepted low-friction Goal/Project review into a mini configuration session.
 
-The user must be able to edit or remove them.
+### Default behavior
 
-### Proposed reconfirmation approach
+The existing continuation/review interaction remains concise.
 
-Do not introduce a new independent recurring interruption merely for Planning Facts.
+When relevant facts may need review, show an optional adjacent entry point such as:
 
-Use an existing Goal continuation/review interaction when appropriate to surface relevant facts for lightweight reconfirmation.
+```txt
+۳ قید برنامه‌ریزی ثبت شده
+بازبینی
+```
+
+Do not automatically expand every Planning Fact inside the primary continuation question.
+
+### Goal scope
+
+Use the existing Goal continuation/review surface as the natural optional entry point.
+
+### Standalone Project scope
+
+Use the existing Project review surface analogously.
+
+No new independent recurring timer is introduced solely for Planning Facts.
+
+### Starting-state facts
+
+`STARTING_STATE` facts have high staleness risk.
+
+They should be preferentially surfaced for optional reconfirmation when the parent Goal/Project reaches an existing review checkpoint, but the user should not be forced through a separate mandatory interview.
+
+---
+
+## 17. Staleness and Fact Evolution
+
+Not every fact has the same stability.
+
+Examples:
+
+```txt
+more stable:
+- explicit exclusions
+- durable device/resource constraints
+
+likely to change:
+- current skill level
+- temporary availability
+- date-bounded constraints
+```
+
+Rules:
+
+- user edit is authoritative,
+- deterministic date-bounded facts may expire from structured dates,
+- AI may suggest possible staleness but cannot silently mutate state,
+- reconfirmation uses existing Goal/Project review entry points,
+- no AI-generated expiration guess becomes truth.
+
+A Starting State fact remains a historical user-confirmed fact until edited/removed; it must not be silently rewritten because execution progress suggests improvement.
+
+---
+
+## 18. Privacy and Data Minimization
+
+Planning Facts may contain sensitive information and inherit accepted privacy, access, minimization, retention, redaction, and observability rules from Discussions 018A and 019C.
+
+Discussion 023 does not create a parallel privacy model.
+
+### Store operational meaning, not unnecessary reason text
+
+For structured constraints, persist only the operational value needed for future planning.
 
 Example:
 
 ```txt
-Goal review
-→ Are these planning constraints still accurate?
-→ unchanged / edit / remove
+User says:
+"جمعه‌ها به خاطر مشکل سلامتی نمی‌تونم برنامه داشته باشم."
+
+Persisted HARD fact:
+UNAVAILABLE_WEEKDAY = FRIDAY
 ```
 
-Exact cadence must inherit existing Goal review/continuation policy rather than inventing a competing timer.
-
-### Important open point
-
-The repository contains accepted Goal review and continuation mechanisms, but the precise UX and timing for fact reconfirmation must be checked against those accepted rules during review.
-
-Discussion 023 must not casually introduce a new fixed 14–30 day mechanism if that interval is not already authoritative.
-
----
-
-## 16. Staleness Rules
-
-Not every fact has the same staleness risk.
-
-Potential future policy may distinguish:
+Do **not** persist the unnecessary free-text reason:
 
 ```txt
-stable facts
-- explicit goal exclusion
-- durable resource limitation
-
-likely-changing facts
-- available minutes
-- unavailable date range
-- current starting level
+"because of a health condition"
 ```
 
-However, the MVP should avoid inventing AI-generated expiration guesses.
+unless that additional detail independently satisfies an accepted, necessary product-data purpose, which Discussion 023 does not establish.
 
-Until a more specific rule is accepted:
+Additional rules:
 
-- user edits are authoritative,
-- explicit Goal review may reconfirm facts,
-- deterministic date-bounded facts naturally expire when their date range passes,
-- AI may suggest that a fact appears stale but may not silently mutate or delete it.
+- `structuredValue` stores only the minimum operational value for its factType,
+- no arbitrary free-text `reason` field is part of the MVP PlanningFact contract,
+- no inferred diagnosis or psychological profile,
+- raw conversation is not the durable source of Planning Facts,
+- context manifests record scope metadata, counts, and field groups, not sensitive fact values.
 
----
+### Retention
 
-## 17. SOFT Constraint / Preference Violations
+ACTIVE Planning Facts need durability comparable to the planning scope they serve, not temporary-draft retention.
 
-A SOFT or INFORMATIONAL fact does not create a deterministic blocking gate merely because AI may have ignored it.
+They inherit the existing user-controlled deletion/access boundaries applicable to durable product state and audit history.
 
-However, material contradiction should not necessarily remain invisible.
-
-Proposed direction:
-
-```txt
-confirmed SOFT preference
-+
-materially contradictory proposal
-→ non-blocking visible warning when reliably detectable
-```
-
-Important limitation:
-
-If contradiction detection itself requires open-ended AI interpretation, the product must represent the result as AI-generated review assistance, not deterministic fact.
-
-Do not falsely label AI interpretation as rule-engine enforcement.
-
----
-
-## 18. Privacy, Sensitive Data, and Retention
-
-Planning Facts may contain sensitive information.
-
-Example:
-
-```txt
-A health-related limitation affects scheduling.
-```
-
-Discussion 023 must not invent a parallel privacy model.
-
-Proposed rule:
-
-Planning Facts inherit the strictest applicable data-minimization, access, retention, raw-content, and observability requirements from the accepted AI/privacy/persistence discussions, especially Discussions 018A and 019C.
-
-Additional principles:
-
-- store only the structured future-relevant fact needed for planning,
-- do not preserve unnecessary raw conversational wording,
-- do not create psychological profiles,
-- do not store inferred diagnoses,
-- context manifests should record scope metadata rather than duplicate fact content,
-- raw AI prompt/response retention does not become the source of Planning Facts.
-
-The exact retention class for durable Goal Planning Facts remains open for review because they differ from temporary PlanningDraft content: they may need to live as long as the Goal while still respecting user deletion and sensitive-data controls.
+Exact storage-class naming remains an implementation reconciliation task for the 019 family after Discussion 023 is accepted; this open discussion does not invent a competing retention taxonomy.
 
 ---
 
 ## 19. Provenance and Mutation Authority
 
-Every durable Planning Fact must preserve enough provenance to answer:
+Every durable Planning Fact must answer:
 
 ```txt
-Was this explicitly stated by the user?
-Was it extracted by AI and then confirmed?
-When was it captured?
-When was it last confirmed?
+what scope owns it?
+what factType is it?
+was it explicitly stated or AI-extracted and confirmed?
+which Planning attempt proposed it?
+when was it captured?
+when was it last confirmed?
+is it active, expired, or removed?
 ```
 
 AI is never the authorizing actor for persistence.
 
-Conceptually:
-
 ```txt
 AI extraction
 → proposed fact
-→ user acceptance
+→ user confirmation
 → persisted fact
 ```
 
-Later edits and removals are user-authorized changes.
+Later edits/removals are user-authorized.
 
-If deterministic system behavior marks a date-bounded fact inactive after its explicit range has passed, that must be defined separately and must not rewrite historical provenance.
+Deterministic expiration may only apply where the structured value itself establishes a finite validity range.
 
 ---
 
@@ -855,80 +917,82 @@ If deterministic system behavior marks a date-bounded fact inactive after its ex
 
 PlanningDraft remains ephemeral.
 
-A future version of the draft contract may include:
+If Discussion 023 is accepted, the PlanningDraft contract may gain:
 
 ```txt
 proposedPlanningFacts[]
 ```
 
-for review before approval.
+These proposals remain unapproved until explicit user confirmation.
 
-These are not durable merely because they exist inside the draft.
-
-Final approval may conceptually produce two categories of accepted output:
+Final Planning approval may produce two independent accepted output sets:
 
 ```txt
 canonical work entities
 +
-confirmed durable Goal Planning Facts
+confirmed durable Planning Facts
 ```
 
-This does not make Planning Facts a `Plan` entity.
+The exact transaction/API shape is deferred to later 019/020 reconciliation.
 
-The exact transaction/API shape is deferred until this discussion is accepted and the affected 019/020 contracts are amended coherently.
+A PlanningFact proposal overlapping a canonical proposal field must fail the no-duplication gate before final review.
 
 ---
 
 ## 21. Context Integrity and Observability
 
-Discussion 019C already defines `AIContextScopeManifest` so the product can record which logical context categories were included without duplicating raw content.
+If accepted, Planning operations should record Planning Fact context inclusion through the existing `AIContextScopeManifest` model.
 
-If Planning Facts are accepted, Planning operations should eventually record that Goal Planning Fact context was included through context-scope metadata.
-
-Example category:
+Example context category:
 
 ```txt
-GOAL_PLANNING_FACTS
+PLANNING_FACTS
 ```
 
-The manifest should record scope/category inclusion, count, and applicable field-group metadata, not duplicate the sensitive values themselves.
+Manifest records may include:
 
-Context completeness must participate in the existing Discussion 020C context-integrity gate.
+```txt
+scope category
+fact count
+fact field groups / strength categories
+context-builder version
+```
 
-A Week-N proposal generated after silently omitting required confirmed HARD constraints should be rejected as invalid context use, not accepted because the output happens to parse.
+They must not duplicate actual sensitive structured values.
+
+A Week-N operation that omits applicable ACTIVE HARD Planning Facts is an invalid-context operation even if the model output parses successfully.
 
 ---
 
-## 22. Example End-to-End Flow
+## 22. Example — Goal-Scoped Rolling Planning
 
-User enters:
+User:
 
 ```txt
 I want to reach English B2 within one year.
 ```
 
-AI clarification establishes:
+Clarification establishes:
 
 ```txt
 Current level: A2
-Available time: about 45 minutes per study day
 Friday: no study
 Device: phone only
 Preference: conversation-focused
 Explicit exclusion: not preparing for IELTS
 ```
 
-AI produces a PlanningDraft containing:
+Draft contains:
 
 ```txt
 Goal proposal
 Project / Task / Routine proposals
-first seven-day detailed execution
-proposed durable Planning Facts
-visible assumptions / warnings
+first seven-day execution
+proposed Planning Facts
+assumptions / warnings
 ```
 
-User reviews and approves selected content.
+User independently reviews work and durable facts.
 
 Persisted result may include:
 
@@ -936,122 +1000,225 @@ Persisted result may include:
 Goal
 Projects
 Tasks / Routines approved now
-confirmed Goal Planning Facts
+confirmed Planning Facts
 ```
 
 Week 1 executes.
 
-Before Week 2 generation, the product assembles:
+Before Week 2:
 
 ```txt
 Goal current state
-confirmed Planning Facts
-active Projects
-active Routines
-relevant unfinished Tasks
-Week 1 execution evidence
-Reconcile facts
++
+ACTIVE confirmed Planning Facts
++
+active Projects / Routines / unfinished Tasks
++
+immediately preceding execution-window evidence
++
+scoped Reconcile facts
++
 current local date/timezone
+→ Week 2 Planning context
 ```
 
-AI proposes Week 2.
+If Friday is unavailable:
 
-Deterministic validation checks supported HARD constraints.
+```txt
+Task.plannedDate = Friday
+→ deterministic validation failure
+```
+
+No original-chat memory is required.
+
+---
+
+## 23. Example — Standalone Project
+
+User starts AI Planning with:
+
+```txt
+Plan the next few months for moving apartments.
+I cannot do moving-related work on Sundays.
+```
+
+No Goal is necessary.
+
+The accepted Planning flow may create a standalone Project.
+
+Its persistent planning context may include:
+
+```txt
+PlanningFact
+projectId = standalone Project ID
+factType = UNAVAILABLE_WEEKDAY
+strength = HARD
+structuredValue = SUNDAY
+```
+
+Future contextual Planning for that Project consumes the same fact without introducing an artificial Goal merely to obtain memory continuity.
+
+---
+
+## 24. Manual Conflict Boundary
 
 Example:
 
 ```txt
-Friday is unavailable
-→ Friday Task placement is invalid
+ACTIVE PlanningFact:
+Friday unavailable
 ```
 
-The resulting Week 2 proposal is therefore continuous with the user's original planning intent without requiring persistence of the full original conversation or reliance on model-session memory.
+Later, user manually creates a Task for Friday.
+
+For MVP:
+
+```txt
+manual user action is allowed
+PlanningFact is not silently changed
+Task is not silently moved
+```
+
+This is not considered AI constraint-enforcement failure because the user explicitly authored the conflicting action outside AI Planning.
+
+A future non-blocking warning may improve UX, but Discussion 023 does not require a new cross-product manual constraint engine.
 
 ---
 
-## 23. Proposed Non-Goals and Guardrails
+## 25. Non-Goals and Guardrails
 
 Do not:
 
 - create a canonical Plan entity,
-- save the entire Planning chat forever as planning truth,
-- allow arbitrary AI-invented Planning Fact types,
-- allow arbitrary AI-invented HARD rules,
+- save the full Planning chat forever as planning truth,
+- persist arbitrary AI strategy narratives,
+- allow arbitrary AI-invented factType values,
+- allow arbitrary AI-invented HARD constraints,
+- store independently mutable category when it can be derived from factType,
 - duplicate Goal/Project/Task/Routine fields into Planning Facts,
-- infer motivation, discipline, personality, health diagnosis, or psychological state,
-- silently downgrade unsupported HARD user constraints,
+- infer motivation, discipline, personality, diagnosis, or psychological state,
+- store unnecessary free-text reasons for operational constraints,
+- silently downgrade unsupported HARD meaning,
 - silently mutate facts because AI thinks the user's situation changed,
-- use stale long-term AI narrative as a hidden source of future weekly planning,
-- allow Week-N generation without required Goal context,
-- claim deterministic enforcement where only AI interpretation exists.
+- use stale roadmap narrative as a hidden source of future planning,
+- allow Week-N generation with required HARD context silently omitted,
+- claim deterministic enforcement where only AI interpretation exists,
+- introduce Task time/duration semantics merely to support extra HARD types,
+- turn Goal/Project continuation review into a mandatory PlanningFact form.
 
 ---
 
-## 24. Open Questions for Claude Review
+## 26. Claude Review Round 1 — Findings and Resolutions
 
-Claude should review the proposed direction specifically for contradictions, missing states, ambiguity, edge cases, and conflicts with accepted Discussions 012–022.
+Claude review round 1 found one Blocking, six Important, and several Minor issues. The direction itself was accepted as coherent subject to these fixes.
 
-Please do **not** redesign the product from zero or reject the direction merely to reduce MVP size.
+### Blocking — unsupported HARD candidates
 
-Review these questions in particular:
+**Finding:** `DAILY_TIME_WINDOW` and `MAX_DAILY_PLANNED_MINUTES` cannot be deterministically enforced because the accepted Task model has no canonical time-of-day or duration fields.
 
-### Data model and semantics
+**Resolution:** ACCEPTED.
 
-1. Should Goal Planning Facts be modelled as subordinate durable records, embedded structured fields, or another persistence shape while remaining outside the canonical work-entity set?
-2. Is `PlanningFact.category + factType + strength + structuredValue` sufficiently explicit, or does it permit hidden semantic ambiguity?
-3. Which fields are necessary for provenance and reconfirmation without overbuilding history?
-4. Should `lastConfirmedAt` be nullable and what exactly constitutes confirmation?
+They are removed from the MVP HARD vocabulary. MVP HARD types are limited to weekday/date/date-range exclusions.
 
-### HARD vocabulary
+### Important — category/factType drift
 
-5. Which candidate HARD fact types are truly enforceable with the accepted MVP Task/Routine fields?
-6. Is `DAILY_TIME_WINDOW` enforceable if Tasks do not always carry an execution time?
-7. Is `MAX_DAILY_PLANNED_MINUTES` enforceable if Tasks do not always have duration data?
-8. Should unsupported hard natural-language constraints block approval, remain visible warnings, or require explicit user downgrade to contextual guidance?
+**Resolution:** ACCEPTED.
 
-### Duplication and source of truth
+`category` is derived from `factType`, not independently mutable.
 
-9. How should the system detect when a proposed Planning Fact actually belongs in an existing canonical field?
-10. What prevents duplication between Goal Planning Facts and Routine recurrence / Project target dates / Task deadlines?
-11. When a canonical field later changes, can a previously related Planning Fact become contradictory and how should that be surfaced?
+### Important — canonical duplication gate
 
-### Rolling context
+**Resolution:** ACCEPTED.
 
-12. What is the minimum bounded Week-N context required to preserve continuity without token bloat?
-13. Which execution-history window is appropriate?
-14. Which Reconcile facts are relevant enough to include?
-15. Should Week-N context include terminal Projects/Tasks for recent history, and if so under what bounded rule?
-16. What happens when no Goal exists because the accepted Planning flow also supports standalone Project/Task/Routine intentions?
+A deterministic no-duplication check is added before durable fact review. Existing canonical fields remain authoritative.
 
-### Fact lifecycle
+### Important — manual edits versus HARD facts
 
-17. How should date-bounded facts expire without disappearing from historical audit?
-18. How should Starting State facts evolve? Example: `English level = A2` becomes stale after months of progress.
-19. Which facts should be reconfirmed during Goal review and which need no repeated prompt?
-20. Does fact reconfirmation conflict with the accepted low-friction Goal review model?
+**Resolution:** ACCEPTED WITH MVP BOUNDARY.
 
-### UX / authority
+HARD facts gate AI Planning proposals. Manual user actions remain authoritative and are not blocked in MVP. A warning may be added later without changing this contract.
 
-21. How should proposed durable facts be presented during draft review without turning Planning into a long configuration form?
-22. Can a user approve work entities while rejecting all proposed durable facts?
-23. Should an unsupported HARD constraint block work approval if future planning cannot guarantee it?
+### Important — standalone Project continuity
 
-### Privacy and persistence
+**Resolution:** ACCEPTED.
 
-24. Which accepted retention/access class should durable Planning Facts inherit?
-25. How should sensitive fact values be exposed to AI context builders while respecting the existing scope manifest and raw-content boundaries?
-26. Are there fact categories that should never be persisted even with user confirmation?
+Planning Facts may belong to exactly one Goal or one standalone Project. Goal-owned Projects normally consume parent Goal facts rather than duplicate them.
 
-### Derived big picture
+### Important — reconfirmation friction
 
-27. Is deriving/regenerating a long-term roadmap from Goal + Projects + target dates + Planning Facts + actual progress sufficient, or is some explicit user-approved strategic sequencing still missing?
-28. If generated roadmap narrative changes materially between reviews, how should the product communicate that it is an updated interpretation rather than previously committed truth?
+**Resolution:** ACCEPTED.
+
+Planning Fact reconfirmation becomes an optional adjacent entry point on existing Goal/Project review surfaces, not an automatically expanded mini-review.
+
+### Important — unnecessary sensitive reason storage
+
+**Resolution:** ACCEPTED.
+
+MVP Planning Facts store only minimum structured operational values. No arbitrary free-text reason field is added.
+
+### Minor — initial confirmation timestamp
+
+**Resolution:** ACCEPTED.
+
+Initial Draft Review approval sets `lastConfirmedAt`.
+
+### Minor — explicit fact status
+
+**Resolution:** ACCEPTED.
+
+Planning Fact status is `ACTIVE | EXPIRED | REMOVED`.
+
+### Minor — independent approval units
+
+**Resolution:** ACCEPTED.
+
+Work entities and durable Planning Facts are independently selectable during review.
+
+### Minor — provenance linkage
+
+**Resolution:** ACCEPTED.
+
+Optional `sourcePlanningAttemptId` is added.
+
+### Minor — Reconcile scope
+
+**Resolution:** ACCEPTED.
+
+Only Reconcile facts scoped to affected entities inside the same Goal/standalone Project planning scope enter Week-N context.
+
+### Confirmed review guidance integrated
+
+- Planning Facts remain subordinate durable records rather than an embedded free-form blob.
+- execution history is bounded to the immediately preceding execution window unless older evidence is already summarized by deterministic Reconcile facts.
+- `STARTING_STATE` facts receive priority for optional reconfirmation due to staleness risk.
+- fact review should remain compact rather than becoming a separate configuration flow.
+- unsupported HARD meaning does not automatically block unrelated work approval.
+- context manifests record metadata, not fact values.
+- long-term roadmap is derived/regenerated and uses AI explanation trust semantics.
 
 ---
 
-## 25. Proposed Review Standard
+## 27. Remaining Questions for Final Claude Re-Review
 
-Claude review should classify findings as:
+Round 1 findings are integrated. Final review should now focus only on unresolved contradictions or edge cases introduced by the resolutions.
+
+Please verify:
+
+1. Does Goal-or-standalone-Project exclusive scope create any contradiction with accepted ownership semantics?
+2. Is excluding Task/Routine-owned Planning Facts sufficient for MVP, or does a concrete accepted flow still lose necessary rolling context?
+3. Is `ACTIVE | EXPIRED | REMOVED` sufficient, especially for facts edited into a new value: update same identity or replace with historical event?
+4. Does the canonical no-duplication gate need a closed mapping table from each factType to conflicting canonical fields?
+5. For Goal-owned Projects, should all parent Goal Planning Facts automatically apply, or is an applicability subset needed?
+6. Can `UNAVAILABLE_DATE` / `UNAVAILABLE_DATE_RANGE` safely expire deterministically using local-date semantics already accepted elsewhere?
+7. When a user approves work but rejects all proposed durable facts, is any additional warning required before later rolling Planning loses those facts?
+8. Does allowing manual contradiction with HARD facts create any trust contradiction with the word “HARD,” even though enforcement scope is explicitly AI Planning only?
+9. Is optional reconfirmation at Goal/Project review sufficient for likely-changing `STARTING_STATE` facts, or is another already-existing signal preferable?
+10. Is durable PlanningFact retention sufficiently specified by inheritance, or must a specific existing retention class be chosen before closure?
+11. Are there privacy-sensitive factTypes that should be forbidden entirely even when structured and user-confirmed?
+12. Does the Week-N context still need an explicit priority/drop order under token pressure, or can it reuse the existing Discussion 020 context-priority contract without restating it here?
+13. Is the regenerated long-term roadmap sufficiently grounded without a persisted strategic sequence, given that Project target dates and current structure remain its main sequencing signals?
+
+Review standard remains:
 
 ```txt
 BLOCKING
@@ -1059,52 +1226,40 @@ IMPORTANT
 MINOR
 ```
 
-For each finding include:
+For each new finding include:
 
 ```txt
 Finding
 Why it matters
 Conflict / edge case
 Smallest coherent fix
-Affected earlier discussion(s)
+Affected accepted discussion(s)
 ```
 
-Review should prioritize:
-
-- contradiction with accepted product model,
-- source-of-truth duplication,
-- stale-state risk,
-- enforcement honesty,
-- authority boundaries,
-- privacy implications,
-- missing lifecycle states,
-- rolling-context completeness,
-- low-friction UX.
-
-Do not optimize for implementation convenience at the expense of product coherence.
+Do not redesign the product from zero.
 
 ---
 
-## 26. Current Proposed Direction Summary
+## 28. Proposed Direction After Round 1
 
-Pending review, the proposed direction is:
+Pending final re-review:
 
 ```txt
 Planning conversation
 → extract only future-relevant structured facts
-→ deterministic schema validation
-→ explicit user review
-→ accepted Goal-scoped Planning Facts persist
+→ schema + canonical-duplication validation
+→ explicit independent fact review
+→ accepted facts persist under Goal OR standalone Project scope
 
 Week N
 → deterministic bounded context builder
-→ canonical current state
-   + confirmed Planning Facts
-   + recent execution evidence
-   + relevant Reconcile facts
+→ current canonical scope
+   + ACTIVE confirmed Planning Facts
+   + immediately preceding execution evidence
+   + scoped deterministic Reconcile facts
    + local temporal context
 → AI Planning proposal
-→ deterministic HARD-constraint validation
+→ deterministic supported-HARD validation
 → review / approval
 ```
 
@@ -1120,29 +1275,30 @@ Temporary:
 ```txt
 raw Planning conversation as product-memory source
 PlanningDraft after its accepted retention window
+unconfirmed extracted facts
 ```
 
 Derived / regenerated:
 
 ```txt
-long-term strategy narrative
+long-term roadmap narrative
 yearly glance
-current roadmap explanation
+current strategy explanation
 ```
 
 Core product-memory principle:
 
-> The AI should not have to remember the original conversation. The product should remember only the validated, still-relevant facts needed to plan coherently.
+> The AI should not have to remember the original conversation. The product should remember only validated, user-confirmed, still-applicable facts needed to plan coherently.
 
 ---
 
-## 27. Mind Map Impact — NOT YET APPLIED
+## 29. Mind Map Impact — NOT YET APPLIED
 
-If Discussion 023 is later accepted, likely Mind Map areas affected include:
+If Discussion 023 is later accepted, likely Mind Map impact includes:
 
 ### Product Model
 
-Potential addition of Goal-scoped persistent Planning Facts as subordinate planning context, while preserving the canonical work-entity set.
+Potential addition of subordinate durable Planning Facts owned by one Goal or one standalone Project, while preserving the canonical work-entity set.
 
 ### AI Responsibilities
 
@@ -1150,29 +1306,29 @@ Potential additions:
 
 - propose future-relevant Planning Facts from conversation,
 - never silently persist extracted facts,
-- consume confirmed Goal Planning Facts in future weekly windows,
-- distinguish deterministic constraints from preferences and context,
-- generate long-term roadmap narrative from current facts rather than stale stored strategy text.
+- consume applicable confirmed Planning Facts in future rolling windows,
+- distinguish deterministic constraints from preferences/context,
+- regenerate long-term roadmap narrative from current facts rather than stale stored strategy text.
 
 ### AI Guardrails
 
 Potential additions:
 
-- closed HARD fact vocabulary,
-- no arbitrary AI-invented HARD constraints,
-- no silent unsupported-HARD downgrade,
-- no Week-N generation with incomplete required context,
-- no psychological inference as persistent planning fact,
+- closed MVP HARD vocabulary,
+- no arbitrary AI-invented HARD types,
+- no unsupported-HARD silent downgrade,
+- no Week-N Planning with applicable HARD context silently omitted,
+- no unnecessary sensitive reason persistence,
 - no duplicate persistence where a canonical field exists.
 
 ### User Flow
 
-Potential additions:
+Potential addition:
 
 ```txt
 Planning conversation
 → proposed persistent facts
-→ user review
+→ independent fact review
 → approval
 → rolling weekly continuation using durable context
 ```
@@ -1181,25 +1337,24 @@ Planning conversation
 
 Potential additions:
 
-- planning-fact provenance,
-- fact confirmation/edit/removal events,
-- context-builder inclusion of Goal Planning Facts,
-- context-scope manifest category for Planning Facts.
+- PlanningFact provenance/status,
+- fact confirmation/edit/removal/expiration events,
+- Goal/standalone Project scope ownership,
+- context-builder inclusion metadata.
 
 **Do not apply any of these changes while Discussion 023 remains OPEN.**
 
 ---
 
-## 28. Affected Formal Documents — NOT YET APPLIED
+## 30. Affected Formal Documents — NOT YET APPLIED
 
-If accepted, Discussion 023 may require explicit amendments to:
+If accepted, Discussion 023 may require explicit reconciliation or amendment of:
 
-- PlanningDraft product contract (Discussion 014 family),
-- canonical persistence model / invariants (Discussion 019 family),
-- AI context builder and operation contracts (Discussion 020 family),
-- validation gates for HARD planning constraints,
-- Planning privacy/retention documentation,
-- Goal review UX specification,
+- Discussion 014 family — PlanningDraft output/review contract,
+- Discussion 017 family — optional review-surface integration,
+- Discussion 019 family — durable persistence, provenance, events, retention,
+- Discussion 020 family — context builder, schema, validation, observability,
+- Goal/Project review UX specification,
 - rolling weekly continuation specification,
 - Mind Map and implementation plan.
 
@@ -1207,21 +1362,23 @@ No formal document is changed by this discussion yet.
 
 ---
 
-## 29. Closure Condition
+## 31. Closure Condition
 
 Discussion 023 may be closed only after:
 
-1. Claude review is completed,
-2. blocking and important findings are resolved,
-3. the final product direction is explicitly accepted,
+1. final Claude re-review is completed,
+2. any remaining Blocking/Important findings are resolved,
+3. the final direction is explicitly accepted,
 4. affected earlier discussion boundaries are reconciled,
-5. the Mind Map impact is recorded for a separate application step.
+5. Mind Map impact remains recorded but is applied only in a separate explicit step.
 
 Until then:
 
 ```txt
 STATUS = OPEN
-CLAUDE_REVIEW = PENDING
+CLAUDE_REVIEW_ROUND_1 = COMPLETED
+ROUND_1_FINDINGS = INTEGRATED
+FINAL_REVIEW = PENDING
 MIND_MAP = NOT_APPLIED
 IMPLEMENTATION = NOT_AUTHORIZED_FROM_THIS_FILE
 ```
@@ -1230,12 +1387,14 @@ IMPLEMENTATION = NOT_AUTHORIZED_FROM_THIS_FILE
 
 # خلاصهٔ فارسی
 
-Discussion 023 شکاف بین «برنامه‌ریزی اولیه» و «ادامهٔ هفتگی» را بررسی می‌کند. مدل فعلی اجازه می‌دهد کاربر یک Goal یک‌ساله تعریف کند ولی AI فقط هفت روز اجرای دقیق پیشنهاد دهد. مشکل این است که اطلاعات مهمی که کاربر در مکالمهٔ اولیه گفته و خانهٔ canonical مشخصی ندارند، ممکن است تا هفته‌های بعد گم شوند.
+Discussion 023 هنوز باز است. دور اول review کلاد انجام شده و findingها در نسخهٔ فعلی ادغام شده‌اند، اما هنوز re-review نهایی لازم است و هیچ تغییر این سند در Mind Map یا implementation اعمال نشده است.
 
-جهت پیشنهادی این است که کل مکالمه یا narrative استراتژی AI ذخیره نشود. فقط factهای آینده‌دار، ساختاریافته و تأییدشدهٔ کاربر در سطح Goal نگه داشته شوند. اگر اطلاعات از قبل فیلد canonical مناسب داشته باشد، همان فیلد منبع حقیقت می‌ماند و Planning Fact ساخته نمی‌شود.
+مشکل اصلی این Discussion حفظ «حافظهٔ محصول» بین برنامهٔ اولیه و Week 2/3/20 است، بدون اتکا به حافظهٔ session مدل و بدون ذخیرهٔ کل مکالمه. اطلاعاتی که فیلد canonical مناسب دارند همان‌جا می‌روند؛ اطلاعات آینده‌دار بدون خانهٔ canonical می‌توانند به PlanningFact ساختاریافته تبدیل شوند؛ و اطلاعات draft-local بعد از پایان draft دور ریخته می‌شوند.
 
-Planning Factها به سه سطح HARD، SOFT و INFORMATIONAL تقسیم می‌شوند. HARD فقط برای vocabulary بسته‌ای مجاز است که سیستم واقعاً می‌تواند آن را deterministic enforce کند. AI حق ندارد نوع HARD جدید اختراع کند یا محدودیت سخت پشتیبانی‌نشده را بی‌صدا ضعیف کند. استخراج facts توسط AI فقط proposal است و کاربر باید آن‌ها را ببیند، ویرایش کند، رد کند یا تأیید کند.
+PlanningFact در MVP متعلق به دقیقاً یک Goal یا یک standalone Project است. category از factType مشتق می‌شود، factها status دارند، provenance و زمان تایید حفظ می‌شود، و تایید آن‌ها مستقل از تایید work entities است.
 
-برای ساخت Week 2، Week 3 و هفته‌های بعد، سیستم باید یک context محدود و deterministic از Goal فعلی، Planning Facts تأییدشده، Projects/Routines/Tasks مرتبط، شواهد اخیر اجرا، Reconcile facts و زمان محلی بسازد. صحت برنامه نباید به حافظهٔ session مدل وابسته باشد.
+HARD vocabulary فعلی عمداً فقط شامل `UNAVAILABLE_WEEKDAY`, `UNAVAILABLE_DATE`, و `UNAVAILABLE_DATE_RANGE` است، چون مدل فعلی Task فقط plannedDate دارد و امکان enforcement واقعی برای زمان روز یا سقف دقیقهٔ روزانه وجود ندارد. HARD constraintها AI Planning را gate می‌کنند؛ manual user edits در MVP مسدود نمی‌شوند.
 
-نمای بلندمدت یا yearly glance بهتر است از state واقعی دوباره تولید شود و به‌عنوان narrative قدیمی و دائمی ذخیره نشود. این Discussion هنوز باز است، برای review کلاد نوشته شده، در Mind Map اعمال نشده و تا زمان بسته‌شدن مبنای implementation نهایی نیست.
+Week-N context از state فعلی، PlanningFactهای ACTIVE، شواهد هفتهٔ بلافصل قبلی، Reconcile facts هم‌scope و زمان محلی ساخته می‌شود. yearly glance و roadmap به‌صورت derived AI explanation از state زنده بازتولید می‌شوند و narrative قدیمی به‌عنوان حقیقت دائمی ذخیره نمی‌شود.
+
+PlanningFactها فقط minimum structured operational value را نگه می‌دارند و دلیل‌های حساس و غیرضروری مثل علت پزشکی یک محدودیت ذخیره نمی‌شوند. reconfirmation نیز به شکل entry point اختیاری کنار Goal/Project review موجود انجام می‌شود، نه یک چرخهٔ مزاحم جدید.
